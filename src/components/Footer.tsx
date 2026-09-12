@@ -1,6 +1,7 @@
 import React from 'react';
 import Link from 'next/link';
-import { Play, ShieldAlert, Send, Heart } from 'lucide-react';
+import Image from 'next/image';
+import { ShieldAlert, Send, Heart } from 'lucide-react';
 
 export default function Footer() {
   return (
@@ -9,16 +10,16 @@ export default function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8 sm:mb-10">
           {/* Brand Col */}
           <div className="md:col-span-2 space-y-3">
-            <Link href="/" className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-lg bg-red-600 flex items-center justify-center text-white">
-                <Play className="w-4 h-4 fill-white" />
+            <Link href="/" className="flex items-center gap-2.5">
+              <div className="relative w-8 h-8 rounded-lg overflow-hidden border border-amber-500/30">
+                <Image src="/logo.png" alt="Movie Man" fill className="object-cover" sizes="32px" />
               </div>
               <span className="text-lg font-black tracking-wider text-slate-900 dark:text-white">
-                MOVIES<span className="text-red-600">4U</span>
+                MOVIE <span className="text-red-600">MAN</span>
               </span>
             </Link>
             <p className="text-slate-600 dark:text-gray-400 leading-relaxed max-w-md">
-              Movies4u offers free latest movies and web series downloads in 480p, 720p, 1080p, and 4K UHD.
+              Movie Man offers free latest movies and web series downloads in 480p, 720p, 1080p, and 4K UHD.
               Watch and explore Bollywood, Hollywood, South Indian, Hindi Dubbed, and K-Drama releases with lightning-fast speeds.
             </p>
             <div className="flex items-center gap-3 pt-2">
@@ -76,7 +77,8 @@ export default function Footer() {
             <p className="text-[11px] leading-relaxed text-slate-500 dark:text-gray-500">
               <ShieldAlert className="w-3.5 h-3.5 text-amber-500 inline mr-1" />
               All files and media provided on this platform are hosted on third-party non-affiliated servers.
-              Movies4u does not store or host any copyrighted material on its web servers.
+              Movie Man does not store or host any copyrighted material on its web servers.
+              All video content is provided by non-affiliated third parties or scraped through public indexing APIs.
             </p>
             <div className="mt-4 flex flex-wrap gap-2 text-xs">
               <Link href="/categories" className="text-red-600 dark:text-red-400 font-medium hover:underline">
@@ -92,7 +94,7 @@ export default function Footer() {
 
         {/* Bottom Bar */}
         <div className="pt-6 sm:pt-8 border-t border-slate-200 dark:border-white/5 flex flex-col sm:flex-row items-center justify-between gap-3 text-center sm:text-left text-slate-500 dark:text-gray-500">
-          <p>© {new Date().getFullYear()} Movies4u Portal. All rights reserved.</p>
+          <p>© {new Date().getFullYear()} Movie Man Cinema. All rights reserved.</p>
           <p className="flex items-center justify-center gap-1">
             Engineered with <Heart className="w-3 h-3 text-red-600 fill-current inline" /> for Cinephiles
           </p>

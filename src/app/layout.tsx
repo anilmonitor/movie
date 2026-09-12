@@ -7,13 +7,14 @@ import { ThemeProvider } from '@/components/ThemeProvider';
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'https://allmoviesite.vercel.app'),
   title: {
-    default: 'Movies4u - Download Bollywood, Hollywood, South Movies & Web Series',
-    template: '%s | Movies4u',
+    default: 'Movie Man - Download Bollywood, Hollywood, South Movies & Web Series',
+    template: '%s | Movie Man',
   },
   description:
-    'Movies4u offers free latest movies available for download in various resolutions including 480p, 720p, 1080p, and 2160p 4K UHD. Bollywood, Hollywood, South Indian, and Hindi Dubbed Web Series.',
+    'Movie Man offers free latest movies available for download in various resolutions including 480p, 720p, 1080p, and 2160p 4K UHD. Bollywood, Hollywood, South Indian, and Hindi Dubbed Web Series.',
   keywords: [
-    'movies4u',
+    'movie man',
+    'movieman',
     'download movies',
     'bollywood movies',
     'hollywood hindi dubbed',
@@ -23,7 +24,11 @@ export const metadata: Metadata = {
     'hindi movies 720p',
     '4k movies download',
   ],
-  authors: [{ name: 'Movies4u Team' }],
+  authors: [{ name: 'Movie Man Team' }],
+  icons: {
+    icon: '/logo.png',
+    apple: '/logo.png',
+  },
   robots: {
     index: true,
     follow: true,
@@ -38,16 +43,18 @@ export const metadata: Metadata = {
   openGraph: {
     type: 'website',
     locale: 'en_US',
-    url: 'https://movies4u.kg',
-    siteName: 'Movies4u',
-    title: 'Movies4u - Bollywood, Hollywood, South Movies & Web Series',
+    url: 'https://allmoviesite.vercel.app',
+    siteName: 'Movie Man',
+    title: 'Movie Man - Bollywood, Hollywood, South Movies & Web Series',
     description:
       'Download latest movies in 480p, 720p, 1080p & 4K. Bollywood, Hollywood, and Hindi Dubbed web series.',
+    images: ['/logo.png'],
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Movies4u - Fast Movies & Web Series Download',
+    title: 'Movie Man - Fast Movies & Web Series Download',
     description: 'Download latest movies and web series in HD qualities.',
+    images: ['/logo.png'],
   },
 };
 

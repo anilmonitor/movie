@@ -104,19 +104,28 @@ class _HomeScreenState extends State<HomeScreen> {
       appBar: AppBar(
         title: Row(
           children: [
-            Container(
-              width: 32,
-              height: 32,
-              decoration: BoxDecoration(
-                color: AppTheme.primaryRed,
-                borderRadius: BorderRadius.circular(9),
+            ClipRRect(
+              borderRadius: BorderRadius.circular(8),
+              child: Image.asset(
+                'assets/images/logo.png',
+                width: 32,
+                height: 32,
+                fit: BoxFit.cover,
+                errorBuilder: (_, __, ___) => Container(
+                  width: 32,
+                  height: 32,
+                  decoration: BoxDecoration(
+                    color: AppTheme.primaryRed,
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: const Icon(Icons.play_arrow_rounded, color: Colors.white, size: 20),
+                ),
               ),
-              child: const Icon(Icons.play_arrow_rounded, color: Colors.white, size: 20),
             ),
             const SizedBox(width: 8),
             RichText(
               text: TextSpan(
-                text: 'MOVIES',
+                text: 'MOVIE ',
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.w900,
@@ -125,7 +134,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
                 children: const [
                   TextSpan(
-                    text: '4U',
+                    text: 'MAN',
                     style: TextStyle(color: AppTheme.primaryRed, fontWeight: FontWeight.w900),
                   ),
                 ],

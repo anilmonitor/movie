@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { Play, Menu, X, Send, Sparkles, Search } from 'lucide-react';
+import Image from 'next/image';
 import SearchBar from './SearchBar';
 import ThemeToggle from './ThemeToggle';
 
@@ -25,16 +26,23 @@ export default function Navbar() {
       <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16 gap-2 sm:gap-4">
           {/* Logo */}
-          <Link href="/" className="flex items-center gap-2 group shrink-0">
-            <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-tr from-red-600 to-red-500 flex items-center justify-center text-white shadow-md shadow-red-600/30 group-hover:scale-105 transition-transform">
-              <Play className="w-4 h-4 sm:w-5 sm:h-5 fill-white" />
+          <Link href="/" className="flex items-center gap-2.5 group shrink-0">
+            <div className="relative w-9 h-9 sm:w-10 sm:h-10 rounded-xl overflow-hidden shadow-md shadow-red-600/20 group-hover:scale-105 transition-transform border border-amber-500/30">
+              <Image
+                src="/logo.png"
+                alt="Movie Man Logo"
+                fill
+                className="object-cover"
+                sizes="40px"
+                priority
+              />
             </div>
             <div className="flex flex-col">
               <span className="text-lg sm:text-xl font-extrabold tracking-wider text-slate-900 dark:text-white">
-                MOVIES<span className="text-red-600 font-black">4U</span>
+                MOVIE <span className="text-red-600 font-black">MAN</span>
               </span>
               <span className="text-[9px] tracking-widest text-slate-500 dark:text-gray-400 uppercase -mt-1 font-semibold flex items-center gap-0.5">
-                <Sparkles className="w-2.5 h-2.5 text-amber-500 inline" /> HD Portal
+                <Sparkles className="w-2.5 h-2.5 text-amber-500 inline" /> HD Cinema
               </span>
             </div>
           </Link>

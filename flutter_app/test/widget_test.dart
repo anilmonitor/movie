@@ -10,9 +10,9 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_app/main.dart';
 
 void main() {
-  testWidgets('Movies4uApp smoke test', (WidgetTester tester) async {
+  testWidgets('MovieManApp smoke test', (WidgetTester tester) async {
     // Build our app and trigger a frame.
-    await tester.pumpWidget(const Movies4uApp(initialDarkMode: false));
-    expect(find.byType(Movies4uApp), findsOneWidget);
+    await tester.pumpWidget(const MovieManApp(initialDarkMode: false));
+    expect(find.byType(MovieManApp), findsOneWidget);
   });
 }

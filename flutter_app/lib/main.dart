@@ -18,19 +18,19 @@ void main() async {
   final prefs = await SharedPreferences.getInstance();
   final isDarkSaved = prefs.getBool('is_dark_theme') ?? false; // Default to Light Mode as requested
 
-  runApp(Movies4uApp(initialDarkMode: isDarkSaved));
+  runApp(MovieManApp(initialDarkMode: isDarkSaved));
 }
 
-class Movies4uApp extends StatefulWidget {
+class MovieManApp extends StatefulWidget {
   final bool initialDarkMode;
 
-  const Movies4uApp({super.key, required this.initialDarkMode});
+  const MovieManApp({super.key, required this.initialDarkMode});
 
   @override
-  State<Movies4uApp> createState() => _Movies4uAppState();
+  State<MovieManApp> createState() => _MovieManAppState();
 }
 
-class _Movies4uAppState extends State<Movies4uApp> {
+class _MovieManAppState extends State<MovieManApp> {
   late bool _isDarkMode;
 
   @override
@@ -48,7 +48,7 @@ class _Movies4uAppState extends State<Movies4uApp> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Movies4u',
+      title: 'Movie Man',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.lightTheme,
       darkTheme: AppTheme.darkTheme,
