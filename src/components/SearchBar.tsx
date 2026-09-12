@@ -6,6 +6,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { Search, X, Loader2, Star } from 'lucide-react';
 import { Movie } from '@/lib/types';
+import { fetchMoviesDirectClient } from '@/lib/api';
 
 export default function SearchBar() {
   const [query, setQuery] = useState('');
@@ -26,7 +27,7 @@ export default function SearchBar() {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  // Debounced search
+  // Debounced search with dual-tier fallback
   useEffect(() => {
     if (!query.trim() || query.trim().length < 2) {
       setResults([]);
@@ -40,11 +41,27 @@ export default function SearchBar() {
         const res = await fetch(`/api/search?q=${encodeURIComponent(query.trim())}&perPage=6`);
         if (res.ok) {
           const data = await res.json();
-          setResults(data.movies || []);
+          if (data.movies && data.movies.length > 0) {
+            setResults(data.movies);
+            setIsOpen(true);
+            setIsLoading(false);
+            return;
+          }
+        }
+        // Direct browser fallback if Vercel server was challenged by Cloudflare
+        const directData = await fetchMoviesDirectClient({ search: query.trim(), perPage: 6 });
+        if (directData.movies && directData.movies.length > 0) {
+          setResults(directData.movies);
           setIsOpen(true);
+        } else {
+          setResults([]);
         }
       } catch (e) {
-        console.error('Live search error:', e);
+        try {
+          const directData = await fetchMoviesDirectClient({ search: query.trim(), perPage: 6 });
+          setResults(directData.movies || []);
+          if (directData.movies?.length) setIsOpen(true);
+        } catch {}
       } finally {
         setIsLoading(false);
       }
