@@ -187,6 +187,36 @@ class MovieCard extends StatelessWidget {
                       ),
                     ),
                   ),
+
+                // Upload time tag (bottom right of poster)
+                if (movie.timeAgo.isNotEmpty)
+                  Positioned(
+                    bottom: 6,
+                    right: 6,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
+                      decoration: BoxDecoration(
+                        color: Colors.black.withOpacity(0.75),
+                        borderRadius: BorderRadius.circular(4),
+                        border: Border.all(color: Colors.amber.withOpacity(0.3), width: 0.5),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const Icon(Icons.access_time_rounded, size: 8, color: AppTheme.ratingGold),
+                          const SizedBox(width: 2),
+                          Text(
+                            movie.timeAgo,
+                            style: const TextStyle(
+                              fontSize: 8,
+                              fontWeight: FontWeight.w700,
+                              color: AppTheme.ratingGold,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
               ],
             ),
 
@@ -217,6 +247,31 @@ class MovieCard extends StatelessWidget {
                         fontSize: 9,
                         color: isDark ? AppTheme.darkTextSecondary : AppTheme.lightTextSecondary,
                       ),
+                    ),
+                  ],
+                  if (movie.formattedUploadDate.isNotEmpty) ...[
+                    const SizedBox(height: 3),
+                    Row(
+                      children: [
+                        Icon(
+                          Icons.calendar_today_outlined,
+                          size: 9,
+                          color: isDark ? Colors.grey[500] : Colors.grey[600],
+                        ),
+                        const SizedBox(width: 3),
+                        Expanded(
+                          child: Text(
+                            movie.formattedUploadDate,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(
+                              fontSize: 8.5,
+                              fontWeight: FontWeight.w500,
+                              color: isDark ? Colors.grey[400] : Colors.grey[600],
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                   ],
                 ],

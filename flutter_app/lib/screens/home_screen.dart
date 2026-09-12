@@ -96,9 +96,17 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
+  bool _sortNewestFirst = true;
+
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    final sortedMovies = List<Movie>.from(_allMovies)..sort((a, b) {
+      final timeA = a.uploadDateTime?.millisecondsSinceEpoch ?? 0;
+      final timeB = b.uploadDateTime?.millisecondsSinceEpoch ?? 0;
+      return _sortNewestFirst ? timeB.compareTo(timeA) : timeA.compareTo(timeB);
+    });
 
     return Scaffold(
       appBar: AppBar(
@@ -274,26 +282,70 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                     const SizedBox(height: 24),
 
-                    // All Releases Section Header
+                    // All Releases Section Header with Date Filter
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 16.0),
                       child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Container(
-                            width: 3.5,
-                            height: 16,
-                            decoration: BoxDecoration(
-                              color: AppTheme.primaryRed,
-                              borderRadius: BorderRadius.circular(2),
-                            ),
+                          Row(
+                            children: [
+                              Container(
+                                width: 3.5,
+                                height: 16,
+                                decoration: BoxDecoration(
+                                  color: AppTheme.primaryRed,
+                                  borderRadius: BorderRadius.circular(2),
+                                ),
+                              ),
+                              const SizedBox(width: 8),
+                              Text(
+                                'All Releases',
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w800,
+                                  color: isDark ? AppTheme.darkTextPrimary : AppTheme.lightTextPrimary,
+                                ),
+                              ),
+                            ],
                           ),
-                          const SizedBox(width: 8),
-                          Text(
-                            'All Latest Releases',
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w800,
-                              color: isDark ? AppTheme.darkTextPrimary : AppTheme.lightTextPrimary,
+
+                          // Date Filter Chip Toggle
+                          GestureDetector(
+                            onTap: () {
+                              setState(() {
+                                _sortNewestFirst = !_sortNewestFirst;
+                              });
+                            },
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                              decoration: BoxDecoration(
+                                color: isDark ? const Color(0xFF1B2232) : Colors.grey[200],
+                                borderRadius: BorderRadius.circular(20),
+                                border: Border.all(
+                                  color: AppTheme.primaryRed.withOpacity(0.35),
+                                  width: 1,
+                                ),
+                              ),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Icon(
+                                    _sortNewestFirst ? Icons.access_time_filled_rounded : Icons.history_rounded,
+                                    size: 13,
+                                    color: AppTheme.primaryRed,
+                                  ),
+                                  const SizedBox(width: 4),
+                                  Text(
+                                    _sortNewestFirst ? 'Newest First' : 'Oldest First',
+                                    style: TextStyle(
+                                      fontSize: 11,
+                                      fontWeight: FontWeight.w700,
+                                      color: isDark ? Colors.white : Colors.black87,
+                                    ),
+                                  ),
+                                ],
+                              ),
                             ),
                           ),
                         ],
@@ -301,7 +353,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                     const SizedBox(height: 12),
 
-                    // Grid of All Movies
+                    // Grid of All Movies (Date Sorted)
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 16.0),
                       child: GridView.builder(
@@ -313,12 +365,12 @@ class _HomeScreenState extends State<HomeScreen> {
                           crossAxisSpacing: 10,
                           mainAxisSpacing: 12,
                         ),
-                        itemCount: _allMovies.length + (_isLoadingMore ? 3 : 0),
+                        itemCount: sortedMovies.length + (_isLoadingMore ? 3 : 0),
                         itemBuilder: (context, index) {
-                          if (index >= _allMovies.length) {
+                          if (index >= sortedMovies.length) {
                             return const ShimmerMovieCard();
                           }
-                          return MovieCard(movie: _allMovies[index]);
+                          return MovieCard(movie: sortedMovies[index]);
                         },
                       ),
                     ),

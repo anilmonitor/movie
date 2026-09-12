@@ -6,7 +6,7 @@ import { fetchMoviesDirectClient } from '@/lib/api';
 import MovieCard from '@/components/MovieCard';
 import Pagination from '@/components/Pagination';
 import HeroFeatured from '@/components/HeroFeatured';
-import { Tv, Loader2 } from 'lucide-react';
+import { Tv, Loader2, Clock } from 'lucide-react';
 
 interface MovieListClientProps {
   initialMovies: Movie[];
@@ -65,8 +65,19 @@ export default function MovieListClient({
     };
   }, [initialMovies, page, category, search, initialTotalPages, initialTotalMovies]);
 
+  const [sortBy, setSortBy] = useState<'newest' | 'oldest'>('newest');
+
   const featuredMovie = page === 1 && movies.length > 0 ? movies[0] : null;
   const displayMovies = page === 1 ? movies.slice(1) : movies;
+
+  const sortedMovies = [...displayMovies].sort((a, b) => {
+    const timeA = a.date ? new Date(a.date).getTime() : 0;
+    const timeB = b.date ? new Date(b.date).getTime() : 0;
+    if (sortBy === 'oldest') {
+      return timeA - timeB;
+    }
+    return timeB - timeA;
+  });
 
   if (isLoading) {
     return (
@@ -95,10 +106,45 @@ export default function MovieListClient({
       {/* Featured Hero Banner (Only on page 1) */}
       {featuredMovie && <HeroFeatured movie={featuredMovie} />}
 
+      {/* Date Filter & Sort Controls */}
+      <div className="flex flex-wrap items-center justify-between gap-3 pt-2 pb-2 border-b border-slate-200 dark:border-white/10">
+        <div className="flex items-center gap-2">
+          <span className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-gray-400 flex items-center gap-1">
+            <Clock className="w-3.5 h-3.5 text-red-500" /> Sort by Upload:
+          </span>
+          <div className="flex items-center gap-1.5">
+            <button
+              onClick={() => setSortBy('newest')}
+              className={`px-3 py-1 rounded-full text-xs font-semibold transition-all ${
+                sortBy === 'newest'
+                  ? 'bg-red-600 text-white shadow-sm shadow-red-600/30'
+                  : 'bg-slate-100 dark:bg-white/5 text-slate-600 dark:text-gray-400 hover:bg-slate-200 dark:hover:bg-white/10'
+              }`}
+            >
+              ⚡ Newest First
+            </button>
+            <button
+              onClick={() => setSortBy('oldest')}
+              className={`px-3 py-1 rounded-full text-xs font-semibold transition-all ${
+                sortBy === 'oldest'
+                  ? 'bg-red-600 text-white shadow-sm shadow-red-600/30'
+                  : 'bg-slate-100 dark:bg-white/5 text-slate-600 dark:text-gray-400 hover:bg-slate-200 dark:hover:bg-white/10'
+              }`}
+            >
+              ⏳ Oldest First
+            </button>
+          </div>
+        </div>
+
+        <span className="text-xs text-slate-500 dark:text-gray-400">
+          Showing {sortedMovies.length} movies (Date Sorted)
+        </span>
+      </div>
+
       {/* Movies Grid */}
-      {displayMovies.length > 0 ? (
+      {sortedMovies.length > 0 ? (
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3 sm:gap-5">
-          {displayMovies.map((movie) => (
+          {sortedMovies.map((movie) => (
             <MovieCard key={movie.id} movie={movie} />
           ))}
         </div>

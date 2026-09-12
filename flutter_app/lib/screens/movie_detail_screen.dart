@@ -197,6 +197,32 @@ class _MovieDetailScreenState extends State<MovieDetailScreen> {
                         ),
                         const SizedBox(width: 6),
                       ],
+                      if (_movie.timeAgo.isNotEmpty) ...[
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                          decoration: BoxDecoration(
+                            color: Colors.amber.withOpacity(0.12),
+                            borderRadius: BorderRadius.circular(8),
+                            border: Border.all(color: AppTheme.ratingGold.withOpacity(0.4)),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              const Icon(Icons.access_time_rounded, size: 11, color: AppTheme.ratingGold),
+                              const SizedBox(width: 4),
+                              Text(
+                                _movie.timeAgo,
+                                style: const TextStyle(
+                                  fontSize: 10,
+                                  fontWeight: FontWeight.w800,
+                                  color: AppTheme.ratingGold,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(width: 6),
+                      ],
                     ],
                   ),
                   const SizedBox(height: 12),
@@ -268,6 +294,15 @@ class _MovieDetailScreenState extends State<MovieDetailScreen> {
                           label: 'File Size',
                           value: _movie.size ?? '350MB - 2GB',
                         ),
+                        if (_movie.formattedUploadDate.isNotEmpty) ...[
+                          const Divider(height: 16, thickness: 0.6),
+                          _buildSpecRow(
+                            context,
+                            icon: Icons.access_time_filled_rounded,
+                            label: 'Uploaded to DB',
+                            value: '${_movie.formattedUploadDate} (${_movie.timeAgo})',
+                          ),
+                        ],
                       ],
                     ),
                   ),

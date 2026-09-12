@@ -3,8 +3,9 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { Star, Download, Film, Sparkles } from 'lucide-react';
+import { Star, Download, Film, Sparkles, Clock, Calendar } from 'lucide-react';
 import { Movie } from '@/lib/types';
+import { formatUploadDate, formatTimeAgo } from '@/lib/api';
 
 interface MovieCardProps {
   movie: Movie;
@@ -57,14 +58,21 @@ export default function MovieCard({ movie }: MovieCardProps) {
           )}
         </div>
 
-        {/* Year Tag */}
-        {movie.year && (
-          <div className="absolute bottom-2 left-2 pointer-events-none">
-            <span className="px-1.5 sm:px-2 py-0.5 rounded-md text-[10px] sm:text-[11px] font-semibold bg-black/70 text-gray-200 backdrop-blur-md border border-white/10">
+        {/* Bottom Poster Badges: Year & Upload Relative Time */}
+        <div className="absolute bottom-2 left-2 right-2 flex items-center justify-between gap-1 pointer-events-none">
+          {movie.year ? (
+            <span className="px-1.5 sm:px-2 py-0.5 rounded-md text-[9px] sm:text-[10px] font-semibold bg-black/75 text-gray-200 backdrop-blur-md border border-white/10">
               {movie.year}
             </span>
-          </div>
-        )}
+          ) : <span />}
+
+          {movie.date && (
+            <span className="flex items-center gap-1 px-1.5 py-0.5 rounded-md text-[9px] font-semibold bg-black/80 text-amber-300 backdrop-blur-md border border-amber-500/30">
+              <Clock className="w-2.5 h-2.5 text-amber-400" />
+              {formatTimeAgo(movie.date)}
+            </span>
+          )}
+        </div>
 
         {/* Hover Action Overlay */}
         <div className="absolute inset-0 bg-red-950/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center backdrop-blur-[2px]">
@@ -94,19 +102,28 @@ export default function MovieCard({ movie }: MovieCardProps) {
           )}
         </div>
 
-        {/* Categories / Tags */}
-        {movie.categories && movie.categories.length > 0 && (
-          <div className="flex flex-wrap gap-1 mt-1 pt-1.5 border-t border-slate-100 dark:border-white/5">
-            {movie.categories.slice(0, 2).map((cat) => (
-              <span
-                key={cat.id}
-                className="text-[9px] sm:text-[10px] font-medium text-slate-500 dark:text-gray-400 hover:text-red-600 dark:hover:text-gray-200"
-              >
-                #{cat.name}
-              </span>
-            ))}
-          </div>
-        )}
+        {/* Upload Date & Categories */}
+        <div className="pt-1.5 mt-1 border-t border-slate-100 dark:border-white/5 space-y-1">
+          {movie.date && (
+            <div className="flex items-center gap-1 text-[9px] sm:text-[10px] text-slate-400 dark:text-gray-400 font-medium">
+              <Calendar className="w-2.5 h-2.5 text-red-500 shrink-0" />
+              <span className="truncate">{formatUploadDate(movie.date)}</span>
+            </div>
+          )}
+
+          {movie.categories && movie.categories.length > 0 && (
+            <div className="flex flex-wrap gap-1">
+              {movie.categories.slice(0, 2).map((cat) => (
+                <span
+                  key={cat.id}
+                  className="text-[9px] font-medium text-slate-500 dark:text-gray-400 hover:text-red-600 dark:hover:text-gray-200"
+                >
+                  #{cat.name}
+                </span>
+              ))}
+            </div>
+          )}
+        </div>
       </div>
     </Link>
   );

@@ -30,6 +30,38 @@ export function decodeHtml(html: string): string {
     .trim();
 }
 
+// Helper to format upload date & time
+export function formatUploadDate(dateStr?: string): string {
+  if (!dateStr) return '';
+  const d = new Date(dateStr);
+  if (isNaN(d.getTime())) return '';
+  return d.toLocaleDateString('en-GB', {
+    day: '2-digit',
+    month: 'short',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: true,
+  });
+}
+
+// Helper to format relative upload time (e.g. '2h ago', 'Yesterday')
+export function formatTimeAgo(dateStr?: string): string {
+  if (!dateStr) return '';
+  const d = new Date(dateStr);
+  if (isNaN(d.getTime())) return '';
+  const seconds = Math.floor((Date.now() - d.getTime()) / 1000);
+  if (seconds < 60) return 'Just now';
+  const minutes = Math.floor(seconds / 60);
+  if (minutes < 60) return `${minutes}m ago`;
+  const hours = Math.floor(minutes / 60);
+  if (hours < 24) return `${hours}h ago`;
+  const days = Math.floor(hours / 24);
+  if (days < 30) return `${days}d ago`;
+  const months = Math.floor(days / 30);
+  return `${months}mo ago`;
+}
+
 // Clean raw title
 export function cleanTitle(rawTitle: string): { title: string; year?: string; qualities: string[] } {
   const decoded = decodeHtml(rawTitle);
@@ -224,16 +256,20 @@ export async function getMovies({
   perPage = 18,
   category,
   search,
+  sort = 'newest',
 }: {
   page?: number;
   perPage?: number;
   category?: string | number;
   search?: string;
+  sort?: 'newest' | 'oldest';
 } = {}): Promise<MovieListResponse> {
   const params = new URLSearchParams();
   params.set('_embed', '1');
   params.set('page', String(page));
   params.set('per_page', String(perPage));
+  params.set('orderby', 'date');
+  params.set('order', sort === 'oldest' ? 'asc' : 'desc');
 
   if (category) params.set('categories', String(category));
   if (search) params.set('search', search);
@@ -325,16 +361,20 @@ export async function fetchMoviesDirectClient({
   perPage = 18,
   category,
   search,
+  sort = 'newest',
 }: {
   page?: number;
   perPage?: number;
   category?: string | number;
   search?: string;
+  sort?: 'newest' | 'oldest';
 } = {}): Promise<MovieListResponse> {
   const params = new URLSearchParams();
   params.set('_embed', '1');
   params.set('page', String(page));
   params.set('per_page', String(perPage));
+  params.set('orderby', 'date');
+  params.set('order', sort === 'oldest' ? 'asc' : 'desc');
   if (category) params.set('categories', String(category));
   if (search) params.set('search', search);
 

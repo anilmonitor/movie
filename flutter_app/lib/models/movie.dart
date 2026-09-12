@@ -145,6 +145,49 @@ class Movie {
         'categories': categories.map((e) => e.toJson()).toList(),
         'date': date,
       };
+
+  DateTime? get uploadDateTime {
+    if (date.isEmpty) return null;
+    try {
+      return DateTime.parse(date);
+    } catch (_) {
+      return null;
+    }
+  }
+
+  String get formattedUploadDate {
+    final dt = uploadDateTime;
+    if (dt == null) return '';
+    const months = [
+      'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+      'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
+    ];
+    final month = months[dt.month - 1];
+    final day = dt.day.toString().padLeft(2, '0');
+    final year = dt.year;
+    final hour = dt.hour % 12 == 0 ? 12 : dt.hour % 12;
+    final minute = dt.minute.toString().padLeft(2, '0');
+    final period = dt.hour >= 12 ? 'PM' : 'AM';
+    return '$day $month $year, $hour:$minute $period';
+  }
+
+  String get timeAgo {
+    final dt = uploadDateTime;
+    if (dt == null) return '';
+    final diff = DateTime.now().difference(dt);
+    if (diff.inDays > 30) {
+      final months = (diff.inDays / 30).floor();
+      return '${months}mo ago';
+    } else if (diff.inDays > 0) {
+      return '${diff.inDays}d ago';
+    } else if (diff.inHours > 0) {
+      return '${diff.inHours}h ago';
+    } else if (diff.inMinutes > 0) {
+      return '${diff.inMinutes}m ago';
+    } else {
+      return 'Just now';
+    }
+  }
 }
 
 class MovieListResponse {

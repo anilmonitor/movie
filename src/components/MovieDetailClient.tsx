@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { Movie } from '@/lib/types';
-import { fetchMovieBySlugDirectClient, fetchMoviesDirectClient } from '@/lib/api';
+import { fetchMovieBySlugDirectClient, fetchMoviesDirectClient, formatUploadDate, formatTimeAgo } from '@/lib/api';
 import MovieCard from '@/components/MovieCard';
 import {
   Star,
@@ -19,6 +19,7 @@ import {
   Zap,
   Image as ImageIcon,
   Loader2,
+  Clock,
 } from 'lucide-react';
 
 interface MovieDetailClientProps {
@@ -251,6 +252,18 @@ export default function MovieDetailClient({
                 </span>
                 <p className="font-semibold text-slate-800 dark:text-gray-200">MKV / MP4</p>
               </div>
+
+              {/* Upload Date & Time Row */}
+              {movie.date && (
+                <div className="col-span-2 sm:col-span-3 p-2.5 rounded-xl bg-amber-50/80 dark:bg-amber-500/10 border border-amber-200 dark:border-amber-500/20 flex flex-wrap items-center justify-between gap-1">
+                  <span className="text-amber-800 dark:text-amber-300 flex items-center gap-1.5 font-bold">
+                    <Clock className="w-4 h-4 text-amber-500" /> Uploaded to Database:
+                  </span>
+                  <span className="font-semibold text-slate-900 dark:text-gray-100">
+                    {formatUploadDate(movie.date)} ({formatTimeAgo(movie.date)})
+                  </span>
+                </div>
+              )}
             </div>
 
             {/* Storyline */}
