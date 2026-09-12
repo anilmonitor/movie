@@ -13,7 +13,9 @@ class CategoriesScreen extends StatefulWidget {
 
 class _CategoriesScreenState extends State<CategoriesScreen> {
   // Pre-fill with guaranteed default categories so screen is NEVER blank
-  List<MovieCategory> _categories = List.from(ApiService.defaultCategories);
+  List<MovieCategory> _categories = ApiService.defaultCategories
+      .where((c) => !ApiService.isAdultCategory(c.name, c.slug))
+      .toList();
   bool _isRefreshing = false;
 
   @override
@@ -28,7 +30,7 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
     if (mounted) {
       setState(() {
         if (list.isNotEmpty) {
-          _categories = list;
+          _categories = list.where((c) => !ApiService.isAdultCategory(c.name, c.slug)).toList();
         }
         _isRefreshing = false;
       });

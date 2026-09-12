@@ -26,6 +26,34 @@ class ApiService {
         .trim();
   }
 
+  // Detect 18+ / adult categories for Google Play compliance
+  static bool isAdultCategory(String name, String slug) {
+    final combined = '${name.toLowerCase()} ${slug.toLowerCase()}';
+    final adultPattern = RegExp(
+      r'(18\+|adult|erotic|hot|ullu|kooku|primeplay|prime-play|sensual|sex|uncensored|voovi|rabbit|hunters|bigshots|cliff-movies|neonx|fliz|gupchup)',
+      caseSensitive: false,
+    );
+    return adultPattern.hasMatch(combined);
+  }
+
+  // Detect 18+ / adult movies
+  static bool isAdultMovie(Movie movie) {
+    final titleCombined = '${movie.title} ${movie.rawTitle} ${movie.slug}'.toLowerCase();
+    final adultTitlePattern = RegExp(
+      r'(\b18\+\b|18\s*plus|\badult\b|\berotic\b|\bullu\b|\bkooku\b|\bprimeplay\b|\bvoovi\b|\brabbit\b|\bhunters\b|\bbigshots\b)',
+      caseSensitive: false,
+    );
+    if (adultTitlePattern.hasMatch(titleCombined)) {
+      return true;
+    }
+    for (final cat in movie.categories) {
+      if (isAdultCategory(cat.name, cat.slug)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
   // Parse raw WP post to Movie object (for direct fallback)
   static Movie parseWpPost(Map<String, dynamic> post) {
     final rawTitle = decodeHtml(post['title']?['rendered']?.toString());
@@ -129,11 +157,15 @@ class ApiService {
         final catList = terms[0] as List<dynamic>?;
         if (catList != null) {
           for (final c in catList) {
-            categories.add(MovieCategory(
-              id: c['id'] as int? ?? 0,
-              name: decodeHtml(c['name']?.toString()),
-              slug: c['slug']?.toString() ?? '',
-            ));
+            final catName = decodeHtml(c['name']?.toString());
+            final catSlug = c['slug']?.toString() ?? '';
+            if (!isAdultCategory(catName, catSlug)) {
+              categories.add(MovieCategory(
+                id: c['id'] as int? ?? 0,
+                name: catName,
+                slug: catSlug,
+              ));
+            }
           }
         }
       }
@@ -206,8 +238,14 @@ class ApiService {
       if (res.statusCode == 200) {
         final data = json.decode(res.body) as Map<String, dynamic>;
         final response = MovieListResponse.fromJson(data);
-        if (response.movies.isNotEmpty) {
-          return response;
+        final cleanMovies = response.movies.where((m) => !isAdultMovie(m)).toList();
+        if (cleanMovies.isNotEmpty) {
+          return MovieListResponse(
+            movies: cleanMovies,
+            totalPages: response.totalPages,
+            totalMovies: response.totalMovies,
+            currentPage: response.currentPage,
+          );
         }
       }
     } catch (_) {}
@@ -234,7 +272,10 @@ class ApiService {
         final totalPages = int.tryParse(res.headers['x-wp-totalpages'] ?? '1') ?? 1;
 
         final list = json.decode(res.body) as List<dynamic>;
-        final movies = list.map((e) => parseWpPost(e as Map<String, dynamic>)).toList();
+        final movies = list
+            .map((e) => parseWpPost(e as Map<String, dynamic>))
+            .where((m) => !isAdultMovie(m))
+            .toList();
 
         return MovieListResponse(
           movies: movies,
@@ -257,7 +298,10 @@ class ApiService {
           .timeout(const Duration(seconds: 8));
       if (res.statusCode == 200) {
         final data = json.decode(res.body) as Map<String, dynamic>;
-        return Movie.fromJson(data);
+        final movie = Movie.fromJson(data);
+        if (!isAdultMovie(movie)) {
+          return movie;
+        }
       }
     } catch (_) {}
 
@@ -272,7 +316,10 @@ class ApiService {
       if (res.statusCode == 200) {
         final list = json.decode(res.body) as List<dynamic>;
         if (list.isNotEmpty) {
-          return parseWpPost(list[0] as Map<String, dynamic>);
+          final movie = parseWpPost(list[0] as Map<String, dynamic>);
+          if (!isAdultMovie(movie)) {
+            return movie;
+          }
         }
       }
     } catch (_) {}
@@ -292,7 +339,10 @@ class ApiService {
           .timeout(const Duration(seconds: 6));
       if (res.statusCode == 200) {
         final list = json.decode(res.body) as List<dynamic>;
-        final parsed = list.map((e) => MovieCategory.fromJson(e as Map<String, dynamic>)).toList();
+        final parsed = list
+            .map((e) => MovieCategory.fromJson(e as Map<String, dynamic>))
+            .where((c) => !isAdultCategory(c.name, c.slug))
+            .toList();
         if (parsed.isNotEmpty) {
           return parsed;
         }
@@ -314,6 +364,7 @@ class ApiService {
                   slug: e['slug']?.toString() ?? '',
                   count: e['count'] as int?,
                 ))
+            .where((c) => !isAdultCategory(c.name, c.slug))
             .toList();
         if (parsed.isNotEmpty) {
           return parsed;

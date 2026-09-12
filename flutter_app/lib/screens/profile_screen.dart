@@ -3,7 +3,7 @@ import 'package:flutter/services.dart';
 import '../models/movie.dart';
 import '../services/watchlist_service.dart';
 import '../theme/app_theme.dart';
-import 'in_app_browser_screen.dart';
+import 'privacy_policy_screen.dart';
 import 'watchlist_screen.dart';
 
 class ProfileScreen extends StatefulWidget {
@@ -34,18 +34,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   void _openPrivacyPolicy() {
-    InAppBrowserScreen.open(
+    Navigator.push(
       context,
-      url: 'https://allmoviesite.vercel.app/privacy/',
-      title: 'Movie Man - Privacy Policy',
-    );
-  }
-
-  void _openTelegram() {
-    InAppBrowserScreen.open(
-      context,
-      url: 'https://t.me/+igUrTM5-zxY4M2Jl',
-      title: 'Movie Man Official Telegram',
+      MaterialPageRoute(builder: (_) => const PrivacyPolicyScreen()),
     );
   }
 
@@ -490,34 +481,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       ),
                       trailing: const Icon(Icons.chevron_right_rounded),
                       onTap: _showContactDialog,
-                    ),
-
-                    Divider(
-                      height: 1,
-                      indent: 60,
-                      color: isDark ? AppTheme.darkBorder : AppTheme.lightBorder,
-                    ),
-
-                    // Telegram Channel
-                    ListTile(
-                      leading: Container(
-                        padding: const EdgeInsets.all(8),
-                        decoration: BoxDecoration(
-                          color: Colors.lightBlue.withOpacity(0.12),
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        child: const Icon(Icons.send_rounded, color: Colors.lightBlue, size: 20),
-                      ),
-                      title: const Text(
-                        'Join Telegram Community',
-                        style: TextStyle(fontWeight: FontWeight.w700, fontSize: 15),
-                      ),
-                      subtitle: const Text(
-                        'Get latest movie updates and links',
-                        style: TextStyle(fontSize: 12),
-                      ),
-                      trailing: const Icon(Icons.open_in_new_rounded, size: 18),
-                      onTap: _openTelegram,
                     ),
                   ],
                 ),

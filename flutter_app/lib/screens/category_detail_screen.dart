@@ -44,6 +44,15 @@ class _CategoryDetailScreenState extends State<CategoryDetailScreen> {
   }
 
   Future<void> _loadMovies() async {
+    if (ApiService.isAdultCategory(widget.category.name, widget.category.slug)) {
+      if (mounted) {
+        setState(() {
+          _movies.clear();
+          _isLoading = false;
+        });
+      }
+      return;
+    }
     setState(() => _isLoading = true);
     final res = await ApiService.fetchMovies(
       category: widget.category.slug.isNotEmpty ? widget.category.slug : widget.category.id.toString(),
