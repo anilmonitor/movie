@@ -1,10 +1,8 @@
 import React from 'react';
 import Link from 'next/link';
 import { getMovies, getCategories } from '@/lib/api';
-import MovieCard from '@/components/MovieCard';
-import Pagination from '@/components/Pagination';
-import HeroFeatured from '@/components/HeroFeatured';
-import { Sparkles, Flame, Film, Tv, ShieldCheck } from 'lucide-react';
+import MovieListClient from '@/components/MovieListClient';
+import { Flame, Film, ShieldCheck } from 'lucide-react';
 
 interface HomePageProps {
   searchParams: Promise<{
@@ -12,7 +10,7 @@ interface HomePageProps {
   }>;
 }
 
-export const revalidate = 120; // Revalidate every 2 minutes for latest movies
+export const revalidate = 120; // 2 minutes
 
 export default async function HomePage(props: HomePageProps) {
   const searchParams = await props.searchParams;
@@ -24,18 +22,12 @@ export default async function HomePage(props: HomePageProps) {
   ]);
 
   const { movies, totalPages, totalMovies } = movieData;
-  const featuredMovie = page === 1 && movies.length > 0 ? movies[0] : null;
-  const displayMovies = page === 1 ? movies.slice(1) : movies;
 
-  // Top popular categories for quick filter chips
   const popularSlugs = ['bollywood', 'hollywood', 'dual-audio', 'web-series', 'south-indian', 'hindi', 'korean'];
   const popularCategories = categories.filter((c) => popularSlugs.includes(c.slug));
 
   return (
     <div className="space-y-6 sm:space-y-8">
-      {/* Featured Hero Banner (Only on page 1) */}
-      {featuredMovie && <HeroFeatured movie={featuredMovie} />}
-
       {/* Category Pills / Filters Bar (Mobile Touch Friendly Scroll) */}
       <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none -mx-3 px-3 sm:mx-0 sm:px-0">
         <Link
@@ -77,7 +69,7 @@ export default async function HomePage(props: HomePageProps) {
             <span>Latest Movies & Web Series</span>
           </h1>
           <p className="text-xs text-slate-500 dark:text-gray-400 mt-0.5">
-            Showing page {page} of {totalPages || 1} • {totalMovies} Total Titles
+            Real-time updates directly from movies4u
           </p>
         </div>
 
@@ -87,23 +79,14 @@ export default async function HomePage(props: HomePageProps) {
         </div>
       </div>
 
-      {/* Movies Grid (Mobile: 2 cols, Tablet: 3-4 cols, Desktop: 6 cols) */}
-      {displayMovies.length > 0 ? (
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3 sm:gap-5">
-          {displayMovies.map((movie) => (
-            <MovieCard key={movie.id} movie={movie} />
-          ))}
-        </div>
-      ) : (
-        <div className="py-16 text-center glass-card rounded-2xl p-6">
-          <Tv className="w-12 h-12 text-slate-400 dark:text-gray-600 mx-auto mb-3" />
-          <h3 className="text-base sm:text-lg font-bold text-slate-800 dark:text-gray-300">No movies found</h3>
-          <p className="text-xs sm:text-sm text-slate-500 dark:text-gray-500 mt-1">Please check back soon or try another page.</p>
-        </div>
-      )}
-
-      {/* Pagination */}
-      <Pagination currentPage={page} totalPages={totalPages} basePath="/" />
+      {/* Hybrid Client/Server Movie List */}
+      <MovieListClient
+        initialMovies={movies}
+        initialTotalPages={totalPages}
+        initialTotalMovies={totalMovies}
+        page={page}
+        basePath="/"
+      />
     </div>
   );
 }
