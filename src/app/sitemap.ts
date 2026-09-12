@@ -8,7 +8,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
       : process.env.VERCEL_URL
       ? `https://${process.env.VERCEL_URL}`
-      : 'https://movies4u.kg');
+      : 'https://allmoviesite.vercel.app');
 
   // Base static routes
   const staticRoutes: MetadataRoute.Sitemap = [

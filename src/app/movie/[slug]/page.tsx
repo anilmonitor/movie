@@ -24,6 +24,8 @@ export async function generateMetadata(props: MoviePageProps): Promise<Metadata>
     movie?.storyline?.slice(0, 160) ||
     'Download latest movies in HD 480p, 720p, 1080p, 4K UHD. Fast, direct download links available on Movies4u.';
 
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://allmoviesite.vercel.app';
+
   return {
     title: pageTitle,
     description: metaDesc,
@@ -37,7 +39,7 @@ export async function generateMetadata(props: MoviePageProps): Promise<Metadata>
     openGraph: {
       title: pageTitle,
       description: metaDesc,
-      url: `https://movies4u.kg/movie/${params.slug}`,
+      url: `${siteUrl}/movie/${params.slug}`,
       siteName: 'Movies4u',
       images: movie?.poster
         ? [
@@ -58,7 +60,7 @@ export async function generateMetadata(props: MoviePageProps): Promise<Metadata>
       images: movie?.poster ? [movie.poster] : [],
     },
     alternates: {
-      canonical: `https://movies4u.kg/movie/${params.slug}`,
+      canonical: `${siteUrl}/movie/${params.slug}`,
     },
   };
 }

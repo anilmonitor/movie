@@ -30,6 +30,8 @@ export async function generateMetadata(props: CategoryPageProps): Promise<Metada
   const title = `${category.name} Movies & Web Series Download - Movies4u`;
   const description = `Explore the latest ${category.name} movies and web series available for free high-speed download in 480p, 720p, 1080p & 4K resolutions on Movies4u.`;
 
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://allmoviesite.vercel.app';
+
   return {
     title,
     description,
@@ -42,11 +44,11 @@ export async function generateMetadata(props: CategoryPageProps): Promise<Metada
     openGraph: {
       title,
       description,
-      url: `https://movies4u.kg/category/${category.slug}`,
+      url: `${siteUrl}/category/${category.slug}`,
       siteName: 'Movies4u',
     },
     alternates: {
-      canonical: `https://movies4u.kg/category/${category.slug}`,
+      canonical: `${siteUrl}/category/${category.slug}`,
     },
   };
 }

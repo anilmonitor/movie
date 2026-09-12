@@ -5,7 +5,7 @@ import Footer from '@/components/Footer';
 import { ThemeProvider } from '@/components/ThemeProvider';
 
 export const metadata: Metadata = {
-  metadataBase: new URL('https://movies4u.kg'),
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'https://allmoviesite.vercel.app'),
   title: {
     default: 'Movies4u - Download Bollywood, Hollywood, South Movies & Web Series',
     template: '%s | Movies4u',
