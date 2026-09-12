@@ -34,7 +34,7 @@ class MovieCategory {
   final String slug;
   final int? count;
 
-  MovieCategory({
+  const MovieCategory({
     required this.id,
     required this.name,
     required this.slug,

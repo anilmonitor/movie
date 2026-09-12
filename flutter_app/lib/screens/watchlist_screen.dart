@@ -104,10 +104,10 @@ class _WatchlistScreenState extends State<WatchlistScreen> {
                   child: GridView.builder(
                     padding: const EdgeInsets.all(16),
                     gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 3,
-                      childAspectRatio: 2 / 3.4,
-                      crossAxisSpacing: 10,
-                      mainAxisSpacing: 12,
+                      crossAxisCount: 2,
+                      childAspectRatio: 0.52,
+                      crossAxisSpacing: 12,
+                      mainAxisSpacing: 14,
                     ),
                     itemCount: _savedMovies.length,
                     itemBuilder: (context, index) {

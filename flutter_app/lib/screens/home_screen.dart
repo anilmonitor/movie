@@ -177,23 +177,32 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
       body: _isLoading
           ? ListView(
-              children: const [
-                ShimmerBox(width: double.infinity, height: 350, borderRadius: 0),
-                SizedBox(height: 20),
-                Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 16),
-                  child: ShimmerBox(width: 150, height: 18, borderRadius: 4),
+              padding: const EdgeInsets.only(top: 12, bottom: 40),
+              children: [
+                const ShimmerHeroCarousel(),
+                const SizedBox(height: 24),
+                const ShimmerHorizontalSection(),
+                const SizedBox(height: 20),
+                const ShimmerHorizontalSection(),
+                const SizedBox(height: 24),
+                const Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 16.0),
+                  child: ShimmerBox(width: 130, height: 16, borderRadius: 4),
                 ),
-                SizedBox(height: 12),
-                SizedBox(
-                  height: 240,
-                  child: Row(
-                    children: [
-                      SizedBox(width: 16),
-                      SizedBox(width: 130, child: ShimmerMovieCard()),
-                      SizedBox(width: 12),
-                      SizedBox(width: 130, child: ShimmerMovieCard()),
-                    ],
+                const SizedBox(height: 12),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                  child: GridView.builder(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 2,
+                      childAspectRatio: 0.52,
+                      crossAxisSpacing: 12,
+                      mainAxisSpacing: 14,
+                    ),
+                    itemCount: 6,
+                    itemBuilder: (_, __) => const ShimmerMovieCard(),
                   ),
                 ),
               ],
@@ -360,10 +369,10 @@ class _HomeScreenState extends State<HomeScreen> {
                         shrinkWrap: true,
                         physics: const NeverScrollableScrollPhysics(),
                         gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                          crossAxisCount: 3,
-                          childAspectRatio: 2 / 3.4,
-                          crossAxisSpacing: 10,
-                          mainAxisSpacing: 12,
+                          crossAxisCount: 2,
+                          childAspectRatio: 0.52,
+                          crossAxisSpacing: 12,
+                          mainAxisSpacing: 14,
                         ),
                         itemCount: sortedMovies.length + (_isLoadingMore ? 3 : 0),
                         itemBuilder: (context, index) {

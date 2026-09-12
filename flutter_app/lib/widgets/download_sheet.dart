@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../models/movie.dart';
+import '../screens/in_app_browser_screen.dart';
 import '../theme/app_theme.dart';
 
 class DownloadSheet extends StatelessWidget {
@@ -19,35 +20,24 @@ class DownloadSheet extends StatelessWidget {
   }
 
   Future<void> _launchDownload(BuildContext context, String url) async {
-    final uri = Uri.parse(url);
+    // Pop bottom sheet first so in-app browser has full screen
+    Navigator.of(context).pop();
+
     try {
-      // Opens directly inside the app using In-App Browser (Chrome Custom Tabs on Android / SFSafari on iOS)
-      final launched = await launchUrl(
-        uri,
-        mode: LaunchMode.inAppBrowserView,
-        browserConfiguration: const BrowserConfiguration(showTitle: true),
+      // 1. Open directly inside the app using In-App Browser screen
+      await InAppBrowserScreen.open(
+        context,
+        url: url,
+        title: '${movie.title} - Download',
       );
-      if (!launched) {
-        // In-App WebView fallback if inAppBrowserView is unsupported
-        await launchUrl(
-          uri,
-          mode: LaunchMode.inAppWebView,
-          webViewConfiguration: const WebViewConfiguration(
-            enableJavaScript: true,
-            enableDomStorage: true,
-          ),
-        );
-      }
     } catch (_) {
       try {
-        // In-App WebView fallback
+        // Fallback to inAppBrowserView if needed
+        final uri = Uri.parse(url);
         await launchUrl(
           uri,
-          mode: LaunchMode.inAppWebView,
-          webViewConfiguration: const WebViewConfiguration(
-            enableJavaScript: true,
-            enableDomStorage: true,
-          ),
+          mode: LaunchMode.inAppBrowserView,
+          browserConfiguration: const BrowserConfiguration(showTitle: true),
         );
       } catch (err) {
         if (context.mounted) {
@@ -254,9 +244,9 @@ class DownloadSheet extends StatelessWidget {
                   ),
                   const SizedBox(height: 10),
                   ElevatedButton.icon(
-                    onPressed: () => _launchDownload(context, 'https://movies4u.kg/${movie.slug}/'),
+                    onPressed: () => _launchDownload(context, 'https://allmoviesite.vercel.app/movie/${movie.slug}'),
                     icon: const Icon(Icons.open_in_new, size: 16),
-                    label: const Text('Open Mirrors in Browser'),
+                    label: const Text('Open Mirrors in App Browser'),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppTheme.primaryRed,
                       foregroundColor: Colors.white,

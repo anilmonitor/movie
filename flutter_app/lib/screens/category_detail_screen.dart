@@ -46,7 +46,7 @@ class _CategoryDetailScreenState extends State<CategoryDetailScreen> {
   Future<void> _loadMovies() async {
     setState(() => _isLoading = true);
     final res = await ApiService.fetchMovies(
-      category: widget.category.id.toString(),
+      category: widget.category.slug.isNotEmpty ? widget.category.slug : widget.category.id.toString(),
       page: 1,
     );
     if (mounted) {
@@ -91,10 +91,10 @@ class _CategoryDetailScreenState extends State<CategoryDetailScreen> {
           ? GridView.builder(
               padding: const EdgeInsets.all(16),
               gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 3,
-                childAspectRatio: 2 / 3.4,
-                crossAxisSpacing: 10,
-                mainAxisSpacing: 10,
+                crossAxisCount: 2,
+                childAspectRatio: 0.52,
+                crossAxisSpacing: 12,
+                mainAxisSpacing: 14,
               ),
               itemCount: 9,
               itemBuilder: (_, __) => const ShimmerMovieCard(),
@@ -120,10 +120,10 @@ class _CategoryDetailScreenState extends State<CategoryDetailScreen> {
                     controller: _scrollController,
                     padding: const EdgeInsets.all(16),
                     gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 3,
-                      childAspectRatio: 2 / 3.5,
-                      crossAxisSpacing: 10,
-                      mainAxisSpacing: 12,
+                      crossAxisCount: 2,
+                      childAspectRatio: 0.52,
+                      crossAxisSpacing: 12,
+                      mainAxisSpacing: 14,
                     ),
                     itemCount: _movies.length + (_isLoadingMore ? 3 : 0),
                     itemBuilder: (context, index) {

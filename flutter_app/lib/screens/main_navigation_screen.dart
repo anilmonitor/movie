@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'home_screen.dart';
 import 'search_screen.dart';
 import 'categories_screen.dart';
-import 'watchlist_screen.dart';
+import 'profile_screen.dart';
 
 class MainNavigationScreen extends StatefulWidget {
   final VoidCallback onToggleTheme;
@@ -22,7 +22,7 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
       HomeScreen(onToggleTheme: widget.onToggleTheme),
       const SearchScreen(),
       const CategoriesScreen(),
-      const WatchlistScreen(),
+      ProfileScreen(onToggleTheme: widget.onToggleTheme),
     ];
 
     return Scaffold(
@@ -58,12 +58,12 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
             BottomNavigationBarItem(
               icon: Icon(Icons.category_outlined),
               activeIcon: Icon(Icons.category_rounded),
-              label: 'Genres',
+              label: 'Categories',
             ),
             BottomNavigationBarItem(
-              icon: Icon(Icons.bookmark_outline_rounded),
-              activeIcon: Icon(Icons.bookmark_rounded),
-              label: 'Saved',
+              icon: Icon(Icons.person_outline_rounded),
+              activeIcon: Icon(Icons.person_rounded),
+              label: 'Profile',
             ),
           ],
         ),

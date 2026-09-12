@@ -77,7 +77,7 @@ class HorizontalMovieList extends StatelessWidget {
 
         // Horizontal List
         SizedBox(
-          height: 235,
+          height: 275,
           child: isLoading
               ? ListView.separated(
                   padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -85,7 +85,7 @@ class HorizontalMovieList extends StatelessWidget {
                   itemCount: 5,
                   separatorBuilder: (_, __) => const SizedBox(width: 12),
                   itemBuilder: (_, __) => const SizedBox(
-                    width: 130,
+                    width: 140,
                     child: ShimmerMovieCard(),
                   ),
                 )
@@ -95,7 +95,7 @@ class HorizontalMovieList extends StatelessWidget {
                   itemCount: movies.length,
                   separatorBuilder: (_, __) => const SizedBox(width: 12),
                   itemBuilder: (context, index) {
-                    return MovieCard(movie: movies[index]);
+                    return MovieCard(movie: movies[index], width: 140);
                   },
                 ),
         ),

@@ -39,6 +39,7 @@ dependencies:
   url_launcher: ^6.3.2
   shared_preferences: ^2.5.5
   shimmer: ^4.0.0
+  webview_flutter: ^4.10.0
 
 dev_dependencies:
   flutter_test:

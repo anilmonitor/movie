@@ -1,4 +1,4 @@
-package com.movies4u.app.flutter_app
+package com.movie.man
 
 import io.flutter.embedding.android.FlutterActivity
 

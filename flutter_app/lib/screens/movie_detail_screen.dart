@@ -6,6 +6,7 @@ import '../services/api_service.dart';
 import '../services/watchlist_service.dart';
 import '../widgets/download_sheet.dart';
 import '../widgets/horizontal_movie_list.dart';
+import '../widgets/shimmer_loading.dart';
 
 class MovieDetailScreen extends StatefulWidget {
   final Movie movie;
@@ -27,25 +28,35 @@ class _MovieDetailScreenState extends State<MovieDetailScreen> {
   void initState() {
     super.initState();
     _movie = widget.movie;
-    _checkWatchlist();
+    _checkSaved();
+    _loadFullDetails();
     _loadRelated();
   }
 
-  Future<void> _checkWatchlist() async {
+  Future<void> _checkSaved() async {
     final saved = await WatchlistService.isInWatchlist(_movie.id);
     if (mounted) setState(() => _isSaved = saved);
   }
 
-  Future<void> _toggleWatchlist() async {
+  void _toggleWatchlist() async {
     final added = await WatchlistService.toggleWatchlist(_movie);
     if (mounted) {
       setState(() => _isSaved = added);
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(added ? 'Added to Watchlist' : 'Removed from Watchlist'),
-          duration: const Duration(seconds: 2),
+          duration: const Duration(seconds: 1),
         ),
       );
+    }
+  }
+
+  Future<void> _loadFullDetails() async {
+    final full = await ApiService.fetchMovieBySlug(_movie.slug);
+    if (full != null && mounted) {
+      setState(() {
+        _movie = full;
+      });
     }
   }
 
@@ -104,6 +115,11 @@ class _MovieDetailScreenState extends State<MovieDetailScreen> {
                   CachedNetworkImage(
                     imageUrl: _movie.poster,
                     fit: BoxFit.cover,
+                    placeholder: (_, __) => const ShimmerBox(
+                      width: double.infinity,
+                      height: double.infinity,
+                      borderRadius: 0,
+                    ),
                     errorWidget: (_, __, ___) => Container(color: Colors.grey[900]),
                   ),
                   Container(
@@ -371,6 +387,11 @@ class _MovieDetailScreenState extends State<MovieDetailScreen> {
                               child: CachedNetworkImage(
                                 imageUrl: _movie.screenshots[index],
                                 fit: BoxFit.cover,
+                                placeholder: (_, __) => const ShimmerBox(
+                                  width: double.infinity,
+                                  height: double.infinity,
+                                  borderRadius: 10,
+                                ),
                                 errorWidget: (_, __, ___) => Container(color: Colors.grey[900]),
                               ),
                             ),

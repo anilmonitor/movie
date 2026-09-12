@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import '../models/movie.dart';
 import '../services/api_service.dart';
+import '../theme/app_theme.dart';
 import 'category_detail_screen.dart';
-import '../widgets/shimmer_loading.dart';
 
 class CategoriesScreen extends StatefulWidget {
   const CategoriesScreen({super.key});
@@ -12,8 +12,9 @@ class CategoriesScreen extends StatefulWidget {
 }
 
 class _CategoriesScreenState extends State<CategoriesScreen> {
-  List<MovieCategory> _categories = [];
-  bool _isLoading = true;
+  // Pre-fill with guaranteed default categories so screen is NEVER blank
+  List<MovieCategory> _categories = List.from(ApiService.defaultCategories);
+  bool _isRefreshing = false;
 
   @override
   void initState() {
@@ -22,16 +23,19 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
   }
 
   Future<void> _loadCategories() async {
+    setState(() => _isRefreshing = true);
     final list = await ApiService.fetchCategories();
     if (mounted) {
       setState(() {
-        _categories = list;
-        _isLoading = false;
+        if (list.isNotEmpty) {
+          _categories = list;
+        }
+        _isRefreshing = false;
       });
     }
   }
 
-  // Curated gradient pairs for genres
+  // Curated gradient pairs for categories
   final List<List<Color>> _gradients = [
     [const Color(0xFFE50914), const Color(0xFF991B1B)],
     [const Color(0xFF2563EB), const Color(0xFF1E40AF)],
@@ -49,99 +53,110 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Genres & Categories', style: TextStyle(fontWeight: FontWeight.w900, fontSize: 20)),
-      ),
-      body: _isLoading
-          ? GridView.builder(
-              padding: const EdgeInsets.all(16),
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 2,
-                childAspectRatio: 1.6,
-                crossAxisSpacing: 12,
-                mainAxisSpacing: 12,
+        title: const Text('Categories', style: TextStyle(fontWeight: FontWeight.w900, fontSize: 20)),
+        actions: [
+          if (_isRefreshing)
+            const Padding(
+              padding: EdgeInsets.only(right: 16.0),
+              child: Center(
+                child: SizedBox(
+                  width: 18,
+                  height: 18,
+                  child: CircularProgressIndicator(strokeWidth: 2, color: AppTheme.primaryRed),
+                ),
               ),
-              itemCount: 8,
-              itemBuilder: (_, __) => const ShimmerBox(width: double.infinity, height: double.infinity, borderRadius: 16),
             )
-          : GridView.builder(
-              padding: const EdgeInsets.all(16),
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 2,
-                childAspectRatio: 1.5,
-                crossAxisSpacing: 12,
-                mainAxisSpacing: 12,
-              ),
-              itemCount: _categories.length,
-              itemBuilder: (context, index) {
-                final cat = _categories[index];
-                final grad = _gradients[index % _gradients.length];
+          else
+            IconButton(
+              icon: const Icon(Icons.refresh_rounded),
+              tooltip: 'Refresh',
+              onPressed: _loadCategories,
+            ),
+        ],
+      ),
+      body: RefreshIndicator(
+        onRefresh: _loadCategories,
+        color: AppTheme.primaryRed,
+        child: GridView.builder(
+          padding: const EdgeInsets.all(16),
+          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 2,
+            childAspectRatio: 1.4,
+            crossAxisSpacing: 12,
+            mainAxisSpacing: 12,
+          ),
+          itemCount: _categories.length,
+          itemBuilder: (context, index) {
+            final cat = _categories[index];
+            final grad = _gradients[index % _gradients.length];
 
-                return GestureDetector(
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => CategoryDetailScreen(category: cat),
-                      ),
-                    );
-                  },
-                  child: Container(
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(18),
-                      gradient: LinearGradient(
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                        colors: isDark
-                            ? [grad[0].withOpacity(0.85), grad[1].withOpacity(0.65)]
-                            : [grad[0].withOpacity(0.9), grad[1]],
-                      ),
-                      boxShadow: [
-                        BoxShadow(
-                          color: grad[0].withOpacity(0.25),
-                          blurRadius: 10,
-                          offset: const Offset(0, 4),
-                        ),
-                      ],
-                    ),
-                    padding: const EdgeInsets.all(14),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        const Align(
-                          alignment: Alignment.topRight,
-                          child: Icon(Icons.movie_creation_outlined, color: Colors.white70, size: 22),
-                        ),
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              cat.name,
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              style: const TextStyle(
-                                fontSize: 15,
-                                fontWeight: FontWeight.w900,
-                                color: Colors.white,
-                              ),
-                            ),
-                            if (cat.count != null)
-                              Text(
-                                '${cat.count} Titles',
-                                style: const TextStyle(
-                                  fontSize: 11,
-                                  fontWeight: FontWeight.w500,
-                                  color: Colors.white70,
-                                ),
-                              ),
-                          ],
-                        ),
-                      ],
-                    ),
+            return GestureDetector(
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => CategoryDetailScreen(category: cat),
                   ),
                 );
               },
-            ),
+              child: Container(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(18),
+                  gradient: LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: isDark
+                        ? [grad[0].withOpacity(0.85), grad[1].withOpacity(0.65)]
+                        : [grad[0].withOpacity(0.9), grad[1]],
+                  ),
+                  boxShadow: [
+                    BoxShadow(
+                      color: grad[0].withOpacity(0.25),
+                      blurRadius: 10,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
+                ),
+                padding: const EdgeInsets.all(14),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Align(
+                      alignment: Alignment.topRight,
+                      child: Icon(Icons.movie_creation_outlined, color: Colors.white70, size: 22),
+                    ),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          cat.name,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w900,
+                            color: Colors.white,
+                          ),
+                        ),
+                        if (cat.count != null)
+                          Text(
+                            '${cat.count} Titles',
+                            style: const TextStyle(
+                              fontSize: 11,
+                              fontWeight: FontWeight.w500,
+                              color: Colors.white70,
+                            ),
+                          ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            );
+          },
+        ),
+      ),
     );
   }
 }

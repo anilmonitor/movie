@@ -3,7 +3,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../models/movie.dart';
 
 class WatchlistService {
-  static const String _key = 'movies4u_watchlist';
+  static const String _key = 'movieman_watchlist';
 
   static Future<List<Movie>> getWatchlist() async {
     try {

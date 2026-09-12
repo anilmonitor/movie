@@ -85,8 +85,8 @@ export default function Footer() {
                 Explore Genres
               </Link>
               <span>•</span>
-              <a href="https://movies4u.kg/how-to-download/" target="_blank" rel="noopener noreferrer" className="hover:text-slate-900 dark:hover:text-white">
-                How to Download
+              <a href="/privacy/" target="_blank" rel="noopener noreferrer" className="hover:text-slate-900 dark:hover:text-white underline">
+                Privacy Policy
               </a>
             </div>
           </div>
