@@ -1,69 +1,109 @@
-import Image from "next/image";
+import React from 'react';
+import Link from 'next/link';
+import { getMovies, getCategories } from '@/lib/api';
+import MovieCard from '@/components/MovieCard';
+import Pagination from '@/components/Pagination';
+import HeroFeatured from '@/components/HeroFeatured';
+import { Sparkles, Flame, Film, Tv, ShieldCheck } from 'lucide-react';
 
-export default function Home() {
+interface HomePageProps {
+  searchParams: Promise<{
+    page?: string;
+  }>;
+}
+
+export const revalidate = 120; // Revalidate every 2 minutes for latest movies
+
+export default async function HomePage(props: HomePageProps) {
+  const searchParams = await props.searchParams;
+  const page = parseInt(searchParams.page || '1', 10);
+
+  const [movieData, categories] = await Promise.all([
+    getMovies({ page, perPage: 18 }),
+    getCategories(),
+  ]);
+
+  const { movies, totalPages, totalMovies } = movieData;
+  const featuredMovie = page === 1 && movies.length > 0 ? movies[0] : null;
+  const displayMovies = page === 1 ? movies.slice(1) : movies;
+
+  // Top popular categories for quick filter chips
+  const popularSlugs = ['bollywood', 'hollywood', 'dual-audio', 'web-series', 'south-indian', 'hindi', 'korean'];
+  const popularCategories = categories.filter((c) => popularSlugs.includes(c.slug));
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert h-5 w-[100px]"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the{" "}
-            <code className="rounded bg-black/[.06] px-1.5 py-0.5 font-mono text-[0.9em] dark:bg-white/[.08]">
-              page.tsx
-            </code>{" "}
-            file.
+    <div className="space-y-6 sm:space-y-8">
+      {/* Featured Hero Banner (Only on page 1) */}
+      {featuredMovie && <HeroFeatured movie={featuredMovie} />}
+
+      {/* Category Pills / Filters Bar (Mobile Touch Friendly Scroll) */}
+      <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none -mx-3 px-3 sm:mx-0 sm:px-0">
+        <Link
+          href="/"
+          className="flex items-center gap-1.5 px-3.5 sm:px-4 py-2 rounded-full text-xs font-bold bg-red-600 text-white shadow-md shadow-red-600/30 shrink-0"
+        >
+          <Flame className="w-3.5 h-3.5" />
+          <span>All Latest</span>
+        </Link>
+
+        {popularCategories.map((cat) => (
+          <Link
+            key={cat.id}
+            href={`/category/${cat.slug}`}
+            className="flex items-center gap-1.5 px-3 sm:px-4 py-2 rounded-full text-xs font-semibold bg-slate-100 dark:bg-gray-900/80 hover:bg-slate-200 dark:hover:bg-white/10 text-slate-700 dark:text-gray-300 hover:text-slate-900 dark:hover:text-white border border-slate-200 dark:border-white/10 transition-colors shrink-0"
+          >
+            {cat.name}
+            {cat.count ? (
+              <span className="text-[10px] px-1.5 py-0.2 rounded-full bg-slate-200 dark:bg-white/10 text-slate-600 dark:text-gray-400">
+                {cat.count}
+              </span>
+            ) : null}
+          </Link>
+        ))}
+
+        <Link
+          href="/categories"
+          className="px-3.5 sm:px-4 py-2 rounded-full text-xs font-semibold bg-red-50 dark:bg-white/5 hover:bg-red-100 dark:hover:bg-white/10 text-red-600 dark:text-red-400 border border-red-200 dark:border-red-500/20 transition-colors shrink-0"
+        >
+          More Genres +
+        </Link>
+      </div>
+
+      {/* Section Header */}
+      <div className="flex items-center justify-between border-b border-slate-200 dark:border-white/10 pb-3 sm:pb-4">
+        <div>
+          <h1 className="text-lg sm:text-2xl font-black text-slate-900 dark:text-white flex items-center gap-2">
+            <Film className="w-5 h-5 text-red-600 dark:text-red-500" />
+            <span>Latest Movies & Web Series</span>
           </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
+          <p className="text-xs text-slate-500 dark:text-gray-400 mt-0.5">
+            Showing page {page} of {totalPages || 1} • {totalMovies} Total Titles
           </p>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert h-[14px] w-4"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={14}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+
+        <div className="hidden sm:flex items-center gap-1.5 text-xs text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-200 dark:border-emerald-500/20 px-3 py-1 rounded-full font-medium">
+          <ShieldCheck className="w-3.5 h-3.5" />
+          <span>Fast Direct Links</span>
         </div>
-      </main>
+      </div>
+
+      {/* Movies Grid (Mobile: 2 cols, Tablet: 3-4 cols, Desktop: 6 cols) */}
+      {displayMovies.length > 0 ? (
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3 sm:gap-5">
+          {displayMovies.map((movie) => (
+            <MovieCard key={movie.id} movie={movie} />
+          ))}
+        </div>
+      ) : (
+        <div className="py-16 text-center glass-card rounded-2xl p-6">
+          <Tv className="w-12 h-12 text-slate-400 dark:text-gray-600 mx-auto mb-3" />
+          <h3 className="text-base sm:text-lg font-bold text-slate-800 dark:text-gray-300">No movies found</h3>
+          <p className="text-xs sm:text-sm text-slate-500 dark:text-gray-500 mt-1">Please check back soon or try another page.</p>
+        </div>
+      )}
+
+      {/* Pagination */}
+      <Pagination currentPage={page} totalPages={totalPages} basePath="/" />
     </div>
   );
 }
