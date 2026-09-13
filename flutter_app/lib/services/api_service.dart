@@ -215,7 +215,6 @@ class ApiService {
   // Guaranteed fallback categories so CategoriesScreen is NEVER blank
   static const List<MovieCategory> defaultCategories = [
     // Top Industries & Languages (Real WordPress Categories with live IDs)
-    MovieCategory(id: 4, name: '18+', slug: '18', count: 206),
     MovieCategory(id: 3, name: 'Bollywood', slug: 'bollywood', count: 892),
     MovieCategory(id: 91, name: 'Hollywood', slug: 'hollywood', count: 3859),
     MovieCategory(id: 7, name: 'Dual Audio', slug: 'dual-audio', count: 4306),
@@ -248,6 +247,9 @@ class ApiService {
     MovieCategory(id: 0, name: 'Crime & Mystery', slug: 'crime', count: 165),
     MovieCategory(id: 0, name: 'Animation', slug: 'animation', count: 130),
     MovieCategory(id: 0, name: 'Adventure', slug: 'adventure', count: 220),
+
+    // 18+ placed at the bottom as requested
+    MovieCategory(id: 4, name: '18+', slug: '18', count: 206),
   ];
 
   // Fetch paginated movies
@@ -451,6 +453,11 @@ class ApiService {
         addedKeys.add(key);
       }
     }
+
+    // Ensure 18+ is always placed at the bottom/end of the list
+    final adultCats = result.where((c) => c.slug == '18' || c.name.contains('18+')).toList();
+    result.removeWhere((c) => c.slug == '18' || c.name.contains('18+'));
+    result.addAll(adultCats);
 
     return result;
   }

@@ -257,7 +257,7 @@ export default function MovieDetailClient({
               {movie.date && (
                 <div className="col-span-2 sm:col-span-3 p-2.5 rounded-xl bg-amber-50/80 dark:bg-amber-500/10 border border-amber-200 dark:border-amber-500/20 flex flex-wrap items-center justify-between gap-1">
                   <span className="text-amber-800 dark:text-amber-300 flex items-center gap-1.5 font-bold">
-                    <Clock className="w-4 h-4 text-amber-500" /> Uploaded to Database:
+                    <Clock className="w-4 h-4 text-amber-500" /> Uploaded on:
                   </span>
                   <span className="font-semibold text-slate-900 dark:text-gray-100">
                     {formatUploadDate(movie.date)} ({formatTimeAgo(movie.date)})
