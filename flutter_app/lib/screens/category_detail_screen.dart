@@ -6,6 +6,7 @@ import '../theme/app_theme.dart';
 import '../widgets/movie_card.dart';
 import '../widgets/shimmer_loading.dart';
 import '../widgets/date_filter_dialog.dart';
+import '../widgets/telegram_button.dart';
 
 class CategoryDetailScreen extends StatefulWidget {
   final MovieCategory category;
@@ -83,7 +84,9 @@ class _CategoryDetailScreenState extends State<CategoryDetailScreen> {
       }
     });
 
-    final categoryParam = widget.category.slug.isNotEmpty ? widget.category.slug : widget.category.id.toString();
+    final categoryParam = widget.category.id > 0
+        ? widget.category.id.toString()
+        : widget.category.slug;
 
     try {
       final res = await ApiService.fetchMovies(
@@ -439,6 +442,10 @@ class _CategoryDetailScreenState extends State<CategoryDetailScreen> {
               children: items,
             ),
           ),
+          const SizedBox(height: 18),
+          const TelegramBannerCard(
+            margin: EdgeInsets.symmetric(horizontal: 4),
+          ),
         ],
       ),
     );
@@ -463,6 +470,10 @@ class _CategoryDetailScreenState extends State<CategoryDetailScreen> {
           widget.category.name,
           style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w900),
         ),
+        actions: const [
+          TelegramButton(),
+          SizedBox(width: 10),
+        ],
       ),
       body: Column(
         children: [

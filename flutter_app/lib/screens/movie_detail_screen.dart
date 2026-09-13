@@ -7,6 +7,8 @@ import '../services/watchlist_service.dart';
 import '../widgets/download_sheet.dart';
 import '../widgets/horizontal_movie_list.dart';
 import '../widgets/shimmer_loading.dart';
+import '../widgets/screenshot_gallery_dialog.dart';
+import '../widgets/telegram_button.dart';
 
 class MovieDetailScreen extends StatefulWidget {
   final Movie movie;
@@ -148,10 +150,13 @@ class _MovieDetailScreenState extends State<MovieDetailScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Badges Row
-                  Row(
+                  // Badges Wrap (Never overflows on narrow screens)
+                  Wrap(
+                    spacing: 8,
+                    runSpacing: 8,
+                    crossAxisAlignment: WrapCrossAlignment.center,
                     children: [
-                      if (_movie.rating != null && _movie.rating!.isNotEmpty) ...[
+                      if (_movie.rating != null && _movie.rating!.isNotEmpty)
                         Container(
                           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                           decoration: BoxDecoration(
@@ -174,9 +179,7 @@ class _MovieDetailScreenState extends State<MovieDetailScreen> {
                             ],
                           ),
                         ),
-                        const SizedBox(width: 8),
-                      ],
-                      if (_movie.year != null && _movie.year!.isNotEmpty) ...[
+                      if (_movie.year != null && _movie.year!.isNotEmpty)
                         Container(
                           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                           decoration: BoxDecoration(
@@ -192,9 +195,7 @@ class _MovieDetailScreenState extends State<MovieDetailScreen> {
                             ),
                           ),
                         ),
-                        const SizedBox(width: 8),
-                      ],
-                      for (final q in _movie.qualities.take(2)) ...[
+                      for (final q in _movie.qualities.take(2))
                         Container(
                           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                           decoration: BoxDecoration(
@@ -211,9 +212,7 @@ class _MovieDetailScreenState extends State<MovieDetailScreen> {
                             ),
                           ),
                         ),
-                        const SizedBox(width: 6),
-                      ],
-                      if (_movie.timeAgo.isNotEmpty) ...[
+                      if (_movie.timeAgo.isNotEmpty)
                         Container(
                           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                           decoration: BoxDecoration(
@@ -237,8 +236,6 @@ class _MovieDetailScreenState extends State<MovieDetailScreen> {
                             ],
                           ),
                         ),
-                        const SizedBox(width: 6),
-                      ],
                     ],
                   ),
                   const SizedBox(height: 12),
@@ -255,25 +252,74 @@ class _MovieDetailScreenState extends State<MovieDetailScreen> {
                   ),
                   const SizedBox(height: 16),
 
-                  // Main Download Action Button
+                  // Action Buttons Row (Download and Telegram guaranteed on one line)
                   SizedBox(
-                    width: double.infinity,
-                    height: 50,
-                    child: ElevatedButton.icon(
-                      onPressed: () => DownloadSheet.show(context, _movie),
-                      icon: const Icon(Icons.download_rounded, size: 20),
-                      label: const Text(
-                        'Download Movie',
-                        style: TextStyle(fontSize: 15, fontWeight: FontWeight.w800),
-                      ),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppTheme.primaryRed,
-                        foregroundColor: Colors.white,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(14),
+                    height: 48,
+                    child: Row(
+                      children: [
+                        // Download Button
+                        Expanded(
+                          flex: 3,
+                          child: ElevatedButton(
+                            onPressed: () => DownloadSheet.show(context, _movie),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: AppTheme.primaryRed,
+                              foregroundColor: Colors.white,
+                              padding: const EdgeInsets.symmetric(horizontal: 10),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              elevation: 2,
+                            ),
+                            child: const FittedBox(
+                              fit: BoxFit.scaleDown,
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Icon(Icons.download_rounded, size: 18),
+                                  SizedBox(width: 6),
+                                  Text(
+                                    'Download',
+                                    style: TextStyle(fontSize: 14, fontWeight: FontWeight.w800),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
                         ),
-                        elevation: 4,
-                      ),
+                        const SizedBox(width: 10),
+
+                        // Telegram Button
+                        Expanded(
+                          flex: 2,
+                          child: ElevatedButton(
+                            onPressed: openTelegram,
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: const Color(0xFF229ED9),
+                              foregroundColor: Colors.white,
+                              padding: const EdgeInsets.symmetric(horizontal: 8),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              elevation: 2,
+                            ),
+                            child: const FittedBox(
+                              fit: BoxFit.scaleDown,
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  TelegramCircleLogo(size: 20),
+                                  SizedBox(width: 6),
+                                  Text(
+                                    'Telegram',
+                                    style: TextStyle(fontSize: 13, fontWeight: FontWeight.w800),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                   const SizedBox(height: 20),
@@ -315,8 +361,8 @@ class _MovieDetailScreenState extends State<MovieDetailScreen> {
                           _buildSpecRow(
                             context,
                             icon: Icons.access_time_filled_rounded,
-                            label: 'Uploaded to DB',
-                            value: '${_movie.formattedUploadDate} (${_movie.timeAgo})',
+                            label: 'Uploaded on',
+                            value: _movie.formattedUploadDate,
                           ),
                         ],
                       ],
@@ -380,19 +426,50 @@ class _MovieDetailScreenState extends State<MovieDetailScreen> {
                         itemCount: _movie.screenshots.length,
                         separatorBuilder: (_, __) => const SizedBox(width: 10),
                         itemBuilder: (context, index) {
-                          return ClipRRect(
-                            borderRadius: BorderRadius.circular(10),
-                            child: AspectRatio(
-                              aspectRatio: 16 / 9,
-                              child: CachedNetworkImage(
-                                imageUrl: _movie.screenshots[index],
-                                fit: BoxFit.cover,
-                                placeholder: (_, __) => const ShimmerBox(
-                                  width: double.infinity,
-                                  height: double.infinity,
-                                  borderRadius: 10,
+                          return GestureDetector(
+                            onTap: () {
+                              ScreenshotGalleryDialog.show(
+                                context,
+                                images: _movie.screenshots,
+                                initialIndex: index,
+                              );
+                            },
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(10),
+                              child: AspectRatio(
+                                aspectRatio: 16 / 9,
+                                child: Stack(
+                                  children: [
+                                    CachedNetworkImage(
+                                      imageUrl: _movie.screenshots[index],
+                                      fit: BoxFit.cover,
+                                      width: double.infinity,
+                                      height: double.infinity,
+                                      placeholder: (_, __) => const ShimmerBox(
+                                        width: double.infinity,
+                                        height: double.infinity,
+                                        borderRadius: 10,
+                                      ),
+                                      errorWidget: (_, __, ___) => Container(color: Colors.grey[900]),
+                                    ),
+                                    Positioned(
+                                      bottom: 6,
+                                      right: 6,
+                                      child: Container(
+                                        padding: const EdgeInsets.all(4),
+                                        decoration: BoxDecoration(
+                                          color: Colors.black.withOpacity(0.6),
+                                          shape: BoxShape.circle,
+                                        ),
+                                        child: const Icon(
+                                          Icons.fullscreen_rounded,
+                                          size: 14,
+                                          color: Colors.white,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
                                 ),
-                                errorWidget: (_, __, ___) => Container(color: Colors.grey[900]),
                               ),
                             ),
                           );
@@ -432,13 +509,12 @@ class _MovieDetailScreenState extends State<MovieDetailScreen> {
             color: isDark ? AppTheme.darkTextSecondary : AppTheme.lightTextSecondary,
           ),
         ),
-        const Spacer(),
+        const SizedBox(width: 12),
         Expanded(
-          flex: 2,
           child: Text(
             value,
             textAlign: TextAlign.right,
-            maxLines: 1,
+            maxLines: 2,
             overflow: TextOverflow.ellipsis,
             style: TextStyle(
               fontSize: 12,

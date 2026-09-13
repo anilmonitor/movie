@@ -5,6 +5,7 @@ import '../services/api_service.dart';
 import '../theme/app_theme.dart';
 import '../widgets/movie_card.dart';
 import '../widgets/shimmer_loading.dart';
+import '../widgets/telegram_button.dart';
 
 class SearchScreen extends StatefulWidget {
   const SearchScreen({super.key});
@@ -69,6 +70,10 @@ class _SearchScreenState extends State<SearchScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Search Movies', style: TextStyle(fontWeight: FontWeight.w900, fontSize: 20)),
+        actions: const [
+          TelegramButton(),
+          SizedBox(width: 10),
+        ],
       ),
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -116,8 +121,11 @@ class _SearchScreenState extends State<SearchScreen> {
 
           // Suggestion Chips (when no results yet)
           if (_results.isEmpty && !_isLoading) ...[
+            const TelegramBannerCard(
+              margin: EdgeInsets.fromLTRB(16, 4, 16, 12),
+            ),
             Padding(
-              padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
+              padding: const EdgeInsets.fromLTRB(16, 4, 16, 8),
               child: Text(
                 'POPULAR SEARCHES',
                 style: TextStyle(

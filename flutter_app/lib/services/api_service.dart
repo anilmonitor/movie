@@ -27,30 +27,13 @@ class ApiService {
   }
 
   // Detect 18+ / adult categories for Google Play compliance
+  // 18+ content enabled as requested by user
   static bool isAdultCategory(String name, String slug) {
-    final combined = '${name.toLowerCase()} ${slug.toLowerCase()}';
-    final adultPattern = RegExp(
-      r'(18\+|adult|erotic|hot|ullu|kooku|primeplay|prime-play|sensual|sex|uncensored|voovi|rabbit|hunters|bigshots|cliff-movies|neonx|fliz|gupchup)',
-      caseSensitive: false,
-    );
-    return adultPattern.hasMatch(combined);
+    return false;
   }
 
-  // Detect 18+ / adult movies
+  // Allow all movies including 18+
   static bool isAdultMovie(Movie movie) {
-    final titleCombined = '${movie.title} ${movie.rawTitle} ${movie.slug}'.toLowerCase();
-    final adultTitlePattern = RegExp(
-      r'(\b18\+\b|18\s*plus|\badult\b|\berotic\b|\bullu\b|\bkooku\b|\bprimeplay\b|\bvoovi\b|\brabbit\b|\bhunters\b|\bbigshots\b)',
-      caseSensitive: false,
-    );
-    if (adultTitlePattern.hasMatch(titleCombined)) {
-      return true;
-    }
-    for (final cat in movie.categories) {
-      if (isAdultCategory(cat.name, cat.slug)) {
-        return true;
-      }
-    }
     return false;
   }
 
@@ -131,20 +114,54 @@ class ApiService {
 
     // Extract download links
     final downloadLinks = <DownloadLink>[];
-    final linkMatches = RegExp(r'<h[34][^>]*>(.*?)<\/h[34]>[\s\S]*?<a\s+[^>]*href=["\x27]([^"\x27]+)["\x27]', caseSensitive: false).allMatches(content);
-    for (final m in linkMatches) {
-      final heading = decodeHtml(m.group(1)?.replaceAll(RegExp(r'<[^>]+>'), '').trim());
-      final url = m.group(2) ?? '';
-      final qMatch = RegExp(r'\b(480p|720p|1080p|2160p|4K)\b', caseSensitive: false).firstMatch(heading);
-      final sMatch = RegExp(r'\[([0-9.]+(?:MB|GB)(?:\/[A-Za-z]+)?)\]', caseSensitive: false).firstMatch(heading);
+    final blockMatches = RegExp(r'<h[34][^>]*>(.*?)<\/h[34]>([\s\S]*?)(?=<h[34]|$)', caseSensitive: false).allMatches(content);
+    for (final b in blockMatches) {
+      final heading = decodeHtml(b.group(1)?.replaceAll(RegExp(r'<[^>]+>'), '').trim());
+      final blockHtml = b.group(2) ?? '';
+      final aMatches = RegExp(r'<a\s+[^>]*href=["\x27]([^"\x27]+)["\x27][^>]*>(?:<button[^>]*>)?([\s\S]*?)(?:<\/button>)?<\/a>', caseSensitive: false).allMatches(blockHtml);
 
-      if (url.isNotEmpty && !url.contains('t.me') && !url.contains('how-to-download')) {
-        downloadLinks.add(DownloadLink(
-          title: heading,
-          url: url,
-          quality: qMatch?.group(1),
-          size: sMatch?.group(1),
-        ));
+      for (final a in aMatches) {
+        final url = a.group(1)?.trim() ?? '';
+        final aText = decodeHtml(a.group(2)?.replaceAll(RegExp(r'<[^>]+>'), '').trim());
+        if (url.isNotEmpty && !url.contains('t.me') && !url.contains('how-to-download') && !url.startsWith('#')) {
+          final title = (aText.isNotEmpty && !aText.toLowerCase().contains('download'))
+              ? (heading.isNotEmpty ? '$heading - $aText' : aText)
+              : (heading.isNotEmpty ? heading : (aText.isNotEmpty ? aText : 'Download Now'));
+          final qMatch = RegExp(r'\b(480p|720p|1080p|2160p|4K)\b', caseSensitive: false).firstMatch('$title $url');
+          final sMatch = RegExp(r'\[([0-9.]+(?:MB|GB)(?:\/[A-Za-z]+)?)\]', caseSensitive: false).firstMatch('$title $url');
+
+          downloadLinks.add(DownloadLink(
+            title: title,
+            url: url,
+            quality: qMatch?.group(1),
+            size: sMatch?.group(1),
+          ));
+        }
+      }
+    }
+
+    if (downloadLinks.isEmpty) {
+      final fallbackMatches = RegExp(r'<a\s+[^>]*href=["\x27]([^"\x27]+)["\x27][^>]*>(?:<button[^>]*>)?([\s\S]*?)(?:<\/button>)?<\/a>', caseSensitive: false).allMatches(content);
+      for (final a in fallbackMatches) {
+        final url = a.group(1)?.trim() ?? '';
+        final text = decodeHtml(a.group(2)?.replaceAll(RegExp(r'<[^>]+>'), '').trim());
+        if ((text.toLowerCase().contains('download') ||
+                text.toLowerCase().contains('batch') ||
+                text.toLowerCase().contains('zip') ||
+                text.toLowerCase().contains('part') ||
+                text.toLowerCase().contains('episode')) &&
+            !url.contains('how-to-download') &&
+            !url.contains('t.me') &&
+            !url.startsWith('#')) {
+          final qMatch = RegExp(r'\b(480p|720p|1080p|2160p|4K)\b', caseSensitive: false).firstMatch(text);
+          final sMatch = RegExp(r'\[([0-9.]+(?:MB|GB)(?:\/[A-Za-z]+)?)\]', caseSensitive: false).firstMatch(text);
+          downloadLinks.add(DownloadLink(
+            title: text.isNotEmpty ? text : 'Download Now',
+            url: url,
+            quality: qMatch?.group(1),
+            size: sMatch?.group(1),
+          ));
+        }
       }
     }
 
@@ -197,23 +214,40 @@ class ApiService {
 
   // Guaranteed fallback categories so CategoriesScreen is NEVER blank
   static const List<MovieCategory> defaultCategories = [
-    MovieCategory(id: 1, name: 'Bollywood Movies', slug: 'bollywood', count: 450),
-    MovieCategory(id: 2, name: 'Hollywood Movies', slug: 'hollywood', count: 620),
-    MovieCategory(id: 3, name: 'Dual Audio (Hindi)', slug: 'dual-audio', count: 580),
-    MovieCategory(id: 4, name: 'South Indian Hindi', slug: 'south-indian', count: 340),
-    MovieCategory(id: 5, name: 'Web Series & TV', slug: 'web-series', count: 290),
-    MovieCategory(id: 6, name: 'Hindi Dubbed', slug: 'hindi-dubbed', count: 410),
-    MovieCategory(id: 7, name: 'Action', slug: 'action', count: 512),
-    MovieCategory(id: 8, name: 'Comedy', slug: 'comedy', count: 320),
-    MovieCategory(id: 9, name: 'Drama', slug: 'drama', count: 410),
-    MovieCategory(id: 10, name: 'Horror', slug: 'horror', count: 180),
-    MovieCategory(id: 11, name: 'Thriller', slug: 'thriller', count: 260),
-    MovieCategory(id: 12, name: 'Romance', slug: 'romance', count: 215),
-    MovieCategory(id: 13, name: 'Sci-Fi & Fantasy', slug: 'sci-fi', count: 195),
-    MovieCategory(id: 14, name: 'Crime & Mystery', slug: 'crime', count: 165),
-    MovieCategory(id: 15, name: 'Korean & Asian', slug: 'korean', count: 140),
-    MovieCategory(id: 16, name: 'Animation', slug: 'animation', count: 130),
-    MovieCategory(id: 17, name: 'Adventure', slug: 'adventure', count: 220),
+    // Top Industries & Languages (Real WordPress Categories with live IDs)
+    MovieCategory(id: 4, name: '18+', slug: '18', count: 206),
+    MovieCategory(id: 3, name: 'Bollywood', slug: 'bollywood', count: 892),
+    MovieCategory(id: 91, name: 'Hollywood', slug: 'hollywood', count: 3859),
+    MovieCategory(id: 7, name: 'Dual Audio', slug: 'dual-audio', count: 4306),
+    MovieCategory(id: 10, name: 'Hindi', slug: 'hindi', count: 2867),
+    MovieCategory(id: 15, name: 'South Indian', slug: 'south-indian', count: 1175),
+    MovieCategory(id: 19, name: 'Web Series', slug: 'web-series', count: 1542),
+    MovieCategory(id: 16, name: 'Tamil', slug: 'tamil', count: 537),
+    MovieCategory(id: 17, name: 'Telugu', slug: 'telugu', count: 526),
+    MovieCategory(id: 8, name: 'English', slug: 'english', count: 784),
+    MovieCategory(id: 488, name: 'Korean', slug: 'korean', count: 459),
+    MovieCategory(id: 14, name: 'Punjabi', slug: 'punjabi', count: 372),
+    MovieCategory(id: 5, name: 'Bengali', slug: 'bangali', count: 370),
+    MovieCategory(id: 12, name: 'Malayalam', slug: 'malayalam', count: 307),
+    MovieCategory(id: 18, name: 'TV Shows', slug: 'tv-show', count: 266),
+    MovieCategory(id: 13, name: 'Marathi', slug: 'marathi', count: 210),
+    MovieCategory(id: 9, name: 'Gujarati', slug: 'gujarati', count: 188),
+    MovieCategory(id: 11, name: 'Kannada', slug: 'kannada-movie', count: 187),
+    MovieCategory(id: 6, name: 'Chinese', slug: 'chinese', count: 157),
+    MovieCategory(id: 489, name: 'Odia', slug: 'odia', count: 30),
+    MovieCategory(id: 490, name: 'Urdu', slug: 'urdu', count: 6),
+
+    // Popular Genres & Collections
+    MovieCategory(id: 0, name: 'Action', slug: 'action', count: 512),
+    MovieCategory(id: 0, name: 'Comedy', slug: 'comedy', count: 320),
+    MovieCategory(id: 0, name: 'Drama', slug: 'drama', count: 410),
+    MovieCategory(id: 0, name: 'Horror', slug: 'horror', count: 180),
+    MovieCategory(id: 0, name: 'Thriller', slug: 'thriller', count: 260),
+    MovieCategory(id: 0, name: 'Romance', slug: 'romance', count: 215),
+    MovieCategory(id: 0, name: 'Sci-Fi & Fantasy', slug: 'sci-fi', count: 195),
+    MovieCategory(id: 0, name: 'Crime & Mystery', slug: 'crime', count: 165),
+    MovieCategory(id: 0, name: 'Animation', slug: 'animation', count: 130),
+    MovieCategory(id: 0, name: 'Adventure', slug: 'adventure', count: 220),
   ];
 
   // Fetch paginated movies
@@ -376,44 +410,58 @@ class ApiService {
   static Future<Movie?> fetchMovieDetail(String slug) => fetchMovieBySlug(slug);
 
   static List<MovieCategory> _ensureEssentialCategories(List<MovieCategory> list) {
-    final existingSlugs = list.map((c) => c.slug.toLowerCase().trim()).toSet();
-    final existingNames = list.map((c) => c.name.toLowerCase().trim()).toSet();
-    final result = List<MovieCategory>.from(list);
-
-    for (final def in defaultCategories) {
-      final slugMatch = existingSlugs.contains(def.slug.toLowerCase());
-      final nameMatch = existingNames.any((n) => n.contains(def.slug.toLowerCase()) || def.name.toLowerCase().contains(n));
-      if (!slugMatch && !nameMatch) {
-        result.add(def);
+    // Map of slug and id to live fetched categories
+    final fetchedMap = <String, MovieCategory>{};
+    for (final c in list) {
+      fetchedMap[c.slug.toLowerCase().trim()] = c;
+      if (c.id > 0) {
+        fetchedMap['id_${c.id}'] = c;
       }
     }
+
+    final result = <MovieCategory>[];
+    final addedKeys = <String>{};
+
+    // 1. Populate all default categories with updated live counts from fetchedMap
+    for (final def in defaultCategories) {
+      final key = def.slug.toLowerCase().trim();
+      final idKey = def.id > 0 ? 'id_${def.id}' : '';
+      final live = fetchedMap[key] ?? (idKey.isNotEmpty ? fetchedMap[idKey] : null);
+
+      if (live != null) {
+        result.add(MovieCategory(
+          id: live.id > 0 ? live.id : def.id,
+          name: def.name,
+          slug: live.slug.isNotEmpty ? live.slug : def.slug,
+          count: live.count ?? def.count,
+        ));
+      } else {
+        result.add(def);
+      }
+      addedKeys.add(key);
+      if (idKey.isNotEmpty) addedKeys.add(idKey);
+    }
+
+    // 2. Add any newly discovered categories from WordPress that weren't in defaultCategories
+    for (final c in list) {
+      final key = c.slug.toLowerCase().trim();
+      final idKey = c.id > 0 ? 'id_${c.id}' : '';
+      if (!addedKeys.contains(key) && (idKey.isEmpty || !addedKeys.contains(idKey))) {
+        result.add(c);
+        addedKeys.add(key);
+      }
+    }
+
     return result;
   }
 
   // Fetch categories
   static Future<List<MovieCategory>> fetchCategories() async {
-    // 1. Try Vercel API
-    try {
-      final res = await http
-          .get(Uri.parse('$baseUrl/categories'), headers: requestHeaders)
-          .timeout(const Duration(seconds: 6));
-      if (res.statusCode == 200) {
-        final list = json.decode(res.body) as List<dynamic>;
-        final parsed = list
-            .map((e) => MovieCategory.fromJson(e as Map<String, dynamic>))
-            .where((c) => !isAdultCategory(c.name, c.slug))
-            .toList();
-        if (parsed.isNotEmpty) {
-          return _ensureEssentialCategories(parsed);
-        }
-      }
-    } catch (_) {}
-
-    // 2. Fallback to WP
+    // 1. Direct fetch from WordPress (fast & reliable)
     try {
       final res = await http
           .get(Uri.parse('$directWpUrl/categories?per_page=100'), headers: requestHeaders)
-          .timeout(const Duration(seconds: 10));
+          .timeout(const Duration(seconds: 8));
       if (res.statusCode == 200) {
         final list = json.decode(res.body) as List<dynamic>;
         final parsed = list
@@ -424,6 +472,23 @@ class ApiService {
                   slug: e['slug']?.toString() ?? '',
                   count: e['count'] as int?,
                 ))
+            .where((c) => !isAdultCategory(c.name, c.slug))
+            .toList();
+        if (parsed.isNotEmpty) {
+          return _ensureEssentialCategories(parsed);
+        }
+      }
+    } catch (_) {}
+
+    // 2. Fallback to Vercel API
+    try {
+      final res = await http
+          .get(Uri.parse('$baseUrl/categories'), headers: requestHeaders)
+          .timeout(const Duration(seconds: 6));
+      if (res.statusCode == 200) {
+        final list = json.decode(res.body) as List<dynamic>;
+        final parsed = list
+            .map((e) => MovieCategory.fromJson(e as Map<String, dynamic>))
             .where((c) => !isAdultCategory(c.name, c.slug))
             .toList();
         if (parsed.isNotEmpty) {

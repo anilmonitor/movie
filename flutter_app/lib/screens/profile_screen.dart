@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import '../models/movie.dart';
 import '../services/watchlist_service.dart';
 import '../theme/app_theme.dart';
+import '../widgets/telegram_button.dart';
 import 'disclaimer_screen.dart';
 import 'privacy_policy_screen.dart';
 import 'watchlist_screen.dart';
@@ -293,6 +294,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
           style: TextStyle(fontWeight: FontWeight.w700, fontSize: 18),
         ),
         centerTitle: false,
+        actions: const [
+          TelegramButton(),
+          SizedBox(width: 10),
+        ],
       ),
       body: RefreshIndicator(
         onRefresh: _loadData,
@@ -357,23 +362,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             ),
                           ),
                         ],
-                      ),
-                    ),
-
-                    // Saved count badge
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                      decoration: BoxDecoration(
-                        color: isDark ? Colors.white.withOpacity(0.06) : const Color(0xFFF1F5F9),
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Text(
-                        '${_savedMovies.length} Saved',
-                        style: TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w600,
-                          color: isDark ? AppTheme.darkTextSecondary : AppTheme.lightTextSecondary,
-                        ),
                       ),
                     ),
                   ],
@@ -514,6 +502,20 @@ class _ProfileScreenState extends State<ProfileScreen> {
               _buildCardGroup(
                 isDark: isDark,
                 children: [
+                  _buildSettingsTile(
+                    isDark: isDark,
+                    title: 'Join Telegram Channel',
+                    titleColor: const Color(0xFF229ED9),
+                    trailing: const Icon(
+                      Icons.open_in_new_rounded,
+                      size: 16,
+                      color: Color(0xFF229ED9),
+                    ),
+                    onTap: openTelegram,
+                  ),
+
+                  _buildDivider(isDark),
+
                   _buildSettingsTile(
                     isDark: isDark,
                     title: 'Developer Support',

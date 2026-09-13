@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../models/movie.dart';
 import '../services/api_service.dart';
 import '../theme/app_theme.dart';
+import '../widgets/telegram_button.dart';
 import 'category_detail_screen.dart';
 
 class CategoriesScreen extends StatefulWidget {
@@ -13,9 +14,8 @@ class CategoriesScreen extends StatefulWidget {
 
 class _CategoriesScreenState extends State<CategoriesScreen> {
   // Pre-fill with guaranteed default categories so screen is NEVER blank
-  List<MovieCategory> _categories = ApiService.defaultCategories
-      .where((c) => !ApiService.isAdultCategory(c.name, c.slug))
-      .toList();
+  List<MovieCategory> _categories = ApiService.defaultCategories;
+
   @override
   void initState() {
     super.initState();
@@ -27,7 +27,7 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
     if (mounted) {
       setState(() {
         if (list.isNotEmpty) {
-          _categories = list.where((c) => !ApiService.isAdultCategory(c.name, c.slug)).toList();
+          _categories = list;
         }
       });
     }
@@ -52,6 +52,10 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Categories', style: TextStyle(fontWeight: FontWeight.w900, fontSize: 20)),
+        actions: const [
+          TelegramButton(),
+          SizedBox(width: 10),
+        ],
       ),
       body: RefreshIndicator(
         onRefresh: _loadCategories,

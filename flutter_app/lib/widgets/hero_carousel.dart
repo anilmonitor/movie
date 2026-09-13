@@ -55,8 +55,6 @@ class _HeroCarouselState extends State<HeroCarousel> {
     final featured = widget.movies.take(5).toList();
     if (featured.isEmpty) return const SizedBox.shrink();
 
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-
     return Column(
       children: [
         SizedBox(
@@ -93,11 +91,12 @@ class _HeroCarouselState extends State<HeroCarousel> {
                             begin: Alignment.topCenter,
                             end: Alignment.bottomCenter,
                             colors: [
+                              Colors.black.withOpacity(0.15),
                               Colors.transparent,
-                              Colors.black.withOpacity(0.4),
-                              isDark ? AppTheme.darkBackground : AppTheme.lightBackground.withOpacity(0.95),
+                              Colors.black.withOpacity(0.65),
+                              Colors.black.withOpacity(0.92),
                             ],
-                            stops: const [0.3, 0.65, 1.0],
+                            stops: const [0.0, 0.35, 0.7, 1.0],
                           ),
                         ),
                       ),
@@ -186,22 +185,29 @@ class _HeroCarouselState extends State<HeroCarousel> {
                           ),
                           const SizedBox(height: 10),
 
-                          // Title
+                          // Title - Always bright white with shadow for maximum readability
                           Text(
                             movie.title,
                             textAlign: TextAlign.center,
                             maxLines: 2,
                             overflow: TextOverflow.ellipsis,
-                            style: TextStyle(
+                            style: const TextStyle(
                               fontSize: 20,
                               fontWeight: FontWeight.w900,
-                              color: isDark ? Colors.white : AppTheme.lightTextPrimary,
+                              color: Colors.white,
                               letterSpacing: -0.3,
+                              shadows: [
+                                Shadow(
+                                  color: Colors.black,
+                                  blurRadius: 12,
+                                  offset: Offset(0, 2),
+                                ),
+                              ],
                             ),
                           ),
                           const SizedBox(height: 6),
 
-                          // Languages / Categories
+                          // Languages / Categories - Always bright white with shadow
                           Text(
                             movie.languages.isNotEmpty
                                 ? movie.languages.join(' • ')
@@ -211,9 +217,16 @@ class _HeroCarouselState extends State<HeroCarousel> {
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                             style: TextStyle(
-                              fontSize: 11,
-                              fontWeight: FontWeight.w500,
-                              color: isDark ? Colors.white70 : AppTheme.lightTextSecondary,
+                              fontSize: 11.5,
+                              fontWeight: FontWeight.w600,
+                              color: Colors.white.withOpacity(0.88),
+                              shadows: const [
+                                Shadow(
+                                  color: Colors.black87,
+                                  blurRadius: 8,
+                                  offset: Offset(0, 1),
+                                ),
+                              ],
                             ),
                           ),
                           const SizedBox(height: 14),
@@ -239,7 +252,7 @@ class _HeroCarouselState extends State<HeroCarousel> {
                               ),
                               const SizedBox(width: 12),
 
-                              // Info
+                              // Info / Details Button
                               OutlinedButton.icon(
                                 onPressed: () {
                                   Navigator.push(
@@ -247,23 +260,24 @@ class _HeroCarouselState extends State<HeroCarousel> {
                                     MaterialPageRoute(builder: (_) => MovieDetailScreen(movie: movie)),
                                   );
                                 },
-                                icon: Icon(
+                                icon: const Icon(
                                   Icons.info_outline_rounded,
                                   size: 16,
-                                  color: isDark ? Colors.white : AppTheme.lightTextPrimary,
+                                  color: Colors.white,
                                 ),
-                                label: Text(
+                                label: const Text(
                                   'Details',
                                   style: TextStyle(
                                     fontWeight: FontWeight.w700,
                                     fontSize: 13,
-                                    color: isDark ? Colors.white : AppTheme.lightTextPrimary,
+                                    color: Colors.white,
                                   ),
                                 ),
                                 style: OutlinedButton.styleFrom(
+                                  backgroundColor: Colors.white.withOpacity(0.14),
                                   padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
                                   side: BorderSide(
-                                    color: isDark ? Colors.white24 : Colors.black12,
+                                    color: Colors.white.withOpacity(0.4),
                                   ),
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(12),

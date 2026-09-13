@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:url_launcher/url_launcher.dart';
 import '../models/movie.dart';
 import '../services/api_service.dart';
 import '../theme/app_theme.dart';
@@ -8,6 +7,7 @@ import '../widgets/horizontal_movie_list.dart';
 import '../widgets/movie_card.dart';
 import '../widgets/shimmer_loading.dart';
 import '../widgets/date_filter_dialog.dart';
+import '../widgets/telegram_button.dart';
 import 'search_screen.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -460,6 +460,10 @@ class _HomeScreenState extends State<HomeScreen> {
               children: items,
             ),
           ),
+          const SizedBox(height: 18),
+          const TelegramBannerCard(
+            margin: EdgeInsets.symmetric(horizontal: 4),
+          ),
         ],
       ),
     );
@@ -494,7 +498,7 @@ class _HomeScreenState extends State<HomeScreen> {
             const SizedBox(width: 8),
             RichText(
               text: TextSpan(
-                text: 'MOVIE',
+                text: 'MOVIE ',
                 style: TextStyle(
                   color: isDark ? Colors.white : AppTheme.lightTextPrimary,
                   fontSize: 20,
@@ -503,7 +507,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
                 children: const [
                   TextSpan(
-                    text: '4U',
+                    text: 'MAN',
                     style: TextStyle(
                       color: AppTheme.primaryRed,
                       fontWeight: FontWeight.w900,
@@ -516,47 +520,7 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
         actions: [
           // Join Telegram Button
-          Center(
-            child: InkWell(
-              onTap: () async {
-                final uri = Uri.parse('https://t.me/+E2B_D_7AQIkyMjI1');
-                if (await canLaunchUrl(uri)) {
-                  await launchUrl(uri, mode: LaunchMode.externalApplication);
-                }
-              },
-              borderRadius: BorderRadius.circular(18),
-              child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 5),
-                decoration: BoxDecoration(
-                  color: const Color(0xFF229ED9).withOpacity(0.16),
-                  borderRadius: BorderRadius.circular(18),
-                  border: Border.all(
-                    color: const Color(0xFF229ED9).withOpacity(0.45),
-                    width: 1,
-                  ),
-                ),
-                child: const Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(
-                      Icons.send_rounded,
-                      size: 13,
-                      color: Color(0xFF229ED9),
-                    ),
-                    SizedBox(width: 4),
-                    Text(
-                      'Join Telegram',
-                      style: TextStyle(
-                        fontSize: 11,
-                        fontWeight: FontWeight.w700,
-                        color: Color(0xFF229ED9),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ),
+          const TelegramButton(),
           const SizedBox(width: 2),
           IconButton(
             icon: const Icon(Icons.search_rounded),
