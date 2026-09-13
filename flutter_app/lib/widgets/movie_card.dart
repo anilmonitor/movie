@@ -78,142 +78,45 @@ class MovieCard extends StatelessWidget {
                   ),
                 ),
 
-                // Gradient Vignette
-                Positioned.fill(
-                  child: Container(
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        begin: Alignment.topCenter,
-                        end: Alignment.bottomCenter,
-                        colors: [
-                          Colors.black.withOpacity(0.35),
-                          Colors.transparent,
-                          Colors.black.withOpacity(0.7),
-                        ],
+                // Subtle bottom vignette for time text readability
+                if (movie.timeAgo.isNotEmpty)
+                  Positioned(
+                    bottom: 0,
+                    left: 0,
+                    right: 0,
+                    height: 28,
+                    child: Container(
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          begin: Alignment.topCenter,
+                          end: Alignment.bottomCenter,
+                          colors: [
+                            Colors.transparent,
+                            Colors.black.withOpacity(0.45),
+                          ],
+                        ),
                       ),
                     ),
                   ),
-                ),
 
-                // Top Badges
-                Positioned(
-                  top: 6,
-                  left: 6,
-                  right: 6,
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      // Rating Pill
-                      if (movie.rating != null && movie.rating!.isNotEmpty)
-                        Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
-                          decoration: BoxDecoration(
-                            color: AppTheme.ratingGold,
-                            borderRadius: BorderRadius.circular(6),
-                          ),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              const Icon(Icons.star, size: 10, color: Colors.black),
-                              const SizedBox(width: 2),
-                              Text(
-                                movie.rating!,
-                                style: const TextStyle(
-                                  fontSize: 9,
-                                  fontWeight: FontWeight.w800,
-                                  color: Colors.black,
-                                ),
-                              ),
-                            ],
-                          ),
-                        )
-                      else
-                        Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
-                          decoration: BoxDecoration(
-                            color: AppTheme.primaryRed,
-                            borderRadius: BorderRadius.circular(6),
-                          ),
-                          child: const Text(
-                            'HD',
-                            style: TextStyle(
-                              fontSize: 9,
-                              fontWeight: FontWeight.w800,
-                              color: Colors.white,
-                            ),
-                          ),
-                        ),
-
-                      // Quality Tag
-                      if (movie.qualities.isNotEmpty)
-                        Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
-                          decoration: BoxDecoration(
-                            color: Colors.black.withOpacity(0.8),
-                            borderRadius: BorderRadius.circular(6),
-                            border: Border.all(color: Colors.red.withOpacity(0.4), width: 0.8),
-                          ),
-                          child: Text(
-                            movie.qualities.first,
-                            style: const TextStyle(
-                              fontSize: 8,
-                              fontWeight: FontWeight.w800,
-                              color: Color(0xFFF87171),
-                            ),
-                          ),
-                        ),
-                    ],
-                  ),
-                ),
-
-                // Year tag (bottom left of poster)
-                if (movie.year != null && movie.year!.isNotEmpty)
+                // Upload time tag (bottom right of poster) - Minimal & Clean
+                if (movie.timeAgo.isNotEmpty)
                   Positioned(
-                    bottom: 6,
-                    left: 6,
+                    bottom: 5,
+                    right: 5,
                     child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
+                      padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1.5),
                       decoration: BoxDecoration(
-                        color: Colors.black.withOpacity(0.7),
+                        color: Colors.black.withOpacity(0.55),
                         borderRadius: BorderRadius.circular(4),
                       ),
                       child: Text(
-                        movie.year!,
+                        movie.timeAgo,
                         style: const TextStyle(
-                          fontSize: 9,
-                          fontWeight: FontWeight.w600,
+                          fontSize: 8.5,
+                          fontWeight: FontWeight.w500,
                           color: Colors.white70,
                         ),
-                      ),
-                    ),
-                  ),
-
-                // Upload time tag (bottom right of poster)
-                if (movie.timeAgo.isNotEmpty)
-                  Positioned(
-                    bottom: 6,
-                    right: 6,
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
-                      decoration: BoxDecoration(
-                        color: Colors.black.withOpacity(0.75),
-                        borderRadius: BorderRadius.circular(4),
-                        border: Border.all(color: Colors.amber.withOpacity(0.3), width: 0.5),
-                      ),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          const Icon(Icons.access_time_rounded, size: 8, color: AppTheme.ratingGold),
-                          const SizedBox(width: 2),
-                          Text(
-                            movie.timeAgo,
-                            style: const TextStyle(
-                              fontSize: 8,
-                              fontWeight: FontWeight.w700,
-                              color: AppTheme.ratingGold,
-                            ),
-                          ),
-                        ],
                       ),
                     ),
                   ),

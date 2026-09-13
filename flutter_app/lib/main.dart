@@ -53,12 +53,13 @@ class _MovieManAppState extends State<MovieManApp> {
     _themeMode = widget.initialThemeMode;
   }
 
-  void _setThemeMode(ThemeMode mode) async {
+  void _setThemeMode(ThemeMode mode) {
     if (_themeMode == mode) return;
     setState(() => _themeMode = mode);
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString('app_theme_mode', mode.name);
-    await prefs.setBool('is_dark_theme', mode == ThemeMode.dark);
+    SharedPreferences.getInstance().then((prefs) {
+      prefs.setString('app_theme_mode', mode.name);
+      prefs.setBool('is_dark_theme', mode == ThemeMode.dark);
+    });
   }
 
   @override
@@ -66,6 +67,7 @@ class _MovieManAppState extends State<MovieManApp> {
     return MaterialApp(
       title: 'Movie Man',
       debugShowCheckedModeBanner: false,
+      themeAnimationDuration: Duration.zero,
       theme: AppTheme.lightTheme,
       darkTheme: AppTheme.darkTheme,
       themeMode: _themeMode,

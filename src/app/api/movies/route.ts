@@ -8,8 +8,11 @@ export async function GET(request: NextRequest) {
     const perPage = parseInt(searchParams.get('perPage') || '18', 10);
     const category = searchParams.get('category') || undefined;
     const search = searchParams.get('search') || undefined;
+    const sort = (searchParams.get('sort') as 'newest' | 'oldest') || 'newest';
+    const after = searchParams.get('after') || undefined;
+    const before = searchParams.get('before') || undefined;
 
-    const data = await getMovies({ page, perPage, category, search });
+    const data = await getMovies({ page, perPage, category, search, sort, after, before });
 
     return NextResponse.json(data, {
       headers: {

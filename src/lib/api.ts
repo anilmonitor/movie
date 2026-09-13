@@ -257,12 +257,16 @@ export async function getMovies({
   category,
   search,
   sort = 'newest',
+  after,
+  before,
 }: {
   page?: number;
   perPage?: number;
   category?: string | number;
   search?: string;
   sort?: 'newest' | 'oldest';
+  after?: string;
+  before?: string;
 } = {}): Promise<MovieListResponse> {
   const params = new URLSearchParams();
   params.set('_embed', '1');
@@ -273,6 +277,8 @@ export async function getMovies({
 
   if (category) params.set('categories', String(category));
   if (search) params.set('search', search);
+  if (after) params.set('after', after);
+  if (before) params.set('before', before);
 
   try {
     const res = await fetch(`${WP_API_BASE}/posts?${params.toString()}`, {

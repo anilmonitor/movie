@@ -54,15 +54,15 @@ export default function Navbar() {
             {/* Theme Toggle Button */}
             <ThemeToggle />
 
-            {/* Telegram Link (Desktop) */}
+            {/* Telegram Link */}
             <a
               href="https://t.me/+E2B_D_7AQIkyMjI1"
               target="_blank"
               rel="noopener noreferrer"
-              className="hidden lg:flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold bg-sky-500/10 hover:bg-sky-500/20 text-sky-600 dark:text-sky-400 border border-sky-500/30 transition-all hover:scale-105"
+              className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-full text-xs font-semibold bg-sky-500/10 hover:bg-sky-500/20 text-sky-600 dark:text-sky-400 border border-sky-500/30 transition-all hover:scale-105"
             >
               <Send className="w-3.5 h-3.5" />
-              <span>Telegram</span>
+              <span>Join Telegram</span>
             </a>
 
             {/* Mobile Search Toggle */}

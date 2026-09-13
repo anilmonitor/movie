@@ -16,8 +16,6 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
   List<MovieCategory> _categories = ApiService.defaultCategories
       .where((c) => !ApiService.isAdultCategory(c.name, c.slug))
       .toList();
-  bool _isRefreshing = false;
-
   @override
   void initState() {
     super.initState();
@@ -25,14 +23,12 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
   }
 
   Future<void> _loadCategories() async {
-    setState(() => _isRefreshing = true);
     final list = await ApiService.fetchCategories();
     if (mounted) {
       setState(() {
         if (list.isNotEmpty) {
           _categories = list.where((c) => !ApiService.isAdultCategory(c.name, c.slug)).toList();
         }
-        _isRefreshing = false;
       });
     }
   }
@@ -56,30 +52,12 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Categories', style: TextStyle(fontWeight: FontWeight.w900, fontSize: 20)),
-        actions: [
-          if (_isRefreshing)
-            const Padding(
-              padding: EdgeInsets.only(right: 16.0),
-              child: Center(
-                child: SizedBox(
-                  width: 18,
-                  height: 18,
-                  child: CircularProgressIndicator(strokeWidth: 2, color: AppTheme.primaryRed),
-                ),
-              ),
-            )
-          else
-            IconButton(
-              icon: const Icon(Icons.refresh_rounded),
-              tooltip: 'Refresh',
-              onPressed: _loadCategories,
-            ),
-        ],
       ),
       body: RefreshIndicator(
         onRefresh: _loadCategories,
         color: AppTheme.primaryRed,
         child: GridView.builder(
+          physics: const AlwaysScrollableScrollPhysics(),
           padding: const EdgeInsets.all(16),
           gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
             crossAxisCount: 2,

@@ -29,188 +29,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
       case ThemeMode.system:
         return 'System Default';
       case ThemeMode.dark:
-        return 'Dark Mode (AMOLED)';
+        return 'Dark Mode';
       case ThemeMode.light:
         return 'Light Mode';
     }
-  }
-
-  IconData get _themeModeIcon {
-    switch (widget.currentThemeMode) {
-      case ThemeMode.system:
-        return Icons.brightness_auto_rounded;
-      case ThemeMode.dark:
-        return Icons.dark_mode_rounded;
-      case ThemeMode.light:
-        return Icons.light_mode_rounded;
-    }
-  }
-
-  void _showThemeSelectionDialog() {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-
-    showDialog(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        backgroundColor: isDark ? AppTheme.darkCard : AppTheme.lightCard,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20),
-          side: BorderSide(color: isDark ? AppTheme.darkBorder : AppTheme.lightBorder),
-        ),
-        titlePadding: const EdgeInsets.fromLTRB(20, 20, 20, 12),
-        contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
-        title: Row(
-          children: [
-            Container(
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                color: AppTheme.primaryRed.withOpacity(0.12),
-                borderRadius: BorderRadius.circular(10),
-              ),
-              child: const Icon(Icons.palette_outlined, color: AppTheme.primaryRed, size: 20),
-            ),
-            const SizedBox(width: 12),
-            Text(
-              'Choose Theme',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.w800,
-                color: isDark ? AppTheme.darkTextPrimary : AppTheme.lightTextPrimary,
-              ),
-            ),
-          ],
-        ),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            _buildThemeOption(
-              ctx,
-              title: 'System Default',
-              subtitle: 'Match device system appearance',
-              icon: Icons.brightness_auto_rounded,
-              mode: ThemeMode.system,
-              isSelected: widget.currentThemeMode == ThemeMode.system,
-            ),
-            const SizedBox(height: 8),
-            _buildThemeOption(
-              ctx,
-              title: 'Dark Mode',
-              subtitle: 'Deep AMOLED black for night viewing',
-              icon: Icons.dark_mode_rounded,
-              mode: ThemeMode.dark,
-              isSelected: widget.currentThemeMode == ThemeMode.dark,
-            ),
-            const SizedBox(height: 8),
-            _buildThemeOption(
-              ctx,
-              title: 'Light Mode',
-              subtitle: 'Crisp bright theme for daytime reading',
-              icon: Icons.light_mode_rounded,
-              mode: ThemeMode.light,
-              isSelected: widget.currentThemeMode == ThemeMode.light,
-            ),
-          ],
-        ),
-        actionsPadding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx),
-            style: TextButton.styleFrom(
-              foregroundColor: isDark ? AppTheme.darkTextSecondary : AppTheme.lightTextSecondary,
-            ),
-            child: const Text('Cancel', style: TextStyle(fontWeight: FontWeight.w700)),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildThemeOption(
-    BuildContext ctx, {
-    required String title,
-    required String subtitle,
-    required IconData icon,
-    required ThemeMode mode,
-    required bool isSelected,
-  }) {
-    final isDark = Theme.of(ctx).brightness == Brightness.dark;
-
-    return InkWell(
-      onTap: () {
-        widget.onThemeChanged?.call(mode);
-        Navigator.pop(ctx);
-      },
-      borderRadius: BorderRadius.circular(14),
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-        decoration: BoxDecoration(
-          color: isSelected
-              ? AppTheme.primaryRed.withOpacity(0.1)
-              : (isDark ? Colors.white.withOpacity(0.02) : Colors.black.withOpacity(0.02)),
-          borderRadius: BorderRadius.circular(14),
-          border: Border.all(
-            color: isSelected
-                ? AppTheme.primaryRed.withOpacity(0.6)
-                : (isDark ? AppTheme.darkBorder : AppTheme.lightBorder),
-            width: 1.2,
-          ),
-        ),
-        child: Row(
-          children: [
-            Container(
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                color: isSelected
-                    ? AppTheme.primaryRed
-                    : (isDark ? Colors.white10 : Colors.black.withOpacity(0.05)),
-                borderRadius: BorderRadius.circular(10),
-              ),
-              child: Icon(
-                icon,
-                size: 18,
-                color: isSelected
-                    ? Colors.white
-                    : (isDark ? AppTheme.darkTextPrimary : AppTheme.lightTextPrimary),
-              ),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    title,
-                    style: TextStyle(
-                      fontSize: 14.5,
-                      fontWeight: FontWeight.w700,
-                      color: isSelected
-                          ? AppTheme.primaryRed
-                          : (isDark ? AppTheme.darkTextPrimary : AppTheme.lightTextPrimary),
-                    ),
-                  ),
-                  const SizedBox(height: 2),
-                  Text(
-                    subtitle,
-                    style: TextStyle(
-                      fontSize: 11.5,
-                      color: isDark ? AppTheme.darkTextSecondary : AppTheme.lightTextSecondary,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            if (isSelected)
-              const Icon(Icons.check_circle_rounded, color: AppTheme.primaryRed, size: 20)
-            else
-              Icon(
-                Icons.radio_button_unchecked_rounded,
-                color: isDark ? Colors.grey[700] : Colors.grey[400],
-                size: 20,
-              ),
-          ],
-        ),
-      ),
-    );
   }
 
   @override
@@ -242,52 +64,147 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
-  void _showContactDialog() {
+  void _showThemeSelectionDialog() {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        backgroundColor: Theme.of(context).brightness == Brightness.dark
-            ? AppTheme.darkCard
-            : AppTheme.lightCard,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: const Row(
+        backgroundColor: isDark ? const Color(0xFF161D2C) : Colors.white,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+          side: BorderSide(color: isDark ? AppTheme.darkBorder : AppTheme.lightBorder),
+        ),
+        titlePadding: const EdgeInsets.fromLTRB(20, 18, 20, 6),
+        contentPadding: const EdgeInsets.symmetric(vertical: 6),
+        title: Text(
+          'Choose Theme',
+          style: TextStyle(
+            fontSize: 17,
+            fontWeight: FontWeight.w700,
+            color: isDark ? AppTheme.darkTextPrimary : AppTheme.lightTextPrimary,
+          ),
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(Icons.mail_outline_rounded, color: AppTheme.primaryRed),
-            SizedBox(width: 8),
-            Text('Contact Developer', style: TextStyle(fontSize: 17, fontWeight: FontWeight.w700)),
+            RadioListTile<ThemeMode>(
+              value: ThemeMode.system,
+              groupValue: widget.currentThemeMode,
+              activeColor: AppTheme.primaryRed,
+              contentPadding: const EdgeInsets.symmetric(horizontal: 14),
+              title: const Text(
+                'System Default',
+                style: TextStyle(fontSize: 14.5, fontWeight: FontWeight.w500),
+              ),
+              onChanged: (val) {
+                if (val != null) {
+                  Navigator.pop(ctx);
+                  WidgetsBinding.instance.addPostFrameCallback((_) {
+                    widget.onThemeChanged?.call(val);
+                  });
+                }
+              },
+            ),
+            RadioListTile<ThemeMode>(
+              value: ThemeMode.dark,
+              groupValue: widget.currentThemeMode,
+              activeColor: AppTheme.primaryRed,
+              contentPadding: const EdgeInsets.symmetric(horizontal: 14),
+              title: const Text(
+                'Dark Mode',
+                style: TextStyle(fontSize: 14.5, fontWeight: FontWeight.w500),
+              ),
+              onChanged: (val) {
+                if (val != null) {
+                  Navigator.pop(ctx);
+                  WidgetsBinding.instance.addPostFrameCallback((_) {
+                    widget.onThemeChanged?.call(val);
+                  });
+                }
+              },
+            ),
+            RadioListTile<ThemeMode>(
+              value: ThemeMode.light,
+              groupValue: widget.currentThemeMode,
+              activeColor: AppTheme.primaryRed,
+              contentPadding: const EdgeInsets.symmetric(horizontal: 14),
+              title: const Text(
+                'Light Mode',
+                style: TextStyle(fontSize: 14.5, fontWeight: FontWeight.w500),
+              ),
+              onChanged: (val) {
+                if (val != null) {
+                  Navigator.pop(ctx);
+                  WidgetsBinding.instance.addPostFrameCallback((_) {
+                    widget.onThemeChanged?.call(val);
+                  });
+                }
+              },
+            ),
           ],
+        ),
+        actionsPadding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            style: TextButton.styleFrom(
+              foregroundColor: isDark ? AppTheme.darkTextSecondary : AppTheme.lightTextSecondary,
+            ),
+            child: const Text('Cancel'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showContactDialog() {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: isDark ? AppTheme.darkCard : AppTheme.lightCard,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+          side: BorderSide(color: isDark ? AppTheme.darkBorder : AppTheme.lightBorder),
+        ),
+        titlePadding: const EdgeInsets.fromLTRB(20, 18, 20, 10),
+        title: Text(
+          'Contact Support',
+          style: TextStyle(
+            fontSize: 17,
+            fontWeight: FontWeight.w700,
+            color: isDark ? AppTheme.darkTextPrimary : AppTheme.lightTextPrimary,
+          ),
         ),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
-              'For support, DMCA removal, or feedback, email us directly at:',
-              style: TextStyle(fontSize: 13),
+            Text(
+              'Email us for support or copyright inquiries:',
+              style: TextStyle(
+                fontSize: 13,
+                color: isDark ? AppTheme.darkTextSecondary : AppTheme.lightTextSecondary,
+              ),
             ),
             const SizedBox(height: 12),
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
               decoration: BoxDecoration(
-                color: AppTheme.primaryRed.withOpacity(0.1),
+                color: isDark ? const Color(0xFF141A28) : const Color(0xFFF8FAFC),
                 borderRadius: BorderRadius.circular(8),
-                border: Border.all(color: AppTheme.primaryRed.withOpacity(0.3)),
+                border: Border.all(
+                  color: isDark ? AppTheme.darkBorder : AppTheme.lightBorder,
+                ),
               ),
-              child: const Row(
-                children: [
-                  Icon(Icons.alternate_email, size: 16, color: AppTheme.primaryRed),
-                  SizedBox(width: 8),
-                  Expanded(
-                    child: SelectableText(
-                      'anilarangi6@gmail.com',
-                      style: TextStyle(
-                        fontWeight: FontWeight.w700,
-                        fontSize: 14,
-                        color: AppTheme.primaryRed,
-                      ),
-                    ),
-                  ),
-                ],
+              child: const SelectableText(
+                'anilarangi6@gmail.com',
+                style: TextStyle(
+                  fontWeight: FontWeight.w600,
+                  fontSize: 13.5,
+                ),
               ),
             ),
           ],
@@ -305,6 +222,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
           ),
           TextButton(
             onPressed: () => Navigator.pop(ctx),
+            style: TextButton.styleFrom(
+              foregroundColor: isDark ? AppTheme.darkTextSecondary : AppTheme.lightTextSecondary,
+            ),
             child: const Text('Close'),
           ),
         ],
@@ -313,25 +233,37 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   void _confirmClearData() {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        backgroundColor: Theme.of(context).brightness == Brightness.dark
-            ? AppTheme.darkCard
-            : AppTheme.lightCard,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: const Text('Clear Saved Watchlist?'),
-        content: const Text(
-          'This will remove all saved bookmarks from your device local storage.',
-          style: TextStyle(fontSize: 13),
+        backgroundColor: isDark ? AppTheme.darkCard : AppTheme.lightCard,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+          side: BorderSide(color: isDark ? AppTheme.darkBorder : AppTheme.lightBorder),
+        ),
+        title: const Text(
+          'Clear Watchlist?',
+          style: TextStyle(fontWeight: FontWeight.w700, fontSize: 17),
+        ),
+        content: Text(
+          'This will remove all saved bookmarks from your device.',
+          style: TextStyle(
+            fontSize: 13,
+            color: isDark ? AppTheme.darkTextSecondary : AppTheme.lightTextSecondary,
+          ),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
+            style: TextButton.styleFrom(
+              foregroundColor: isDark ? AppTheme.darkTextSecondary : AppTheme.lightTextSecondary,
+            ),
             child: const Text('Cancel'),
           ),
           TextButton(
-            style: TextButton.styleFrom(foregroundColor: Colors.red),
+            style: TextButton.styleFrom(foregroundColor: Colors.redAccent),
             onPressed: () async {
               final messenger = ScaffoldMessenger.of(context);
               for (final m in _savedMovies) {
@@ -343,7 +275,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 const SnackBar(content: Text('Watchlist cleared.')),
               );
             },
-            child: const Text('Clear All'),
+            child: const Text('Clear', style: TextStyle(fontWeight: FontWeight.w700)),
           ),
         ],
       ),
@@ -357,95 +289,91 @@ class _ProfileScreenState extends State<ProfileScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text(
-          'Profile & Settings',
-          style: TextStyle(fontWeight: FontWeight.w900, fontSize: 20),
+          'Profile',
+          style: TextStyle(fontWeight: FontWeight.w700, fontSize: 18),
         ),
+        centerTitle: false,
       ),
       body: RefreshIndicator(
         onRefresh: _loadData,
-        color: AppTheme.primaryRed,
+        color: isDark ? Colors.white : Colors.black87,
         child: SingleChildScrollView(
           physics: const AlwaysScrollableScrollPhysics(),
-          padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
+          padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 10.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // User Profile Banner Card
+              // Profile Header (Guest Account with DP Avatar)
               Container(
-                padding: const EdgeInsets.all(20),
+                padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: isDark
-                        ? [const Color(0xFF1B2337), const Color(0xFF111726)]
-                        : [Colors.white, const Color(0xFFF1F5F9)],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                  ),
-                  borderRadius: BorderRadius.circular(20),
+                  color: isDark ? AppTheme.darkCard : AppTheme.lightCard,
+                  borderRadius: BorderRadius.circular(16),
                   border: Border.all(
                     color: isDark ? AppTheme.darkBorder : AppTheme.lightBorder,
                   ),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.06),
-                      blurRadius: 14,
-                      offset: const Offset(0, 4),
-                    ),
-                  ],
                 ),
                 child: Row(
                   children: [
+                    // DP (Display Picture) Avatar
                     Container(
-                      width: 60,
-                      height: 60,
+                      width: 52,
+                      height: 52,
                       decoration: BoxDecoration(
-                        gradient: const LinearGradient(
-                          colors: [AppTheme.primaryRed, Color(0xFF8B5CF6)],
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
+                        shape: BoxShape.circle,
+                        color: isDark ? const Color(0xFF1E2638) : const Color(0xFFE2E8F0),
+                        border: Border.all(
+                          color: isDark ? Colors.white.withOpacity(0.12) : Colors.black.withOpacity(0.08),
+                          width: 1.5,
                         ),
-                        borderRadius: BorderRadius.circular(18),
-                        boxShadow: [
-                          BoxShadow(
-                            color: AppTheme.primaryRed.withOpacity(0.35),
-                            blurRadius: 12,
-                            offset: const Offset(0, 4),
-                          ),
-                        ],
                       ),
-                      child: const Center(
-                        child: Text(
-                          'M',
-                          style: TextStyle(
-                            fontSize: 28,
-                            fontWeight: FontWeight.w900,
-                            color: Colors.white,
-                          ),
-                        ),
+                      child: Icon(
+                        Icons.person_rounded,
+                        size: 30,
+                        color: isDark ? Colors.grey[300] : Colors.grey[700],
                       ),
                     ),
-                    const SizedBox(width: 16),
+                    const SizedBox(width: 14),
+
+                    // User Info
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            'Movie Lover',
+                            'Guest Account',
                             style: TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.w800,
+                              fontSize: 16,
+                              fontWeight: FontWeight.w700,
                               color: isDark ? AppTheme.darkTextPrimary : AppTheme.lightTextPrimary,
                             ),
                           ),
-                          const SizedBox(height: 3),
+                          const SizedBox(height: 4),
                           Text(
-                            'Movie Man Member',
+                            'Signed in as Guest',
                             style: TextStyle(
-                              fontSize: 13,
+                              fontSize: 12,
                               color: isDark ? AppTheme.darkTextSecondary : AppTheme.lightTextSecondary,
                             ),
                           ),
                         ],
+                      ),
+                    ),
+
+                    // Saved count badge
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                      decoration: BoxDecoration(
+                        color: isDark ? Colors.white.withOpacity(0.06) : const Color(0xFFF1F5F9),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Text(
+                        '${_savedMovies.length} Saved',
+                        style: TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w600,
+                          color: isDark ? AppTheme.darkTextSecondary : AppTheme.lightTextSecondary,
+                        ),
                       ),
                     ),
                   ],
@@ -454,385 +382,236 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
               const SizedBox(height: 20),
 
-              // SAVED MOVIES SECTION
-              Text(
-                'COLLECTION',
-                style: TextStyle(
-                  fontSize: 11,
-                  fontWeight: FontWeight.w800,
-                  letterSpacing: 1.2,
-                  color: isDark ? Colors.grey[500] : Colors.grey[600],
-                ),
-              ),
-              const SizedBox(height: 8),
-
-              // Saved Movies Entry Card
-              InkWell(
-                onTap: () async {
-                  await Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (_) => const WatchlistScreen()),
-                  );
-                  _loadData();
-                },
-                borderRadius: BorderRadius.circular(16),
-                child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-                  decoration: BoxDecoration(
-                    color: isDark ? AppTheme.darkCard : AppTheme.lightCard,
-                    borderRadius: BorderRadius.circular(16),
-                    border: Border.all(
-                      color: isDark ? AppTheme.darkBorder : AppTheme.lightBorder,
-                    ),
-                  ),
-                  child: Row(
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.all(10),
-                        decoration: BoxDecoration(
-                          color: AppTheme.primaryRed.withOpacity(0.12),
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: const Icon(
-                          Icons.bookmark_rounded,
-                          color: AppTheme.primaryRed,
-                          size: 24,
-                        ),
+              // SECTION 1: PREFERENCES
+              _buildSectionHeader('PREFERENCES', isDark),
+              const SizedBox(height: 6),
+              _buildCardGroup(
+                isDark: isDark,
+                children: [
+                  if (widget.onThemeChanged != null)
+                    _buildSettingsTile(
+                      isDark: isDark,
+                      title: 'Appearance',
+                      trailing: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            _themeModeLabel,
+                            style: TextStyle(
+                              fontSize: 13,
+                              color: isDark ? AppTheme.darkTextSecondary : AppTheme.lightTextSecondary,
+                            ),
+                          ),
+                          const SizedBox(width: 4),
+                          Icon(
+                            Icons.chevron_right_rounded,
+                            size: 18,
+                            color: isDark ? Colors.grey[600] : Colors.grey[400],
+                          ),
+                        ],
                       ),
-                      const SizedBox(width: 14),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'My Saved Movies',
+                      onTap: _showThemeSelectionDialog,
+                    ),
+
+                  if (widget.onThemeChanged != null)
+                    _buildDivider(isDark),
+
+                  _buildSettingsTile(
+                    isDark: isDark,
+                    title: 'Saved Movies',
+                    trailing: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        if (_savedMovies.isNotEmpty)
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                            margin: const EdgeInsets.only(right: 6),
+                            decoration: BoxDecoration(
+                              color: isDark ? Colors.white.withOpacity(0.08) : const Color(0xFFE2E8F0),
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            child: Text(
+                              '${_savedMovies.length}',
                               style: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.w700,
-                                color: isDark ? AppTheme.darkTextPrimary : AppTheme.lightTextPrimary,
+                                fontSize: 11.5,
+                                fontWeight: FontWeight.w600,
+                                color: isDark ? Colors.white70 : Colors.black87,
                               ),
                             ),
-                            const SizedBox(height: 2),
-                            Text(
-                              'Tap to open and manage bookmarked titles',
-                              style: TextStyle(
-                                fontSize: 12,
-                                color: isDark ? AppTheme.darkTextSecondary : AppTheme.lightTextSecondary,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                        decoration: BoxDecoration(
-                          color: AppTheme.primaryRed,
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: Text(
-                          '${_savedMovies.length}',
-                          style: const TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.w800,
-                            color: Colors.white,
                           ),
+                        Icon(
+                          Icons.chevron_right_rounded,
+                          size: 18,
+                          color: isDark ? Colors.grey[600] : Colors.grey[400],
                         ),
-                      ),
-                      const SizedBox(width: 6),
-                      Icon(
-                        Icons.chevron_right_rounded,
-                        color: isDark ? Colors.grey[600] : Colors.grey[400],
-                      ),
-                    ],
+                      ],
+                    ),
+                    onTap: () async {
+                      await Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (_) => const WatchlistScreen()),
+                      );
+                      _loadData();
+                    },
                   ),
-                ),
+                ],
               ),
 
-              const SizedBox(height: 24),
+              const SizedBox(height: 20),
 
-              // APP & LEGAL SECTION
-              Text(
-                'APP & LEGAL',
-                style: TextStyle(
-                  fontSize: 11,
-                  fontWeight: FontWeight.w800,
-                  letterSpacing: 1.2,
-                  color: isDark ? Colors.grey[500] : Colors.grey[600],
-                ),
-              ),
-              const SizedBox(height: 8),
-
-              Material(
-                color: isDark ? AppTheme.darkCard : AppTheme.lightCard,
-                clipBehavior: Clip.antiAlias,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(16),
-                  side: BorderSide(color: isDark ? AppTheme.darkBorder : AppTheme.lightBorder),
-                ),
-                child: Column(
-                  children: [
-                    // Privacy Policy Item
-                    ListTile(
-                      leading: Container(
-                        padding: const EdgeInsets.all(8),
-                        decoration: BoxDecoration(
-                          color: Colors.blue.withOpacity(0.12),
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        child: const Icon(Icons.shield_outlined, color: Colors.blue, size: 20),
-                      ),
-                      title: const Text(
-                        'Privacy Policy',
-                        style: TextStyle(fontWeight: FontWeight.w700, fontSize: 15),
-                      ),
-                      subtitle: const Text(
-                        'Google Play compliant privacy terms',
-                        style: TextStyle(fontSize: 12),
-                      ),
-                      trailing: const Icon(Icons.open_in_new_rounded, size: 18),
-                      onTap: _openPrivacyPolicy,
+              // SECTION 2: ABOUT & LEGAL (No icons, no subtitles)
+              _buildSectionHeader('ABOUT & LEGAL', isDark),
+              const SizedBox(height: 6),
+              _buildCardGroup(
+                isDark: isDark,
+                children: [
+                  _buildSettingsTile(
+                    isDark: isDark,
+                    title: 'Disclaimer & DMCA',
+                    trailing: Icon(
+                      Icons.chevron_right_rounded,
+                      size: 18,
+                      color: isDark ? Colors.grey[600] : Colors.grey[400],
                     ),
+                    onTap: _openDisclaimer,
+                  ),
 
-                    Divider(
-                      height: 1,
-                      indent: 60,
-                      color: isDark ? AppTheme.darkBorder : AppTheme.lightBorder,
+                  _buildDivider(isDark),
+
+                  _buildSettingsTile(
+                    isDark: isDark,
+                    title: 'Privacy Policy',
+                    trailing: Icon(
+                      Icons.chevron_right_rounded,
+                      size: 18,
+                      color: isDark ? Colors.grey[600] : Colors.grey[400],
                     ),
+                    onTap: _openPrivacyPolicy,
+                  ),
 
-                    // Legal Disclaimer Item
-                    ListTile(
-                      leading: Container(
-                        padding: const EdgeInsets.all(8),
-                        decoration: BoxDecoration(
-                          color: Colors.amber.withOpacity(0.12),
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        child: const Icon(Icons.gavel_rounded, color: Colors.amber, size: 20),
-                      ),
-                      title: const Text(
-                        'Disclaimer & DMCA Policy',
-                        style: TextStyle(fontWeight: FontWeight.w700, fontSize: 15),
-                      ),
-                      subtitle: const Text(
-                        'Non-hosting notice & copyright guidelines',
-                        style: TextStyle(fontSize: 12),
-                      ),
-                      trailing: const Icon(Icons.chevron_right_rounded, size: 18),
-                      onTap: _openDisclaimer,
-                    ),
+                  _buildDivider(isDark),
 
-                    Divider(
-                      height: 1,
-                      indent: 60,
-                      color: isDark ? AppTheme.darkBorder : AppTheme.lightBorder,
-                    ),
-
-                    // App Version Item
-                    ListTile(
-                      leading: Container(
-                        padding: const EdgeInsets.all(8),
-                        decoration: BoxDecoration(
-                          color: Colors.amber.withOpacity(0.12),
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        child: const Icon(Icons.info_outline_rounded, color: Colors.amber, size: 20),
-                      ),
-                      title: const Text(
-                        'App Version',
-                        style: TextStyle(fontWeight: FontWeight.w700, fontSize: 15),
-                      ),
-                      subtitle: const Text(
-                        'Movie Man Android Edition',
-                        style: TextStyle(fontSize: 12),
-                      ),
-                      trailing: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                        decoration: BoxDecoration(
-                          color: isDark ? const Color(0xFF1B2232) : Colors.grey[200],
-                          borderRadius: BorderRadius.circular(6),
-                        ),
-                        child: const Text(
-                          'v1.0.1 (2)',
-                          style: TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.w700,
-                            color: AppTheme.primaryRed,
-                          ),
-                        ),
-                      ),
-                    ),
-
-                    Divider(
-                      height: 1,
-                      indent: 60,
-                      color: isDark ? AppTheme.darkBorder : AppTheme.lightBorder,
-                    ),
-
-                    // Support Email Item
-                    ListTile(
-                      leading: Container(
-                        padding: const EdgeInsets.all(8),
-                        decoration: BoxDecoration(
-                          color: Colors.purple.withOpacity(0.12),
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        child: const Icon(Icons.support_agent_rounded, color: Colors.purple, size: 20),
-                      ),
-                      title: const Text(
-                        'Developer Support',
-                        style: TextStyle(fontWeight: FontWeight.w700, fontSize: 15),
-                      ),
-                      subtitle: const Text(
-                        'anilarangi6@gmail.com',
-                        style: TextStyle(fontSize: 12),
-                      ),
-                      trailing: const Icon(Icons.chevron_right_rounded),
-                      onTap: _showContactDialog,
-                    ),
-                  ],
-                ),
-              ),
-
-              const SizedBox(height: 24),
-
-              // PREFERENCES SECTION
-              Text(
-                'PREFERENCES',
-                style: TextStyle(
-                  fontSize: 11,
-                  fontWeight: FontWeight.w800,
-                  letterSpacing: 1.2,
-                  color: isDark ? Colors.grey[500] : Colors.grey[600],
-                ),
-              ),
-              const SizedBox(height: 8),
-
-              Material(
-                color: isDark ? AppTheme.darkCard : AppTheme.lightCard,
-                clipBehavior: Clip.antiAlias,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(16),
-                  side: BorderSide(color: isDark ? AppTheme.darkBorder : AppTheme.lightBorder),
-                ),
-                child: Column(
-                  children: [
-                    // Theme Mode Selection
-                    if (widget.onThemeChanged != null)
-                      ListTile(
-                        leading: Container(
-                          padding: const EdgeInsets.all(8),
-                          decoration: BoxDecoration(
-                            color: Colors.orange.withOpacity(0.12),
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          child: Icon(
-                            _themeModeIcon,
-                            color: Colors.orange,
-                            size: 20,
-                          ),
-                        ),
-                        title: const Text(
-                          'Theme Mode',
-                          style: TextStyle(fontWeight: FontWeight.w700, fontSize: 15),
-                        ),
-                        subtitle: Text(
-                          _themeModeLabel,
-                          style: const TextStyle(fontSize: 12),
-                        ),
-                        trailing: Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                          decoration: BoxDecoration(
-                            color: isDark ? const Color(0xFF1B2232) : Colors.grey[200],
-                            borderRadius: BorderRadius.circular(8),
-                            border: Border.all(
-                              color: isDark ? AppTheme.darkBorder : AppTheme.lightBorder,
-                            ),
-                          ),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Text(
-                                _themeModeLabel,
-                                style: const TextStyle(
-                                  fontSize: 11.5,
-                                  fontWeight: FontWeight.w700,
-                                  color: AppTheme.primaryRed,
-                                ),
-                              ),
-                              const SizedBox(width: 4),
-                              const Icon(Icons.keyboard_arrow_down_rounded, size: 16, color: AppTheme.primaryRed),
-                            ],
-                          ),
-                        ),
-                        onTap: _showThemeSelectionDialog,
-                      ),
-
-                    if (widget.onThemeChanged != null)
-                      Divider(
-                        height: 1,
-                        indent: 60,
-                        color: isDark ? AppTheme.darkBorder : AppTheme.lightBorder,
-                      ),
-
-                    // Clear Local Data
-                    ListTile(
-                      leading: Container(
-                        padding: const EdgeInsets.all(8),
-                        decoration: BoxDecoration(
-                          color: Colors.red.withOpacity(0.12),
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        child: const Icon(Icons.delete_outline_rounded, color: Colors.red, size: 20),
-                      ),
-                      title: const Text(
-                        'Clear Local Watchlist',
-                        style: TextStyle(fontWeight: FontWeight.w700, fontSize: 15, color: Colors.red),
-                      ),
-                      subtitle: const Text(
-                        'Free up device storage',
-                        style: TextStyle(fontSize: 12),
-                      ),
-                      trailing: const Icon(Icons.chevron_right_rounded),
-                      onTap: _confirmClearData,
-                    ),
-                  ],
-                ),
-              ),
-
-              const SizedBox(height: 32),
-
-              // Bottom Disclaimer Footer
-              Center(
-                child: Column(
-                  children: [
-                    Text(
-                      'Movie Man Cinema Guide',
+                  _buildSettingsTile(
+                    isDark: isDark,
+                    title: 'App Version',
+                    trailing: Text(
+                      'v1.0.1 (2)',
                       style: TextStyle(
                         fontSize: 13,
-                        fontWeight: FontWeight.w700,
-                        color: isDark ? Colors.grey[400] : Colors.grey[700],
+                        fontWeight: FontWeight.w500,
+                        color: isDark ? AppTheme.darkTextSecondary : AppTheme.lightTextSecondary,
                       ),
                     ),
-                    const SizedBox(height: 4),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 20),
-                      child: Text(
-                        'Third-party cinema indexer • No video files hosted on servers • 24h preview advisory',
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                          fontSize: 11,
-                          color: isDark ? Colors.grey[600] : Colors.grey[500],
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                  ],
-                ),
+                  ),
+                ],
               ),
+
+              const SizedBox(height: 20),
+
+              // SECTION 3: SUPPORT & STORAGE (No icons, no subtitles)
+              _buildSectionHeader('SUPPORT & STORAGE', isDark),
+              const SizedBox(height: 6),
+              _buildCardGroup(
+                isDark: isDark,
+                children: [
+                  _buildSettingsTile(
+                    isDark: isDark,
+                    title: 'Developer Support',
+                    trailing: Icon(
+                      Icons.chevron_right_rounded,
+                      size: 18,
+                      color: isDark ? Colors.grey[600] : Colors.grey[400],
+                    ),
+                    onTap: _showContactDialog,
+                  ),
+
+                  _buildDivider(isDark),
+
+                  _buildSettingsTile(
+                    isDark: isDark,
+                    title: 'Clear Local Watchlist',
+                    titleColor: Colors.redAccent,
+                    onTap: _confirmClearData,
+                  ),
+                ],
+              ),
+
+              const SizedBox(height: 30),
             ],
           ),
         ),
       ),
+    );
+  }
+
+  Widget _buildSectionHeader(String title, bool isDark) {
+    return Padding(
+      padding: const EdgeInsets.only(left: 4),
+      child: Text(
+        title,
+        style: TextStyle(
+          fontSize: 11,
+          fontWeight: FontWeight.w700,
+          letterSpacing: 1.1,
+          color: isDark ? Colors.grey[500] : Colors.grey[500],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildCardGroup({required bool isDark, required List<Widget> children}) {
+    return Container(
+      decoration: BoxDecoration(
+        color: isDark ? AppTheme.darkCard : AppTheme.lightCard,
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(
+          color: isDark ? AppTheme.darkBorder : AppTheme.lightBorder,
+        ),
+      ),
+      clipBehavior: Clip.antiAlias,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: children,
+      ),
+    );
+  }
+
+  Widget _buildSettingsTile({
+    required bool isDark,
+    required String title,
+    Widget? trailing,
+    VoidCallback? onTap,
+    Color? titleColor,
+  }) {
+    return InkWell(
+      onTap: onTap,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        child: Row(
+          children: [
+            Expanded(
+              child: Text(
+                title,
+                style: TextStyle(
+                  fontSize: 14.5,
+                  fontWeight: FontWeight.w500,
+                  color: titleColor ?? (isDark ? AppTheme.darkTextPrimary : AppTheme.lightTextPrimary),
+                ),
+              ),
+            ),
+            ?trailing,
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildDivider(bool isDark) {
+    return Divider(
+      height: 1,
+      thickness: 1,
+      indent: 16,
+      color: isDark ? AppTheme.darkBorder : AppTheme.lightBorder,
     );
   }
 }

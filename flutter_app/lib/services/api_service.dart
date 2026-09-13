@@ -222,15 +222,28 @@ class ApiService {
     int perPage = 18,
     String? category,
     String? search,
+    String sort = 'newest',
+    DateTime? startDate,
+    DateTime? endDate,
   }) async {
+    final afterIso = startDate != null
+        ? '${startDate.year}-${startDate.month.toString().padLeft(2, '0')}-${startDate.day.toString().padLeft(2, '0')}T00:00:00'
+        : null;
+    final beforeIso = endDate != null
+        ? '${endDate.year}-${endDate.month.toString().padLeft(2, '0')}-${endDate.day.toString().padLeft(2, '0')}T23:59:59'
+        : null;
+
     // 1. Try Vercel API
     try {
-      final queryParams = {
+      final queryParams = <String, String>{
         'page': page.toString(),
         'perPage': perPage.toString(),
+        'sort': sort,
         if (category != null && category.isNotEmpty) 'category': category,
         if (search != null && search.isNotEmpty) 'search': search,
       };
+      if (afterIso != null) queryParams['after'] = afterIso;
+      if (beforeIso != null) queryParams['before'] = beforeIso;
 
       final uri = Uri.parse('$baseUrl/movies').replace(queryParameters: queryParams);
       final res = await http.get(uri, headers: requestHeaders).timeout(const Duration(seconds: 8));
@@ -238,7 +251,21 @@ class ApiService {
       if (res.statusCode == 200) {
         final data = json.decode(res.body) as Map<String, dynamic>;
         final response = MovieListResponse.fromJson(data);
-        final cleanMovies = response.movies.where((m) => !isAdultMovie(m)).toList();
+        var cleanMovies = response.movies.where((m) => !isAdultMovie(m)).toList();
+        if (startDate != null || endDate != null) {
+          cleanMovies = cleanMovies.where((m) {
+            final dt = m.uploadDateTime;
+            if (dt == null) return false;
+            if (startDate != null && dt.isBefore(DateTime(startDate.year, startDate.month, startDate.day, 0, 0, 0))) {
+              return false;
+            }
+            if (endDate != null && dt.isAfter(DateTime(endDate.year, endDate.month, endDate.day, 23, 59, 59))) {
+              return false;
+            }
+            return true;
+          }).toList();
+        }
+
         if (cleanMovies.isNotEmpty) {
           return MovieListResponse(
             movies: cleanMovies,
@@ -253,16 +280,20 @@ class ApiService {
     // 2. Direct Fallback to WordPress REST API
     try {
       final isNumeric = category != null && int.tryParse(category) != null;
-      final params = {
+      final params = <String, String>{
         '_embed': '1',
         'page': page.toString(),
         'per_page': perPage.toString(),
+        'orderby': 'date',
+        'order': sort == 'oldest' ? 'asc' : 'desc',
         if (isNumeric) 'categories': category,
         if (search != null && search.isNotEmpty)
           'search': search
         else if (category != null && !isNumeric)
           'search': category,
       };
+      if (afterIso != null) params['after'] = afterIso;
+      if (beforeIso != null) params['before'] = beforeIso;
 
       final uri = Uri.parse('$directWpUrl/posts').replace(queryParameters: params);
       final res = await http.get(uri, headers: requestHeaders).timeout(const Duration(seconds: 12));
@@ -272,10 +303,24 @@ class ApiService {
         final totalPages = int.tryParse(res.headers['x-wp-totalpages'] ?? '1') ?? 1;
 
         final list = json.decode(res.body) as List<dynamic>;
-        final movies = list
+        var movies = list
             .map((e) => parseWpPost(e as Map<String, dynamic>))
             .where((m) => !isAdultMovie(m))
             .toList();
+
+        if (startDate != null || endDate != null) {
+          movies = movies.where((m) {
+            final dt = m.uploadDateTime;
+            if (dt == null) return false;
+            if (startDate != null && dt.isBefore(DateTime(startDate.year, startDate.month, startDate.day, 0, 0, 0))) {
+              return false;
+            }
+            if (endDate != null && dt.isAfter(DateTime(endDate.year, endDate.month, endDate.day, 23, 59, 59))) {
+              return false;
+            }
+            return true;
+          }).toList();
+        }
 
         return MovieListResponse(
           movies: movies,
@@ -330,6 +375,21 @@ class ApiService {
   // Alias for backward compatibility
   static Future<Movie?> fetchMovieDetail(String slug) => fetchMovieBySlug(slug);
 
+  static List<MovieCategory> _ensureEssentialCategories(List<MovieCategory> list) {
+    final existingSlugs = list.map((c) => c.slug.toLowerCase().trim()).toSet();
+    final existingNames = list.map((c) => c.name.toLowerCase().trim()).toSet();
+    final result = List<MovieCategory>.from(list);
+
+    for (final def in defaultCategories) {
+      final slugMatch = existingSlugs.contains(def.slug.toLowerCase());
+      final nameMatch = existingNames.any((n) => n.contains(def.slug.toLowerCase()) || def.name.toLowerCase().contains(n));
+      if (!slugMatch && !nameMatch) {
+        result.add(def);
+      }
+    }
+    return result;
+  }
+
   // Fetch categories
   static Future<List<MovieCategory>> fetchCategories() async {
     // 1. Try Vercel API
@@ -344,7 +404,7 @@ class ApiService {
             .where((c) => !isAdultCategory(c.name, c.slug))
             .toList();
         if (parsed.isNotEmpty) {
-          return parsed;
+          return _ensureEssentialCategories(parsed);
         }
       }
     } catch (_) {}
@@ -367,7 +427,7 @@ class ApiService {
             .where((c) => !isAdultCategory(c.name, c.slug))
             .toList();
         if (parsed.isNotEmpty) {
-          return parsed;
+          return _ensureEssentialCategories(parsed);
         }
       }
     } catch (_) {}
