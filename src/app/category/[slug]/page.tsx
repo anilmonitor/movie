@@ -23,12 +23,12 @@ export async function generateMetadata(props: CategoryPageProps): Promise<Metada
 
   if (!category) {
     return {
-      title: 'Category Not Found - Movies4u',
+      title: 'Category Not Found - Movie Man',
     };
   }
 
-  const title = `${category.name} Movies & Web Series Download - Movies4u`;
-  const description = `Explore the latest ${category.name} movies and web series available for free high-speed download in 480p, 720p, 1080p & 4K resolutions on Movies4u.`;
+  const title = `${category.name} Movies & Web Series Download - Movie Man`;
+  const description = `Explore the latest ${category.name} movies and web series available for free high-speed download in 480p, 720p, 1080p & 4K resolutions on Movie Man.`;
 
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://allmoviesite.vercel.app';
 
@@ -45,7 +45,7 @@ export async function generateMetadata(props: CategoryPageProps): Promise<Metada
       title,
       description,
       url: `${siteUrl}/category/${category.slug}`,
-      siteName: 'Movies4u',
+      siteName: 'Movie Man',
     },
     alternates: {
       canonical: `${siteUrl}/category/${category.slug}`,

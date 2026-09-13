@@ -78,8 +78,9 @@ Whether you are a Bollywood fan, Hollywood enthusiast, or love exploring regiona
 
 📋 Disclaimer & Content Notice:
 • Movie Man is strictly an informational directory, reference catalog, and discovery guide for cinema lovers.
-• All movie titles, descriptions, posters, images, and trademarks are the intellectual property of their respective film studios and copyright holders.
-• Movie Man does not host, upload, or broadcast full video media streams on its servers.
+• Movie Man does not host, upload, or store full video files or media on its servers. All listings and links are indexed from publicly accessible third-party web sources for educational and promotional preview purposes.
+• We strictly oppose piracy and encourage users to support official creators by purchasing authorized releases. Users are advised to delete external preview downloads within 24 hours.
+• All movie titles, descriptions, posters, and trademarks are the property of their respective copyright holders. Contact anilarangi6@gmail.com for fast takedown assistance.
 
 📧 Contact & Support:
 If you have any feedback, suggestions, or copyright inquiries, feel free to contact us:

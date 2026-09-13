@@ -17,8 +17,8 @@ export async function generateMetadata(props: SearchPageProps): Promise<Metadata
   const q = searchParams.q || '';
 
   return {
-    title: q ? `Search Results for "${q}" - Movies4u` : 'Search Movies - Movies4u',
-    description: `Browse movie and web series search results for "${q}". Download high quality 480p, 720p, 1080p movies on Movies4u.`,
+    title: q ? `Search Results for "${q}" - Movie Man` : 'Search Movies - Movie Man',
+    description: `Browse movie and web series search results for "${q}". Explore high quality 480p, 720p, 1080p movies on Movie Man.`,
     robots: {
       index: false,
       follow: true,

@@ -38,6 +38,11 @@ class AppTheme {
         centerTitle: false,
         scrolledUnderElevation: 0,
         iconTheme: IconThemeData(color: Colors.white),
+        titleTextStyle: TextStyle(
+          color: Colors.white,
+          fontSize: 18,
+          fontWeight: FontWeight.w800,
+        ),
       ),
       cardTheme: CardThemeData(
         color: darkCard,
@@ -46,6 +51,12 @@ class AppTheme {
           borderRadius: BorderRadius.circular(16),
           side: const BorderSide(color: darkBorder, width: 1),
         ),
+      ),
+      dialogTheme: const DialogThemeData(
+        backgroundColor: darkCard,
+        surfaceTintColor: Colors.transparent,
+        titleTextStyle: TextStyle(color: darkTextPrimary, fontSize: 18, fontWeight: FontWeight.w800),
+        contentTextStyle: TextStyle(color: darkTextSecondary, fontSize: 13),
       ),
       bottomNavigationBarTheme: const BottomNavigationBarThemeData(
         backgroundColor: Color(0xEE07090E),
@@ -74,6 +85,11 @@ class AppTheme {
         centerTitle: false,
         scrolledUnderElevation: 0,
         iconTheme: IconThemeData(color: lightTextPrimary),
+        titleTextStyle: TextStyle(
+          color: lightTextPrimary,
+          fontSize: 18,
+          fontWeight: FontWeight.w800,
+        ),
       ),
       cardTheme: CardThemeData(
         color: lightCard,
@@ -83,6 +99,12 @@ class AppTheme {
           borderRadius: BorderRadius.circular(16),
           side: const BorderSide(color: lightBorder, width: 1),
         ),
+      ),
+      dialogTheme: const DialogThemeData(
+        backgroundColor: lightCard,
+        surfaceTintColor: Colors.transparent,
+        titleTextStyle: TextStyle(color: lightTextPrimary, fontSize: 18, fontWeight: FontWeight.w800),
+        contentTextStyle: TextStyle(color: lightTextSecondary, fontSize: 13),
       ),
       bottomNavigationBarTheme: const BottomNavigationBarThemeData(
         backgroundColor: Color(0xEEFFFFFF),

@@ -17,13 +17,13 @@ class ShimmerBox extends StatelessWidget {
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     return Shimmer.fromColors(
-      baseColor: isDark ? Colors.grey[850]! : Colors.grey[300]!,
-      highlightColor: isDark ? Colors.grey[750]! : Colors.grey[100]!,
+      baseColor: isDark ? const Color(0xFF1A2234) : const Color(0xFFE2E8F0),
+      highlightColor: isDark ? const Color(0xFF28344D) : const Color(0xFFF1F5F9),
       child: Container(
         width: width,
         height: height,
         decoration: BoxDecoration(
-          color: isDark ? Colors.grey[850] : Colors.grey[300],
+          color: isDark ? const Color(0xFF1A2234) : const Color(0xFFE2E8F0),
           borderRadius: BorderRadius.circular(borderRadius),
         ),
       ),

@@ -1,7 +1,7 @@
 import React from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { ShieldAlert, Send, Heart } from 'lucide-react';
+import { Send } from 'lucide-react';
 
 export default function Footer() {
   return (
@@ -19,12 +19,12 @@ export default function Footer() {
               </span>
             </Link>
             <p className="text-slate-600 dark:text-gray-400 leading-relaxed max-w-md">
-              Movie Man offers free latest movies and web series downloads in 480p, 720p, 1080p, and 4K UHD.
-              Watch and explore Bollywood, Hollywood, South Indian, Hindi Dubbed, and K-Drama releases with lightning-fast speeds.
+              Movie Man offers latest movies and web series previews in 480p, 720p, 1080p, and 4K UHD.
+              Watch and explore Bollywood, Hollywood, South Indian, Hindi Dubbed, and K-Drama releases.
             </p>
             <div className="flex items-center gap-3 pt-2">
               <a
-                href="https://t.me/+igUrTM5-zxY4M2Jl"
+                href="https://t.me/+E2B_D_7AQIkyMjI1"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex items-center gap-2 px-3.5 py-1.5 rounded-lg bg-sky-500/10 text-sky-600 dark:text-sky-400 border border-sky-500/30 font-medium hover:bg-sky-500/20 transition-colors"
@@ -69,35 +69,40 @@ export default function Footer() {
             </ul>
           </div>
 
-          {/* DMCA & Info */}
+          {/* Navigation & Legal Links */}
           <div>
             <h4 className="text-xs sm:text-sm font-bold text-slate-900 dark:text-white uppercase tracking-wider mb-3">
-              Disclaimer
+              Legal & Info
             </h4>
-            <p className="text-[11px] leading-relaxed text-slate-500 dark:text-gray-500">
-              <ShieldAlert className="w-3.5 h-3.5 text-amber-500 inline mr-1" />
-              All files and media provided on this platform are hosted on third-party non-affiliated servers.
-              Movie Man does not store or host any copyrighted material on its web servers.
-              All video content is provided by non-affiliated third parties or scraped through public indexing APIs.
-            </p>
-            <div className="mt-4 flex flex-wrap gap-2 text-xs">
-              <Link href="/categories" className="text-red-600 dark:text-red-400 font-medium hover:underline">
-                Explore Genres
-              </Link>
-              <span>•</span>
-              <a href="/privacy/" target="_blank" rel="noopener noreferrer" className="hover:text-slate-900 dark:hover:text-white underline">
-                Privacy Policy
-              </a>
-            </div>
+            <ul className="space-y-2">
+              <li>
+                <Link href="/disclaimer" className="hover:text-red-600 dark:hover:text-red-400 transition-colors font-medium text-red-600 dark:text-red-400">
+                  Legal Disclaimer
+                </Link>
+              </li>
+              <li>
+                <a href="/privacy/" target="_blank" rel="noopener noreferrer" className="hover:text-red-600 dark:hover:text-red-400 transition-colors">
+                  Privacy Policy
+                </a>
+              </li>
+              <li>
+                <Link href="/categories" className="hover:text-red-600 dark:hover:text-red-400 transition-colors">
+                  All Movie Genres
+                </Link>
+              </li>
+              <li>
+                <a href="mailto:anilarangi6@gmail.com" className="hover:text-red-600 dark:hover:text-red-400 transition-colors">
+                  DMCA & Removal Request
+                </a>
+              </li>
+            </ul>
           </div>
         </div>
 
         {/* Bottom Bar */}
-        <div className="pt-6 sm:pt-8 border-t border-slate-200 dark:border-white/5 flex flex-col sm:flex-row items-center justify-between gap-3 text-center sm:text-left text-slate-500 dark:text-gray-500">
-          <p>© {new Date().getFullYear()} Movie Man Cinema. All rights reserved.</p>
-          <p className="flex items-center justify-center gap-1">
-            Engineered with <Heart className="w-3 h-3 text-red-600 fill-current inline" /> for Cinephiles
-          </p>
+        <div className="pt-6 border-t border-slate-200 dark:border-white/5 flex flex-col sm:flex-row items-center justify-between gap-3 text-center sm:text-left text-slate-500 dark:text-gray-500">
+          <p>© {new Date().getFullYear()} Movie Man. All rights reserved.</p>
+          <p>Online Entertainment Catalog</p>
         </div>
       </div>
     </footer>

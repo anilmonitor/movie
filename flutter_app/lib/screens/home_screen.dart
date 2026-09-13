@@ -10,9 +10,9 @@ import 'category_detail_screen.dart';
 import 'search_screen.dart';
 
 class HomeScreen extends StatefulWidget {
-  final VoidCallback onToggleTheme;
+  final VoidCallback? onToggleTheme;
 
-  const HomeScreen({super.key, required this.onToggleTheme});
+  const HomeScreen({super.key, this.onToggleTheme});
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
@@ -151,17 +151,6 @@ class _HomeScreenState extends State<HomeScreen> {
           ],
         ),
         actions: [
-          // Theme Toggle Button
-          IconButton(
-            icon: Icon(
-              isDark ? Icons.light_mode_rounded : Icons.dark_mode_rounded,
-              color: isDark ? AppTheme.ratingGold : Colors.black87,
-              size: 22,
-            ),
-            tooltip: 'Toggle Theme',
-            onPressed: widget.onToggleTheme,
-          ),
-
           // Search Button
           IconButton(
             icon: Icon(Icons.search_rounded, color: isDark ? Colors.white : Colors.black87, size: 22),
@@ -172,7 +161,7 @@ class _HomeScreenState extends State<HomeScreen> {
               );
             },
           ),
-          const SizedBox(width: 4),
+          const SizedBox(width: 6),
         ],
       ),
       body: _isLoading

@@ -19,10 +19,10 @@ export async function generateMetadata(props: MoviePageProps): Promise<Metadata>
   const cleanYear = movie?.year ? ` (${movie.year})` : '';
   const pageTitle = movie
     ? `${movie.title}${cleanYear} Full Movie Download 480p | 720p | 1080p`
-    : 'Download Full Movie HD - Movies4u';
+    : 'Download Full Movie HD - Movie Man';
   const metaDesc =
     movie?.storyline?.slice(0, 160) ||
-    'Download latest movies in HD 480p, 720p, 1080p, 4K UHD. Fast, direct download links available on Movies4u.';
+    'Download latest movies in HD 480p, 720p, 1080p, 4K UHD. Free direct preview links available on Movie Man.';
 
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://allmoviesite.vercel.app';
 
@@ -40,7 +40,7 @@ export async function generateMetadata(props: MoviePageProps): Promise<Metadata>
       title: pageTitle,
       description: metaDesc,
       url: `${siteUrl}/movie/${params.slug}`,
-      siteName: 'Movies4u',
+      siteName: 'Movie Man',
       images: movie?.poster
         ? [
             {

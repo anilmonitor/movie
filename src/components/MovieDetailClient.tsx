@@ -352,24 +352,15 @@ export default function MovieDetailClient({
                   </h4>
                 </div>
 
-                <div className="pt-2.5 border-t border-slate-100 dark:border-white/5 flex items-center gap-2 sm:gap-3">
+                <div className="pt-2.5 border-t border-slate-100 dark:border-white/5">
                   <a
                     href={link.url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-xl bg-gradient-to-r from-red-600 to-red-500 hover:from-red-500 hover:to-red-600 text-white font-bold text-xs shadow-md transition-all hover:scale-102"
+                    className="w-full flex items-center justify-center gap-1.5 py-2.5 rounded-xl bg-red-600 hover:bg-red-700 text-white font-bold text-xs shadow-sm transition-all"
                   >
                     <Download className="w-4 h-4" />
-                    <span>Download Now</span>
-                  </a>
-
-                  <a
-                    href={link.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="px-3 py-2.5 rounded-xl bg-slate-100 dark:bg-white/5 hover:bg-slate-200 dark:hover:bg-white/10 text-slate-700 dark:text-gray-300 text-xs font-semibold transition-colors"
-                  >
-                    Fast Cloud
+                    <span>Download</span>
                   </a>
                 </div>
               </div>

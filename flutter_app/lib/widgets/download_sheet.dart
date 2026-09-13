@@ -20,31 +20,31 @@ class DownloadSheet extends StatelessWidget {
   }
 
   Future<void> _launchDownload(BuildContext context, String url) async {
-    // Pop bottom sheet first so in-app browser has full screen
-    Navigator.of(context).pop();
+    final navigator = Navigator.of(context, rootNavigator: true);
+    navigator.pop();
+
+    // Allow bottom sheet dismissal animation to complete smoothly
+    await Future.delayed(const Duration(milliseconds: 150));
 
     try {
-      // 1. Open directly inside the app using In-App Browser screen
-      await InAppBrowserScreen.open(
-        context,
-        url: url,
-        title: '${movie.title} - Download',
+      // Open directly inside the app using In-App Browser screen
+      await navigator.push(
+        MaterialPageRoute(
+          builder: (_) => InAppBrowserScreen(
+            url: url,
+            title: '${movie.title} - Download',
+          ),
+        ),
       );
     } catch (_) {
       try {
-        // Fallback to inAppBrowserView if needed
         final uri = Uri.parse(url);
         await launchUrl(
           uri,
-          mode: LaunchMode.inAppBrowserView,
-          browserConfiguration: const BrowserConfiguration(showTitle: true),
+          mode: LaunchMode.externalApplication,
         );
       } catch (err) {
-        if (context.mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Could not open download link inside app.')),
-          );
-        }
+        // Fallback error
       }
     }
   }

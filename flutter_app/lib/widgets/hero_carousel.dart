@@ -207,7 +207,7 @@ class _HeroCarouselState extends State<HeroCarousel> {
                                 ? movie.languages.join(' • ')
                                 : (movie.categories.isNotEmpty
                                     ? movie.categories.map((c) => c.name).join(' • ')
-                                    : 'HD Cinema'),
+                                    : 'Movie'),
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                             style: TextStyle(

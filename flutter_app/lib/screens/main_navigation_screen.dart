@@ -5,9 +5,14 @@ import 'categories_screen.dart';
 import 'profile_screen.dart';
 
 class MainNavigationScreen extends StatefulWidget {
-  final VoidCallback onToggleTheme;
+  final ThemeMode currentThemeMode;
+  final ValueChanged<ThemeMode> onThemeChanged;
 
-  const MainNavigationScreen({super.key, required this.onToggleTheme});
+  const MainNavigationScreen({
+    super.key,
+    required this.currentThemeMode,
+    required this.onThemeChanged,
+  });
 
   @override
   State<MainNavigationScreen> createState() => _MainNavigationScreenState();
@@ -19,10 +24,13 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
   @override
   Widget build(BuildContext context) {
     final screens = [
-      HomeScreen(onToggleTheme: widget.onToggleTheme),
+      const HomeScreen(),
       const SearchScreen(),
       const CategoriesScreen(),
-      ProfileScreen(onToggleTheme: widget.onToggleTheme),
+      ProfileScreen(
+        currentThemeMode: widget.currentThemeMode,
+        onThemeChanged: widget.onThemeChanged,
+      ),
     ];
 
     return Scaffold(

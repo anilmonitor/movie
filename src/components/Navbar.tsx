@@ -41,9 +41,6 @@ export default function Navbar() {
               <span className="text-lg sm:text-xl font-extrabold tracking-wider text-slate-900 dark:text-white">
                 MOVIE <span className="text-red-600 font-black">MAN</span>
               </span>
-              <span className="text-[9px] tracking-widest text-slate-500 dark:text-gray-400 uppercase -mt-1 font-semibold flex items-center gap-0.5">
-                <Sparkles className="w-2.5 h-2.5 text-amber-500 inline" /> HD Cinema
-              </span>
             </div>
           </Link>
 
@@ -59,7 +56,7 @@ export default function Navbar() {
 
             {/* Telegram Link (Desktop) */}
             <a
-              href="https://t.me/+igUrTM5-zxY4M2Jl"
+              href="https://t.me/+E2B_D_7AQIkyMjI1"
               target="_blank"
               rel="noopener noreferrer"
               className="hidden lg:flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold bg-sky-500/10 hover:bg-sky-500/20 text-sky-600 dark:text-sky-400 border border-sky-500/30 transition-all hover:scale-105"
@@ -147,7 +144,7 @@ export default function Navbar() {
               Browse All Categories Directory
             </Link>
             <a
-              href="https://t.me/+igUrTM5-zxY4M2Jl"
+              href="https://t.me/+E2B_D_7AQIkyMjI1"
               target="_blank"
               rel="noopener noreferrer"
               className="flex items-center justify-center gap-2 py-2.5 rounded-xl bg-sky-600/15 dark:bg-sky-600/20 text-sky-600 dark:text-sky-400 border border-sky-500/30 text-sm font-semibold"

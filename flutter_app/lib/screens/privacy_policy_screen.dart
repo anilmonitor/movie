@@ -142,8 +142,8 @@ class PrivacyPolicyScreen extends StatelessWidget {
 
             _buildSection(
               context,
-              '5. Content & Copyright Notice',
-              'Movie Man is strictly an informational movie directory. All movie titles, descriptions, posters, and trademarks are the intellectual property of their respective film studios and copyright holders. Movie Man does not host, upload, or broadcast full video media files on its servers.',
+              '5. Content, Copyright & Non-Hosting Notice',
+              'Movie Man functions strictly as an informational cinema guide and catalog. All movie titles, synopses, and promotional assets are the intellectual property of their respective film studios and copyright holders. Movie Man does not host, upload, or store video media on its servers; all information is indexed from public third-party sources online for educational and review purposes. Users are advised to remove any downloaded preview material within 24 hours and purchase original media from official platforms.',
             ),
 
             _buildSection(

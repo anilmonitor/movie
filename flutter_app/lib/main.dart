@@ -16,33 +16,49 @@ void main() async {
   );
 
   final prefs = await SharedPreferences.getInstance();
-  final isDarkSaved = prefs.getBool('is_dark_theme') ?? false; // Default to Light Mode as requested
+  final themeModeStr = prefs.getString('app_theme_mode') ?? '';
+  ThemeMode initialMode;
+  if (themeModeStr == 'dark') {
+    initialMode = ThemeMode.dark;
+  } else if (themeModeStr == 'light') {
+    initialMode = ThemeMode.light;
+  } else if (themeModeStr == 'system') {
+    initialMode = ThemeMode.system;
+  } else {
+    if (prefs.containsKey('is_dark_theme')) {
+      initialMode = prefs.getBool('is_dark_theme') == true ? ThemeMode.dark : ThemeMode.light;
+    } else {
+      initialMode = ThemeMode.system;
+    }
+  }
 
-  runApp(MovieManApp(initialDarkMode: isDarkSaved));
+  runApp(MovieManApp(initialThemeMode: initialMode));
 }
 
 class MovieManApp extends StatefulWidget {
-  final bool initialDarkMode;
+  final ThemeMode initialThemeMode;
 
-  const MovieManApp({super.key, required this.initialDarkMode});
+  const MovieManApp({super.key, required this.initialThemeMode});
 
   @override
   State<MovieManApp> createState() => _MovieManAppState();
 }
 
 class _MovieManAppState extends State<MovieManApp> {
-  late bool _isDarkMode;
+  late ThemeMode _themeMode;
 
   @override
   void initState() {
     super.initState();
-    _isDarkMode = widget.initialDarkMode;
+    _themeMode = widget.initialThemeMode;
   }
 
-  void _toggleTheme() async {
-    setState(() => _isDarkMode = !_isDarkMode);
+  void _setThemeMode(ThemeMode mode) async {
+    if (_themeMode == mode) return;
+    setState(() => _themeMode = mode);
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setBool('is_dark_theme', _isDarkMode);
+    await prefs.setString('app_theme_mode', mode.name);
+    await prefs.setBool('is_dark_theme', mode == ThemeMode.dark);
   }
 
   @override
@@ -52,8 +68,11 @@ class _MovieManAppState extends State<MovieManApp> {
       debugShowCheckedModeBanner: false,
       theme: AppTheme.lightTheme,
       darkTheme: AppTheme.darkTheme,
-      themeMode: _isDarkMode ? ThemeMode.dark : ThemeMode.light, // Default light
-      home: MainNavigationScreen(onToggleTheme: _toggleTheme),
+      themeMode: _themeMode,
+      home: MainNavigationScreen(
+        currentThemeMode: _themeMode,
+        onThemeChanged: _setThemeMode,
+      ),
     );
   }
 }

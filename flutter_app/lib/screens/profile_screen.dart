@@ -3,13 +3,19 @@ import 'package:flutter/services.dart';
 import '../models/movie.dart';
 import '../services/watchlist_service.dart';
 import '../theme/app_theme.dart';
+import 'disclaimer_screen.dart';
 import 'privacy_policy_screen.dart';
 import 'watchlist_screen.dart';
 
 class ProfileScreen extends StatefulWidget {
-  final VoidCallback? onToggleTheme;
+  final ThemeMode currentThemeMode;
+  final ValueChanged<ThemeMode>? onThemeChanged;
 
-  const ProfileScreen({super.key, this.onToggleTheme});
+  const ProfileScreen({
+    super.key,
+    this.currentThemeMode = ThemeMode.system,
+    this.onThemeChanged,
+  });
 
   @override
   State<ProfileScreen> createState() => _ProfileScreenState();
@@ -17,6 +23,195 @@ class ProfileScreen extends StatefulWidget {
 
 class _ProfileScreenState extends State<ProfileScreen> {
   List<Movie> _savedMovies = [];
+
+  String get _themeModeLabel {
+    switch (widget.currentThemeMode) {
+      case ThemeMode.system:
+        return 'System Default';
+      case ThemeMode.dark:
+        return 'Dark Mode (AMOLED)';
+      case ThemeMode.light:
+        return 'Light Mode';
+    }
+  }
+
+  IconData get _themeModeIcon {
+    switch (widget.currentThemeMode) {
+      case ThemeMode.system:
+        return Icons.brightness_auto_rounded;
+      case ThemeMode.dark:
+        return Icons.dark_mode_rounded;
+      case ThemeMode.light:
+        return Icons.light_mode_rounded;
+    }
+  }
+
+  void _showThemeSelectionDialog() {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: isDark ? AppTheme.darkCard : AppTheme.lightCard,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20),
+          side: BorderSide(color: isDark ? AppTheme.darkBorder : AppTheme.lightBorder),
+        ),
+        titlePadding: const EdgeInsets.fromLTRB(20, 20, 20, 12),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+        title: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: AppTheme.primaryRed.withOpacity(0.12),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: const Icon(Icons.palette_outlined, color: AppTheme.primaryRed, size: 20),
+            ),
+            const SizedBox(width: 12),
+            Text(
+              'Choose Theme',
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.w800,
+                color: isDark ? AppTheme.darkTextPrimary : AppTheme.lightTextPrimary,
+              ),
+            ),
+          ],
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            _buildThemeOption(
+              ctx,
+              title: 'System Default',
+              subtitle: 'Match device system appearance',
+              icon: Icons.brightness_auto_rounded,
+              mode: ThemeMode.system,
+              isSelected: widget.currentThemeMode == ThemeMode.system,
+            ),
+            const SizedBox(height: 8),
+            _buildThemeOption(
+              ctx,
+              title: 'Dark Mode',
+              subtitle: 'Deep AMOLED black for night viewing',
+              icon: Icons.dark_mode_rounded,
+              mode: ThemeMode.dark,
+              isSelected: widget.currentThemeMode == ThemeMode.dark,
+            ),
+            const SizedBox(height: 8),
+            _buildThemeOption(
+              ctx,
+              title: 'Light Mode',
+              subtitle: 'Crisp bright theme for daytime reading',
+              icon: Icons.light_mode_rounded,
+              mode: ThemeMode.light,
+              isSelected: widget.currentThemeMode == ThemeMode.light,
+            ),
+          ],
+        ),
+        actionsPadding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            style: TextButton.styleFrom(
+              foregroundColor: isDark ? AppTheme.darkTextSecondary : AppTheme.lightTextSecondary,
+            ),
+            child: const Text('Cancel', style: TextStyle(fontWeight: FontWeight.w700)),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildThemeOption(
+    BuildContext ctx, {
+    required String title,
+    required String subtitle,
+    required IconData icon,
+    required ThemeMode mode,
+    required bool isSelected,
+  }) {
+    final isDark = Theme.of(ctx).brightness == Brightness.dark;
+
+    return InkWell(
+      onTap: () {
+        widget.onThemeChanged?.call(mode);
+        Navigator.pop(ctx);
+      },
+      borderRadius: BorderRadius.circular(14),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+        decoration: BoxDecoration(
+          color: isSelected
+              ? AppTheme.primaryRed.withOpacity(0.1)
+              : (isDark ? Colors.white.withOpacity(0.02) : Colors.black.withOpacity(0.02)),
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(
+            color: isSelected
+                ? AppTheme.primaryRed.withOpacity(0.6)
+                : (isDark ? AppTheme.darkBorder : AppTheme.lightBorder),
+            width: 1.2,
+          ),
+        ),
+        child: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: isSelected
+                    ? AppTheme.primaryRed
+                    : (isDark ? Colors.white10 : Colors.black.withOpacity(0.05)),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Icon(
+                icon,
+                size: 18,
+                color: isSelected
+                    ? Colors.white
+                    : (isDark ? AppTheme.darkTextPrimary : AppTheme.lightTextPrimary),
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: TextStyle(
+                      fontSize: 14.5,
+                      fontWeight: FontWeight.w700,
+                      color: isSelected
+                          ? AppTheme.primaryRed
+                          : (isDark ? AppTheme.darkTextPrimary : AppTheme.lightTextPrimary),
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    subtitle,
+                    style: TextStyle(
+                      fontSize: 11.5,
+                      color: isDark ? AppTheme.darkTextSecondary : AppTheme.lightTextSecondary,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            if (isSelected)
+              const Icon(Icons.check_circle_rounded, color: AppTheme.primaryRed, size: 20)
+            else
+              Icon(
+                Icons.radio_button_unchecked_rounded,
+                color: isDark ? Colors.grey[700] : Colors.grey[400],
+                size: 20,
+              ),
+          ],
+        ),
+      ),
+    );
+  }
 
   @override
   void initState() {
@@ -37,6 +232,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
     Navigator.push(
       context,
       MaterialPageRoute(builder: (_) => const PrivacyPolicyScreen()),
+    );
+  }
+
+  void _openDisclaimer() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => const DisclaimerScreen()),
     );
   }
 
@@ -228,7 +430,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            'Movie Cinephile',
+                            'Movie Lover',
                             style: TextStyle(
                               fontSize: 18,
                               fontWeight: FontWeight.w800,
@@ -241,29 +443,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             style: TextStyle(
                               fontSize: 13,
                               color: isDark ? AppTheme.darkTextSecondary : AppTheme.lightTextSecondary,
-                            ),
-                          ),
-                          const SizedBox(height: 6),
-                          Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                            decoration: BoxDecoration(
-                              color: Colors.greenAccent.withOpacity(0.15),
-                              borderRadius: BorderRadius.circular(6),
-                            ),
-                            child: const Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Icon(Icons.check_circle_outline, size: 11, color: Colors.greenAccent),
-                                SizedBox(width: 4),
-                                Text(
-                                  'Online Catalog Active',
-                                  style: TextStyle(
-                                    fontSize: 10.5,
-                                    fontWeight: FontWeight.w700,
-                                    color: Colors.greenAccent,
-                                  ),
-                                ),
-                              ],
                             ),
                           ),
                         ],
@@ -420,6 +599,34 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       color: isDark ? AppTheme.darkBorder : AppTheme.lightBorder,
                     ),
 
+                    // Legal Disclaimer Item
+                    ListTile(
+                      leading: Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          color: Colors.amber.withOpacity(0.12),
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: const Icon(Icons.gavel_rounded, color: Colors.amber, size: 20),
+                      ),
+                      title: const Text(
+                        'Disclaimer & DMCA Policy',
+                        style: TextStyle(fontWeight: FontWeight.w700, fontSize: 15),
+                      ),
+                      subtitle: const Text(
+                        'Non-hosting notice & copyright guidelines',
+                        style: TextStyle(fontSize: 12),
+                      ),
+                      trailing: const Icon(Icons.chevron_right_rounded, size: 18),
+                      onTap: _openDisclaimer,
+                    ),
+
+                    Divider(
+                      height: 1,
+                      indent: 60,
+                      color: isDark ? AppTheme.darkBorder : AppTheme.lightBorder,
+                    ),
+
                     // App Version Item
                     ListTile(
                       leading: Container(
@@ -445,7 +652,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           borderRadius: BorderRadius.circular(6),
                         ),
                         child: const Text(
-                          'v1.0.0 (1)',
+                          'v1.0.1 (2)',
                           style: TextStyle(
                             fontSize: 12,
                             fontWeight: FontWeight.w700,
@@ -509,8 +716,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ),
                 child: Column(
                   children: [
-                    // Dark Mode Toggle
-                    if (widget.onToggleTheme != null)
+                    // Theme Mode Selection
+                    if (widget.onThemeChanged != null)
                       ListTile(
                         leading: Container(
                           padding: const EdgeInsets.all(8),
@@ -519,7 +726,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             borderRadius: BorderRadius.circular(10),
                           ),
                           child: Icon(
-                            isDark ? Icons.dark_mode_rounded : Icons.light_mode_rounded,
+                            _themeModeIcon,
                             color: Colors.orange,
                             size: 20,
                           ),
@@ -529,17 +736,38 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           style: TextStyle(fontWeight: FontWeight.w700, fontSize: 15),
                         ),
                         subtitle: Text(
-                          isDark ? 'Dark Theme (AMOLED)' : 'Light Theme',
+                          _themeModeLabel,
                           style: const TextStyle(fontSize: 12),
                         ),
-                        trailing: Switch(
-                          value: isDark,
-                          onChanged: (_) => widget.onToggleTheme?.call(),
-                          activeColor: AppTheme.primaryRed,
+                        trailing: Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                          decoration: BoxDecoration(
+                            color: isDark ? const Color(0xFF1B2232) : Colors.grey[200],
+                            borderRadius: BorderRadius.circular(8),
+                            border: Border.all(
+                              color: isDark ? AppTheme.darkBorder : AppTheme.lightBorder,
+                            ),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Text(
+                                _themeModeLabel,
+                                style: const TextStyle(
+                                  fontSize: 11.5,
+                                  fontWeight: FontWeight.w700,
+                                  color: AppTheme.primaryRed,
+                                ),
+                              ),
+                              const SizedBox(width: 4),
+                              const Icon(Icons.keyboard_arrow_down_rounded, size: 16, color: AppTheme.primaryRed),
+                            ],
+                          ),
                         ),
+                        onTap: _showThemeSelectionDialog,
                       ),
 
-                    if (widget.onToggleTheme != null)
+                    if (widget.onThemeChanged != null)
                       Divider(
                         height: 1,
                         indent: 60,
@@ -586,12 +814,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       ),
                     ),
                     const SizedBox(height: 4),
-                    Text(
-                      'All poster metadata & cinema previews are for reference only.',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        fontSize: 11,
-                        color: isDark ? Colors.grey[600] : Colors.grey[500],
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 20),
+                      child: Text(
+                        'Third-party cinema indexer • No video files hosted on servers • 24h preview advisory',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontSize: 11,
+                          color: isDark ? Colors.grey[600] : Colors.grey[500],
+                        ),
                       ),
                     ),
                     const SizedBox(height: 16),

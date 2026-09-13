@@ -5,8 +5,8 @@ import { getCategories } from '@/lib/api';
 import { Layers, Film, ChevronRight } from 'lucide-react';
 
 export const metadata: Metadata = {
-  title: 'Movie Categories & Genres Directory - Movies4u',
-  description: 'Explore all movie categories, regional cinema, dual audio, and web series genres available on Movies4u.',
+  title: 'Movie Categories & Genres Directory - Movie Man',
+  description: 'Explore all movie categories, regional cinema, dual audio, and web series genres available on Movie Man.',
 };
 
 export const revalidate = 3600;
