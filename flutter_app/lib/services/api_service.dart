@@ -208,8 +208,14 @@ class ApiService {
 
   static const Map<String, String> requestHeaders = {
     'User-Agent':
-        'Mozilla/5.0 (Linux; Android 13; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Mobile Safari/537.36',
+        'Mozilla/5.0 (Linux; Android 13; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Mobile Safari/537.36',
     'Accept': 'application/json, text/plain, */*',
+    'Accept-Language': 'en-US,en;q=0.9,hi;q=0.8',
+    'Referer': 'https://movies4u.kg/',
+    'Origin': 'https://movies4u.kg',
+    'Sec-Fetch-Dest': 'empty',
+    'Sec-Fetch-Mode': 'cors',
+    'Sec-Fetch-Site': 'same-origin',
   };
 
   // Guaranteed fallback categories so CategoriesScreen is NEVER blank
@@ -269,7 +275,63 @@ class ApiService {
         ? '${endDate.year}-${endDate.month.toString().padLeft(2, '0')}-${endDate.day.toString().padLeft(2, '0')}T23:59:59'
         : null;
 
-    // 1. Try Vercel API
+    // 1. Direct WordPress REST API (Primary - Fast & direct with Referer headers)
+    try {
+      final isNumeric = category != null && int.tryParse(category) != null;
+      final params = <String, String>{
+        '_embed': '1',
+        'page': page.toString(),
+        'per_page': perPage.toString(),
+        'orderby': 'date',
+        'order': sort == 'oldest' ? 'asc' : 'desc',
+        if (isNumeric) 'categories': category,
+        if (search != null && search.isNotEmpty)
+          'search': search
+        else if (category != null && !isNumeric)
+          'search': category,
+      };
+      if (afterIso != null) params['after'] = afterIso;
+      if (beforeIso != null) params['before'] = beforeIso;
+
+      final uri = Uri.parse('$directWpUrl/posts').replace(queryParameters: params);
+      final res = await http.get(uri, headers: requestHeaders).timeout(const Duration(seconds: 15));
+
+      if (res.statusCode == 200) {
+        final totalMovies = int.tryParse(res.headers['x-wp-total'] ?? '0') ?? 0;
+        final totalPages = int.tryParse(res.headers['x-wp-totalpages'] ?? '1') ?? 1;
+
+        final list = json.decode(res.body) as List<dynamic>;
+        var movies = list
+            .map((e) => parseWpPost(e as Map<String, dynamic>))
+            .where((m) => !isAdultMovie(m))
+            .toList();
+
+        if (startDate != null || endDate != null) {
+          movies = movies.where((m) {
+            final dt = m.uploadDateTime;
+            if (dt == null) return false;
+            if (startDate != null && dt.isBefore(DateTime(startDate.year, startDate.month, startDate.day, 0, 0, 0))) {
+              return false;
+            }
+            if (endDate != null && dt.isAfter(DateTime(endDate.year, endDate.month, endDate.day, 23, 59, 59))) {
+              return false;
+            }
+            return true;
+          }).toList();
+        }
+
+        if (movies.isNotEmpty) {
+          return MovieListResponse(
+            movies: movies,
+            totalPages: totalPages,
+            totalMovies: totalMovies,
+            currentPage: page,
+          );
+        }
+      }
+    } catch (_) {}
+
+    // 2. Fallback to Vercel API
     try {
       final queryParams = <String, String>{
         'page': page.toString(),
@@ -313,66 +375,31 @@ class ApiService {
       }
     } catch (_) {}
 
-    // 2. Direct Fallback to WordPress REST API
-    try {
-      final isNumeric = category != null && int.tryParse(category) != null;
-      final params = <String, String>{
-        '_embed': '1',
-        'page': page.toString(),
-        'per_page': perPage.toString(),
-        'orderby': 'date',
-        'order': sort == 'oldest' ? 'asc' : 'desc',
-        if (isNumeric) 'categories': category,
-        if (search != null && search.isNotEmpty)
-          'search': search
-        else if (category != null && !isNumeric)
-          'search': category,
-      };
-      if (afterIso != null) params['after'] = afterIso;
-      if (beforeIso != null) params['before'] = beforeIso;
-
-      final uri = Uri.parse('$directWpUrl/posts').replace(queryParameters: params);
-      final res = await http.get(uri, headers: requestHeaders).timeout(const Duration(seconds: 12));
-
-      if (res.statusCode == 200) {
-        final totalMovies = int.tryParse(res.headers['x-wp-total'] ?? '0') ?? 0;
-        final totalPages = int.tryParse(res.headers['x-wp-totalpages'] ?? '1') ?? 1;
-
-        final list = json.decode(res.body) as List<dynamic>;
-        var movies = list
-            .map((e) => parseWpPost(e as Map<String, dynamic>))
-            .where((m) => !isAdultMovie(m))
-            .toList();
-
-        if (startDate != null || endDate != null) {
-          movies = movies.where((m) {
-            final dt = m.uploadDateTime;
-            if (dt == null) return false;
-            if (startDate != null && dt.isBefore(DateTime(startDate.year, startDate.month, startDate.day, 0, 0, 0))) {
-              return false;
-            }
-            if (endDate != null && dt.isAfter(DateTime(endDate.year, endDate.month, endDate.day, 23, 59, 59))) {
-              return false;
-            }
-            return true;
-          }).toList();
-        }
-
-        return MovieListResponse(
-          movies: movies,
-          totalPages: totalPages,
-          totalMovies: totalMovies,
-          currentPage: page,
-        );
-      }
-    } catch (_) {}
-
     return MovieListResponse(movies: [], totalPages: 0, totalMovies: 0, currentPage: page);
   }
 
   // Fetch single movie by slug
   static Future<Movie?> fetchMovieBySlug(String slug) async {
-    // 1. Try Vercel API
+    // 1. Direct WP REST (Primary - Fast & Reliable)
+    try {
+      final res = await http
+          .get(
+            Uri.parse('$directWpUrl/posts?slug=${Uri.encodeComponent(slug)}&_embed=1'),
+            headers: requestHeaders,
+          )
+          .timeout(const Duration(seconds: 15));
+      if (res.statusCode == 200) {
+        final list = json.decode(res.body) as List<dynamic>;
+        if (list.isNotEmpty) {
+          final movie = parseWpPost(list[0] as Map<String, dynamic>);
+          if (!isAdultMovie(movie)) {
+            return movie;
+          }
+        }
+      }
+    } catch (_) {}
+
+    // 2. Fallback to Vercel API
     try {
       final res = await http
           .get(Uri.parse('$baseUrl/movies/$slug'), headers: requestHeaders)
@@ -382,25 +409,6 @@ class ApiService {
         final movie = Movie.fromJson(data);
         if (!isAdultMovie(movie)) {
           return movie;
-        }
-      }
-    } catch (_) {}
-
-    // 2. Fallback direct to WP
-    try {
-      final res = await http
-          .get(
-            Uri.parse('$directWpUrl/posts?slug=${Uri.encodeComponent(slug)}&_embed=1'),
-            headers: requestHeaders,
-          )
-          .timeout(const Duration(seconds: 12));
-      if (res.statusCode == 200) {
-        final list = json.decode(res.body) as List<dynamic>;
-        if (list.isNotEmpty) {
-          final movie = parseWpPost(list[0] as Map<String, dynamic>);
-          if (!isAdultMovie(movie)) {
-            return movie;
-          }
         }
       }
     } catch (_) {}

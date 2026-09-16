@@ -4,10 +4,14 @@ const WP_API_BASE = process.env.NEXT_PUBLIC_WP_API_BASE || 'https://movies4u.kg/
 
 const BROWSER_HEADERS = {
   'User-Agent':
-    'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
+    'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36',
   Accept: 'application/json, text/plain, */*',
   'Accept-Language': 'en-US,en;q=0.9,hi;q=0.8',
   Referer: 'https://movies4u.kg/',
+  Origin: 'https://movies4u.kg',
+  'Sec-Fetch-Dest': 'empty',
+  'Sec-Fetch-Mode': 'cors',
+  'Sec-Fetch-Site': 'same-origin',
 };
 
 // Helper to decode HTML entities
@@ -384,7 +388,9 @@ export async function fetchMoviesDirectClient({
   if (category) params.set('categories', String(category));
   if (search) params.set('search', search);
 
-  const res = await fetch(`https://movies4u.kg/wp-json/wp/v2/posts?${params.toString()}`);
+  const res = await fetch(`https://movies4u.kg/wp-json/wp/v2/posts?${params.toString()}`, {
+    headers: BROWSER_HEADERS,
+  });
   if (!res.ok) throw new Error('Direct fetch failed');
 
   const totalMovies = parseInt(res.headers.get('x-wp-total') || '0', 10);
@@ -396,7 +402,9 @@ export async function fetchMoviesDirectClient({
 }
 
 export async function fetchMovieBySlugDirectClient(slug: string): Promise<Movie | null> {
-  const res = await fetch(`https://movies4u.kg/wp-json/wp/v2/posts?slug=${encodeURIComponent(slug)}&_embed=1`);
+  const res = await fetch(`https://movies4u.kg/wp-json/wp/v2/posts?slug=${encodeURIComponent(slug)}&_embed=1`, {
+    headers: BROWSER_HEADERS,
+  });
   if (!res.ok) return null;
   const posts = await res.json();
   if (!Array.isArray(posts) || posts.length === 0) return null;
