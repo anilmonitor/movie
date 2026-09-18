@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 class DownloadLink {
   final String title;
   final String url;
@@ -83,39 +85,45 @@ class Movie {
     this.year,
     this.rating,
     this.languages = const [],
-    this.qualities = const [],
+    this.qualities = const ['HD'],
     this.size,
     this.storyline,
     required this.poster,
     this.screenshots = const [],
     this.downloadLinks = const [],
     this.categories = const [],
-    required this.date,
+    this.date = '',
   });
+
+  static List<String> _parseStringList(dynamic val, [List<String> fallback = const []]) {
+    if (val is List) {
+      return val.map((e) => e.toString()).toList();
+    }
+    if (val is String && val.trim().isNotEmpty) {
+      try {
+        final decoded = jsonDecode(val);
+        if (decoded is List) {
+          return decoded.map((e) => e.toString()).toList();
+        }
+      } catch (_) {}
+    }
+    return fallback;
+  }
 
   factory Movie.fromJson(Map<String, dynamic> json) {
     return Movie(
-      id: json['id'] as int? ?? 0,
+      id: json['id'] is int ? json['id'] as int : int.tryParse(json['id']?.toString() ?? '0') ?? 0,
       slug: json['slug'] as String? ?? '',
       title: json['title'] as String? ?? '',
       rawTitle: json['rawTitle'] as String? ?? json['title'] as String? ?? '',
       year: json['year'] as String?,
       rating: json['rating'] as String?,
-      languages: (json['languages'] as List<dynamic>?)
-              ?.map((e) => e.toString())
-              .toList() ??
-          [],
-      qualities: (json['qualities'] as List<dynamic>?)
-              ?.map((e) => e.toString())
-              .toList() ??
-          ['HD'],
+      languages: _parseStringList(json['languages']),
+      qualities: _parseStringList(json['qualities'], const ['HD']),
       size: json['size'] as String?,
       storyline: json['storyline'] as String?,
       poster: json['poster'] as String? ?? '',
-      screenshots: (json['screenshots'] as List<dynamic>?)
-              ?.map((e) => e.toString())
-              .toList() ??
-          [],
+      screenshots: _parseStringList(json['screenshots']),
       downloadLinks: (json['downloadLinks'] as List<dynamic>?)
               ?.map((e) => DownloadLink.fromJson(e as Map<String, dynamic>))
               .toList() ??

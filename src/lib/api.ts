@@ -341,6 +341,21 @@ export function parseMovieFromWpPost(post: any): Movie {
   };
 }
 
+function parseJsonArray(val: any, fallback: any[] = []): any[] {
+  if (Array.isArray(val)) return val;
+  if (typeof val === 'string' && val.trim().length > 0) {
+    try {
+      const parsed = JSON.parse(val);
+      if (Array.isArray(parsed)) return parsed;
+      if (typeof parsed === 'string') {
+        const doubleParsed = JSON.parse(parsed);
+        if (Array.isArray(doubleParsed)) return doubleParsed;
+      }
+    } catch (_) {}
+  }
+  return fallback;
+}
+
 export function formatPrismaMovie(dbMovie: any): Movie {
   return {
     id: dbMovie.wpId || dbMovie.id,
@@ -352,9 +367,9 @@ export function formatPrismaMovie(dbMovie: any): Movie {
     size: dbMovie.size || undefined,
     storyline: dbMovie.storyline || undefined,
     poster: dbMovie.poster,
-    screenshots: Array.isArray(dbMovie.screenshots) ? dbMovie.screenshots : [],
-    languages: Array.isArray(dbMovie.languages) ? dbMovie.languages : [],
-    qualities: Array.isArray(dbMovie.qualities) ? dbMovie.qualities : ['HD'],
+    screenshots: parseJsonArray(dbMovie.screenshots),
+    languages: parseJsonArray(dbMovie.languages),
+    qualities: parseJsonArray(dbMovie.qualities, ['HD']),
     downloadLinks: (dbMovie.downloadLinks || []).map((l: any) => ({
       title: l.title,
       url: l.url,

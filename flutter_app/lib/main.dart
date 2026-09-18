@@ -10,6 +10,7 @@ void main() async {
   // Warm up WebViewApiClient in background to resolve Cloudflare session
   WebViewApiClient.instance.ensureInitialized();
 
+
   // Set default status bar style
   SystemChrome.setSystemUIOverlayStyle(
     const SystemUiOverlayStyle(

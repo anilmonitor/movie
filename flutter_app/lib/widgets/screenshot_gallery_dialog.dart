@@ -204,8 +204,15 @@ class _ScreenshotGalleryDialogState extends State<ScreenshotGalleryDialog> {
                             child: ClipRRect(
                               borderRadius: BorderRadius.circular(7),
                               child: CachedNetworkImage(
-                                imageUrl: widget.images[index],
+                                imageUrl: widget.images[index].contains('movies4u.kg')
+                                    ? 'https://movieman4u.vercel.app/api/image-proxy?url=${Uri.encodeComponent(widget.images[index])}'
+                                    : widget.images[index],
                                 fit: BoxFit.cover,
+                                httpHeaders: const {
+                                  'User-Agent':
+                                      'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36',
+                                  'Referer': 'https://movieman4u.vercel.app/',
+                                },
                                 errorWidget: (_, __, ___) => Container(color: Colors.white10),
                               ),
                             ),
@@ -376,8 +383,15 @@ class _ZoomableScreenshotItemState extends State<_ZoomableScreenshotItem>
         },
         child: Center(
           child: CachedNetworkImage(
-            imageUrl: widget.imageUrl,
+            imageUrl: widget.imageUrl.contains('movies4u.kg')
+                ? 'https://movieman4u.vercel.app/api/image-proxy?url=${Uri.encodeComponent(widget.imageUrl)}'
+                : widget.imageUrl,
             fit: BoxFit.contain,
+            httpHeaders: const {
+              'User-Agent':
+                  'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36',
+              'Referer': 'https://movieman4u.vercel.app/',
+            },
             placeholder: (_, __) => const Center(
               child: ShimmerBox(
                 width: double.infinity,

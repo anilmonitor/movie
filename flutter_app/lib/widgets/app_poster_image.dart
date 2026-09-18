@@ -63,7 +63,7 @@ class AppPosterImage extends StatelessWidget {
       }
     }
 
-    // Handle standard network images with anti-hotlink Referer headers & memory cache limits
+    // Handle standard network images with memory cache limits
     return CachedNetworkImage(
       imageUrl: imageUrl,
       fit: fit,
@@ -77,7 +77,7 @@ class AppPosterImage extends StatelessWidget {
       httpHeaders: const {
         'User-Agent':
             'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36',
-        'Referer': 'https://movies4u.kg/',
+        'Referer': 'https://movieman4u.vercel.app/',
         'Accept': 'image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8',
       },
       placeholder: (_, __) => defaultPlaceholder,

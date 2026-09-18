@@ -15,11 +15,14 @@ import {
   HardDrive,
   Languages,
   ChevronRight,
+  ChevronLeft,
   ShieldCheck,
   Zap,
   Image as ImageIcon,
   Loader2,
   Clock,
+  X,
+  Maximize2,
 } from 'lucide-react';
 
 interface MovieDetailClientProps {
@@ -45,6 +48,8 @@ export default function MovieDetailClient({
   const [movie, setMovie] = useState<Movie | null>(initialMovie || null);
   const [relatedMovies, setRelatedMovies] = useState<Movie[]>(initialRelated);
   const [isLoading, setIsLoading] = useState<boolean>(!initialMovie);
+  const [activeScreenshotIdx, setActiveScreenshotIdx] = useState<number | null>(null);
+  const [showAllScreenshots, setShowAllScreenshots] = useState<boolean>(false);
 
   const posterUrl = getPosterUrl(movie?.poster);
 
@@ -300,31 +305,130 @@ export default function MovieDetailClient({
       {/* Screenshots Section */}
       {movie.screenshots && movie.screenshots.length > 0 && (
         <section className="space-y-3 sm:space-y-4">
-          <div className="flex items-center gap-2 border-b border-slate-200 dark:border-white/10 pb-2.5 sm:pb-3">
-            <ImageIcon className="w-5 h-5 text-red-600 dark:text-red-500" />
-            <h2 className="text-base sm:text-lg font-bold text-slate-900 dark:text-white">Movie Screenshots</h2>
-            <span className="text-xs text-slate-500 dark:text-gray-500 ml-auto">Sample Preview</span>
+          <div className="flex items-center justify-between border-b border-slate-200 dark:border-white/10 pb-2.5 sm:pb-3">
+            <div className="flex items-center gap-2">
+              <ImageIcon className="w-5 h-5 text-red-600 dark:text-red-500" />
+              <h2 className="text-base sm:text-lg font-bold text-slate-900 dark:text-white">Movie Screenshots</h2>
+              <span className="text-[11px] px-2 py-0.5 rounded-full bg-red-500/10 text-red-500 font-bold border border-red-500/20">
+                {movie.screenshots.length} Images
+              </span>
+            </div>
+            {movie.screenshots.length > 6 && (
+              <button
+                type="button"
+                onClick={() => setShowAllScreenshots((prev) => !prev)}
+                className="text-xs font-semibold text-red-600 dark:text-red-400 hover:underline"
+              >
+                {showAllScreenshots ? 'Show Less' : `View All (${movie.screenshots.length})`}
+              </button>
+            )}
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4">
-            {movie.screenshots.slice(0, 6).map((src, idx) => (
-              <div
-                key={idx}
-                className="relative aspect-video rounded-xl overflow-hidden border border-slate-200 dark:border-white/10 bg-slate-100 dark:bg-gray-900 group shadow-sm"
-              >
-                <Image
-                  src={src}
-                  alt={`${movie.title} screenshot ${idx + 1}`}
-                  fill
-                  unoptimized={true}
-                  referrerPolicy="no-referrer"
-                  sizes="(max-width: 640px) 100vw, 33vw"
-                  className="object-cover group-hover:scale-105 transition-transform duration-300"
-                />
-              </div>
-            ))}
+            {(showAllScreenshots ? movie.screenshots : movie.screenshots.slice(0, 6)).map((src, idx) => {
+              const safeSrc = getPosterUrl(src);
+              return (
+                <div
+                  key={idx}
+                  onClick={() => setActiveScreenshotIdx(idx)}
+                  className="relative aspect-video rounded-xl overflow-hidden border border-slate-200 dark:border-white/10 bg-slate-100 dark:bg-gray-900 group shadow-sm cursor-pointer"
+                >
+                  <Image
+                    src={safeSrc}
+                    alt={`${movie.title} screenshot ${idx + 1}`}
+                    fill
+                    unoptimized={true}
+                    referrerPolicy="no-referrer"
+                    sizes="(max-width: 640px) 100vw, 33vw"
+                    className="object-cover group-hover:scale-105 transition-transform duration-300"
+                  />
+                  <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                    <span className="p-2 rounded-full bg-black/60 text-white border border-white/20">
+                      <Maximize2 className="w-4 h-4" />
+                    </span>
+                  </div>
+                </div>
+              );
+            })}
           </div>
         </section>
+      )}
+
+      {/* Interactive Screenshot Lightbox Modal */}
+      {activeScreenshotIdx !== null && movie.screenshots && (
+        <div
+          role="dialog"
+          aria-modal="true"
+          className="fixed inset-0 z-50 bg-black/90 backdrop-blur-md flex flex-col items-center justify-center p-4 sm:p-6"
+          onClick={() => setActiveScreenshotIdx(null)}
+        >
+          {/* Top Bar */}
+          <div
+            className="absolute top-4 left-4 right-4 flex items-center justify-between z-10"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="text-white text-xs sm:text-sm font-semibold bg-black/50 px-3 py-1.5 rounded-full border border-white/15">
+              <span>{movie.title}</span> &bull;{' '}
+              <span className="text-amber-400">
+                {activeScreenshotIdx + 1} / {movie.screenshots.length}
+              </span>
+            </div>
+            <button
+              type="button"
+              onClick={() => setActiveScreenshotIdx(null)}
+              className="p-2 rounded-full bg-white/10 hover:bg-white/20 text-white transition"
+              aria-label="Close"
+            >
+              <X className="w-5 h-5" />
+            </button>
+          </div>
+
+          {/* Previous Button */}
+          {movie.screenshots.length > 1 && (
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                setActiveScreenshotIdx((prev) =>
+                  prev !== null ? (prev === 0 ? movie.screenshots.length - 1 : prev - 1) : 0
+                );
+              }}
+              className="absolute left-3 sm:left-6 z-10 p-2.5 sm:p-3 rounded-full bg-black/60 hover:bg-black/90 text-white border border-white/20 transition active:scale-95"
+              aria-label="Previous"
+            >
+              <ChevronLeft className="w-5 h-5 sm:w-6 sm:h-6" />
+            </button>
+          )}
+
+          {/* Active Image */}
+          <div
+            className="relative max-w-5xl max-h-[80vh] w-full h-full flex items-center justify-center"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <img
+              src={getPosterUrl(movie.screenshots[activeScreenshotIdx])}
+              alt={`${movie.title} screenshot ${activeScreenshotIdx + 1}`}
+              className="max-w-full max-h-[80vh] object-contain rounded-xl shadow-2xl border border-white/10"
+            />
+          </div>
+
+          {/* Next Button */}
+          {movie.screenshots.length > 1 && (
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                setActiveScreenshotIdx((prev) =>
+                  prev !== null ? (prev === movie.screenshots.length - 1 ? 0 : prev + 1) : 0
+                );
+              }}
+              className="absolute right-3 sm:right-6 z-10 p-2.5 sm:p-3 rounded-full bg-black/60 hover:bg-black/90 text-white border border-white/20 transition active:scale-95"
+              aria-label="Next"
+            >
+              <ChevronRight className="w-5 h-5 sm:w-6 sm:h-6" />
+            </button>
+          )}
+        </div>
       )}
 
       {/* Download Links Section */}

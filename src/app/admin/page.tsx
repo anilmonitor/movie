@@ -24,6 +24,11 @@ import {
   Tag,
   Sun,
   Moon,
+  Sparkles,
+  CheckSquare,
+  Square,
+  Calendar,
+  Download,
 } from 'lucide-react';
 
 interface SyncStats {
@@ -58,8 +63,18 @@ export default function AdminPage() {
   const [categorySearch, setCategorySearch] = useState<string>('');
   const [isLoadingCategories, setIsLoadingCategories] = useState<boolean>(false);
 
+  // New Movies Live Discovery from movies4u.kg
+  const [newMoviesList, setNewMoviesList] = useState<any[]>([]);
+  const [isLoadingNewMovies, setIsLoadingNewMovies] = useState<boolean>(false);
+  const [selectedNewMovieSlugs, setSelectedNewMovieSlugs] = useState<string[]>([]);
+  const [isInsertingNewMovies, setIsInsertingNewMovies] = useState<boolean>(false);
+  const [newMoviesStatus, setNewMoviesStatus] = useState<string>('');
+  const [rawPostsInput, setRawPostsInput] = useState<string>('');
+  const [showManualInput, setShowManualInput] = useState<boolean>(false);
+  const [isFilteringManual, setIsFilteringManual] = useState<boolean>(false);
+
   const [sidebarOpen, setSidebarOpen] = useState<boolean>(false);
-  const [activeTab, setActiveTab] = useState<'overview' | 'movies' | 'categories' | 'sync'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'movies' | 'categories' | 'sync' | 'new_movies'>('overview');
   const [darkMode, setDarkMode] = useState<boolean>(true);
 
   // Load saved theme preference
@@ -108,24 +123,136 @@ export default function AdminPage() {
     fetchStats();
     fetchMovies(1, '');
     fetchCategories();
+    fetchNewMovies();
   };
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     const cleanEmail = adminEmail.trim().toLowerCase();
+    setLoginError('');
 
-    const allowed = ['anilarangi6@gmail.com', 'anilarangi7@gmail.com'];
-    const isEmailAllowed = allowed.includes(cleanEmail);
-    const isPasscodeValid = passcode.trim() === 'movieman@admin2024';
+    try {
+      const res = await fetch('/api/admin/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: cleanEmail,
+          passcode: passcode.trim(),
+        }),
+      });
 
-    if (isEmailAllowed || isPasscodeValid) {
-      setIsAuthenticated(true);
-      setLoginError('');
-      localStorage.setItem('mm_admin_email', cleanEmail);
-      localStorage.setItem('mm_admin_passcode', passcode);
-      loadAllAdminData();
-    } else {
-      setLoginError('Access Denied: Invalid credentials or unauthorized account.');
+      const data = await res.json();
+
+      if (res.ok && data.success) {
+        setIsAuthenticated(true);
+        setLoginError('');
+        localStorage.setItem('mm_admin_email', cleanEmail);
+        localStorage.setItem('mm_admin_passcode', passcode);
+        loadAllAdminData();
+      } else {
+        setLoginError(data.error || 'Access Denied: Invalid credentials or unauthorized account.');
+      }
+    } catch (err: any) {
+      setLoginError(`Login request failed: ${err.message || 'Network error'}`);
+    }
+  };
+
+  const fetchNewMovies = async () => {
+    setIsLoadingNewMovies(true);
+    setNewMoviesStatus('Scanning movies4u.kg for newly added movies...');
+    try {
+      const res = await fetch('/api/admin/new-movies');
+      if (res.ok) {
+        const data = await res.json();
+        const incoming = data.newMovies || [];
+        setNewMoviesList(incoming);
+        if (incoming.length > 0) {
+          setNewMoviesStatus(`✨ Found ${incoming.length} new unique movie(s) ready to insert!`);
+        } else {
+          setNewMoviesStatus('✨ All caught up! Every movie from movies4u.kg is already in your database.');
+        }
+      } else {
+        setNewMoviesStatus('Failed to scan for new movies.');
+      }
+    } catch (err: any) {
+      setNewMoviesStatus(`Error: ${err.message || 'Network error'}`);
+    } finally {
+      setIsLoadingNewMovies(false);
+    }
+  };
+
+  const insertNewMovies = async (moviesToInsert: any[]) => {
+    if (!moviesToInsert || moviesToInsert.length === 0) return;
+    setIsInsertingNewMovies(true);
+    setNewMoviesStatus(`⏳ Inserting ${moviesToInsert.length} movie(s) into database with exact date & time...`);
+
+    try {
+      const res = await fetch('/api/admin/new-movies', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ movies: moviesToInsert }),
+      });
+
+      const data = await res.json();
+      if (res.ok && data.success) {
+        const insertedSlugs = new Set(moviesToInsert.map((m) => m.slug));
+        // Remove inserted movies from newMoviesList so the section empties out!
+        setNewMoviesList((prev) => prev.filter((m) => !insertedSlugs.has(m.slug)));
+        setSelectedNewMovieSlugs((prev) => prev.filter((s) => !insertedSlugs.has(s)));
+        setNewMoviesStatus(`✅ Successfully inserted ${data.insertedCount} movie(s) into database! Section cleared.`);
+        fetchStats();
+        fetchMovies(1, '');
+      } else {
+        setNewMoviesStatus(`❌ Error inserting movies: ${data.error || 'Failed'}`);
+      }
+    } catch (err: any) {
+      setNewMoviesStatus(`❌ Error: ${err.message || 'Network error'}`);
+    } finally {
+      setIsInsertingNewMovies(false);
+    }
+  };
+
+  const handleFilterRawPosts = async () => {
+    if (!rawPostsInput.trim()) return;
+    setIsFilteringManual(true);
+    try {
+      let parsedPosts: any[] = [];
+      try {
+        const parsed = JSON.parse(rawPostsInput);
+        parsedPosts = Array.isArray(parsed) ? parsed : [parsed];
+      } catch {
+        setNewMoviesStatus('❌ Invalid JSON: Please paste valid WordPress posts JSON array.');
+        setIsFilteringManual(false);
+        return;
+      }
+
+      setNewMoviesStatus(`⏳ Comparing ${parsedPosts.length} posts against your database...`);
+      const res = await fetch('/api/admin/new-movies', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'filter', posts: parsedPosts }),
+      });
+
+      const data = await res.json();
+      if (res.ok && data.success) {
+        setNewMoviesList(data.newMovies || []);
+        if (data.newMovies?.length > 0) {
+          setNewMoviesStatus(
+            `✨ Checked ${data.totalChecked} posts: Found ${data.newCount} new unique movie(s) ready to insert! (${data.existingCount} already in DB)`
+          );
+        } else {
+          setNewMoviesStatus(
+            `✨ All ${data.totalChecked} posts are already in your database! Section is clean.`
+          );
+        }
+        setShowManualInput(false);
+      } else {
+        setNewMoviesStatus(`❌ Error filtering posts: ${data.error || 'Failed'}`);
+      }
+    } catch (err: any) {
+      setNewMoviesStatus(`❌ Error: ${err.message || 'Network error'}`);
+    } finally {
+      setIsFilteringManual(false);
     }
   };
 
@@ -501,6 +628,32 @@ export default function AdminPage() {
 
             <button
               onClick={() => {
+                setActiveTab('new_movies');
+                setSidebarOpen(false);
+              }}
+              className={`w-full flex items-center space-x-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold transition ${
+                activeTab === 'new_movies'
+                  ? 'bg-red-600 text-white shadow-lg shadow-red-600/20'
+                  : darkMode ? 'text-gray-300 hover:text-white hover:bg-white/5' : 'text-gray-600 hover:text-gray-900 hover:bg-black/5'
+              }`}
+            >
+              <Sparkles className="w-4 h-4 flex-shrink-0 text-amber-400" />
+              <div className="flex items-center justify-between w-full">
+                <span>New Movies Live</span>
+                {newMoviesList.length > 0 ? (
+                  <span className="text-[10px] px-2 py-0.5 rounded-full font-bold bg-amber-500/20 text-amber-300 border border-amber-500/30 animate-pulse">
+                    {newMoviesList.length} New
+                  </span>
+                ) : (
+                  <span className={`text-[10px] px-2 py-0.5 rounded-full font-medium ${darkMode ? 'bg-white/5 text-gray-400' : 'bg-black/5 text-gray-500'}`}>
+                    Live
+                  </span>
+                )}
+              </div>
+            </button>
+
+            <button
+              onClick={() => {
                 setActiveTab('movies');
                 setSidebarOpen(false);
               }}
@@ -590,6 +743,7 @@ export default function AdminPage() {
               <h2 className={`text-base font-bold tracking-tight ${darkMode ? 'text-white' : 'text-[#0F172A]'}`}>
                 {activeTab === 'overview' && 'Dashboard Overview'}
                 {activeTab === 'sync' && '1-Click Database Sync'}
+                {activeTab === 'new_movies' && '✨ New Movies Live Discovery'}
                 {activeTab === 'movies' && 'Movie Catalog Management'}
                 {activeTab === 'categories' && 'Categories Management'}
               </h2>
@@ -756,6 +910,298 @@ export default function AdminPage() {
                 <div className="p-3 bg-[#172034] border border-white/10 rounded-xl flex items-center space-x-2 text-xs">
                   <CheckCircle className="w-4 h-4 text-green-400 flex-shrink-0" />
                   <span className="text-gray-200">{syncStatus}</span>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* New Movies Discovery & Insertion Section */}
+          {activeTab === 'new_movies' && (
+            <div className="bg-[#0F1524] border border-white/10 rounded-2xl p-5 sm:p-6 shadow-xl space-y-5">
+              {/* Header & Controls */}
+              <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 border-b border-white/10 pb-5">
+                <div>
+                  <div className="flex items-center space-x-2.5">
+                    <div className="w-8 h-8 rounded-lg bg-amber-500/20 border border-amber-500/30 flex items-center justify-center text-amber-400">
+                      <Sparkles className="w-4 h-4" />
+                    </div>
+                    <h3 className="text-base sm:text-lg font-bold text-white flex items-center space-x-2">
+                      <span>New Movies Live from Source</span>
+                      <span className="bg-amber-500/20 text-amber-300 border border-amber-500/30 text-[11px] px-2.5 py-0.5 rounded-full font-bold">
+                        {newMoviesList.length} Pending
+                      </span>
+                    </h3>
+                  </div>
+                  <p className="text-xs text-gray-400 mt-1">
+                    Live comparison with movies4u.kg. Only un-imported unique movies appear here. Select and click &apos;Insert to DB&apos; to instantly add them with exact publication timestamps.
+                  </p>
+                </div>
+
+                <div className="flex flex-wrap items-center gap-2.5">
+                  <button
+                    onClick={fetchNewMovies}
+                    disabled={isLoadingNewMovies}
+                    className="flex items-center space-x-1.5 px-3.5 py-2 bg-[#172034] hover:bg-[#1E2B47] border border-white/10 rounded-xl text-xs font-semibold text-gray-200 transition active:scale-[0.98] disabled:opacity-50"
+                  >
+                    <RefreshCw className={`w-3.5 h-3.5 ${isLoadingNewMovies ? 'animate-spin text-amber-400' : ''}`} />
+                    <span>{isLoadingNewMovies ? 'Scanning...' : 'Scan for New Movies'}</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setShowManualInput((prev) => !prev)}
+                    className="flex items-center space-x-1.5 px-3.5 py-2 bg-[#172034] hover:bg-[#1E2B47] border border-white/10 rounded-xl text-xs font-semibold text-gray-300 transition"
+                  >
+                    <Globe className="w-3.5 h-3.5 text-blue-400" />
+                    <span>{showManualInput ? 'Close JSON Input' : 'Paste / Browser Posts'}</span>
+                  </button>
+
+                  {newMoviesList.length > 0 && (
+                    <>
+                      <button
+                        onClick={() => {
+                          if (selectedNewMovieSlugs.length === newMoviesList.length) {
+                            setSelectedNewMovieSlugs([]);
+                          } else {
+                            setSelectedNewMovieSlugs(newMoviesList.map((m) => m.slug));
+                          }
+                        }}
+                        className="flex items-center space-x-1.5 px-3.5 py-2 bg-[#172034] hover:bg-[#1E2B47] border border-white/10 rounded-xl text-xs font-semibold text-gray-200 transition"
+                      >
+                        {selectedNewMovieSlugs.length === newMoviesList.length ? (
+                          <CheckSquare className="w-3.5 h-3.5 text-amber-400" />
+                        ) : (
+                          <Square className="w-3.5 h-3.5 text-gray-400" />
+                        )}
+                        <span>
+                          {selectedNewMovieSlugs.length === newMoviesList.length
+                            ? 'Deselect All'
+                            : `Select All (${newMoviesList.length})`}
+                        </span>
+                      </button>
+
+                      <button
+                        onClick={() => {
+                          const toInsert = newMoviesList.filter((m) =>
+                            selectedNewMovieSlugs.includes(m.slug)
+                          );
+                          insertNewMovies(toInsert);
+                        }}
+                        disabled={selectedNewMovieSlugs.length === 0 || isInsertingNewMovies}
+                        className="flex items-center space-x-2 px-4 py-2 bg-gradient-to-r from-amber-500 to-red-600 hover:from-amber-400 hover:to-red-500 text-white rounded-xl text-xs font-bold transition shadow-lg shadow-amber-600/20 active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed"
+                      >
+                        <Download className={`w-4 h-4 ${isInsertingNewMovies ? 'animate-bounce' : ''}`} />
+                        <span>
+                          {isInsertingNewMovies
+                            ? 'Inserting to Database...'
+                            : `📥 Insert Selected (${selectedNewMovieSlugs.length}) to DB`}
+                        </span>
+                      </button>
+                    </>
+                  )}
+                </div>
+              </div>
+
+              {/* Collapsible Manual JSON Import for Cloudflare Protected Environments */}
+              {showManualInput && (
+                <div className="p-4 bg-[#141C30] border border-blue-500/20 rounded-2xl space-y-3">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-2">
+                      <Globe className="w-4 h-4 text-blue-400" />
+                      <h4 className="text-xs font-bold text-white">Browser-Assisted Live Posts Sync</h4>
+                    </div>
+                    <a
+                      href="https://movies4u.kg/wp-json/wp/v2/posts?_embed=1&per_page=40&orderby=date&order=desc"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-[11px] text-blue-400 hover:text-blue-300 underline flex items-center space-x-1"
+                    >
+                      <span>Open movies4u.kg Posts in Browser</span>
+                      <ExternalLink className="w-3 h-3" />
+                    </a>
+                  </div>
+                  <p className="text-[11px] text-gray-400">
+                    If movies4u.kg shows Cloudflare verification on server, open the link above in your browser (where Cloudflare verifies you), copy the JSON response, and paste it below. It will automatically match against your MySQL DB and show only the new movies!
+                  </p>
+                  <textarea
+                    rows={4}
+                    value={rawPostsInput}
+                    onChange={(e) => setRawPostsInput(e.target.value)}
+                    placeholder="Paste WordPress posts JSON array here: [ { id: ..., title: ..., ... } ]"
+                    className="w-full bg-[#0B0F19] border border-white/10 rounded-xl p-3 text-xs text-gray-200 placeholder-gray-500 font-mono focus:outline-none focus:border-blue-500/50"
+                  />
+                  <div className="flex items-center justify-end space-x-2">
+                    <button
+                      type="button"
+                      onClick={() => setRawPostsInput('')}
+                      className="px-3 py-1.5 bg-white/5 hover:bg-white/10 text-gray-300 rounded-lg text-xs"
+                    >
+                      Clear
+                    </button>
+                    <button
+                      type="button"
+                      onClick={handleFilterRawPosts}
+                      disabled={!rawPostsInput.trim() || isFilteringManual}
+                      className="px-4 py-1.5 bg-blue-600 hover:bg-blue-500 text-white rounded-lg text-xs font-bold transition flex items-center space-x-1.5 disabled:opacity-50"
+                    >
+                      {isFilteringManual ? (
+                        <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                      ) : (
+                        <Sparkles className="w-3.5 h-3.5" />
+                      )}
+                      <span>⚡ Compare & Find New Movies</span>
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {/* Status Banner */}
+              {newMoviesStatus && (
+                <div className="p-3 bg-[#172034] border border-white/10 rounded-xl flex items-center justify-between text-xs">
+                  <div className="flex items-center space-x-2">
+                    <Sparkles className="w-4 h-4 text-amber-400 flex-shrink-0" />
+                    <span className="text-gray-200">{newMoviesStatus}</span>
+                  </div>
+                  {isInsertingNewMovies && (
+                    <RefreshCw className="w-3.5 h-3.5 text-amber-400 animate-spin flex-shrink-0" />
+                  )}
+                </div>
+              )}
+
+              {/* Content / Movies Grid or Empty State */}
+              {isLoadingNewMovies ? (
+                <div className="py-16 text-center text-gray-400">
+                  <RefreshCw className="w-8 h-8 animate-spin mx-auto mb-3 text-amber-400" />
+                  <p className="text-sm font-semibold text-white">Comparing movies4u.kg with your MySQL database...</p>
+                  <p className="text-xs text-gray-500 mt-1">Filtering out any movies you already have</p>
+                </div>
+              ) : newMoviesList.length === 0 ? (
+                <div className="py-16 text-center bg-[#111726] border border-white/5 rounded-2xl p-8">
+                  <div className="w-14 h-14 bg-green-500/10 border border-green-500/20 rounded-2xl flex items-center justify-center text-green-400 mx-auto mb-4">
+                    <CheckCircle className="w-8 h-8" />
+                  </div>
+                  <h4 className="text-base font-bold text-white">All Caught Up! Section is Empty</h4>
+                  <p className="text-xs text-gray-400 max-w-md mx-auto mt-1.5 leading-relaxed">
+                    Every unique movie from movies4u.kg is already in your database. When new movies are added on movies4u.kg, they will automatically appear here for 1-click insertion.
+                  </p>
+                  <button
+                    onClick={fetchNewMovies}
+                    className="mt-5 inline-flex items-center space-x-2 px-4 py-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl text-xs font-semibold text-gray-200 transition"
+                  >
+                    <RefreshCw className="w-3.5 h-3.5 text-gray-400" />
+                    <span>Check Again</span>
+                  </button>
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+                  {newMoviesList.map((movie) => {
+                    const isSelected = selectedNewMovieSlugs.includes(movie.slug);
+                    return (
+                      <div
+                        key={movie.slug}
+                        onClick={() => {
+                          setSelectedNewMovieSlugs((prev) =>
+                            prev.includes(movie.slug)
+                              ? prev.filter((s) => s !== movie.slug)
+                              : [...prev, movie.slug]
+                          );
+                        }}
+                        className={`group relative border rounded-2xl p-4 flex space-x-4 cursor-pointer transition-all ${
+                          isSelected
+                            ? 'bg-amber-500/10 border-amber-500/40 shadow-lg shadow-amber-500/5'
+                            : 'bg-[#111726] border-white/10 hover:border-white/20 hover:bg-[#141B2D]'
+                        }`}
+                      >
+                        {/* Checkbox indicator */}
+                        <div className="absolute top-3 right-3 z-10">
+                          {isSelected ? (
+                            <CheckSquare className="w-4 h-4 text-amber-400" />
+                          ) : (
+                            <Square className="w-4 h-4 text-gray-500 group-hover:text-gray-300" />
+                          )}
+                        </div>
+
+                        {/* Poster */}
+                        <div className="w-20 h-28 rounded-xl overflow-hidden bg-black/40 flex-shrink-0 border border-white/10 relative">
+                          {movie.poster ? (
+                            <img
+                              src={getProxiedPoster(movie.poster)}
+                              alt={movie.title}
+                              className="w-full h-full object-cover group-hover:scale-105 transition duration-300"
+                              onError={(e) => {
+                                (e.target as HTMLElement).style.display = 'none';
+                              }}
+                            />
+                          ) : (
+                            <div className="w-full h-full flex items-center justify-center text-gray-600">
+                              <Film className="w-6 h-6" />
+                            </div>
+                          )}
+                        </div>
+
+                        {/* Details */}
+                        <div className="flex-1 min-w-0 flex flex-col justify-between pr-6">
+                          <div>
+                            <h4 className="text-xs font-bold text-white line-clamp-2 leading-tight group-hover:text-amber-300 transition">
+                              {movie.title}
+                            </h4>
+
+                            {/* Exact Publication Date & Time Badge */}
+                            <div className="flex items-center space-x-1.5 text-[11px] text-amber-400 mt-1.5 font-medium">
+                              <Clock className="w-3.5 h-3.5 flex-shrink-0 text-amber-400" />
+                              <span className="truncate">
+                                {movie.date
+                                  ? new Date(movie.date).toLocaleDateString('en-GB', {
+                                      day: '2-digit',
+                                      month: 'short',
+                                      year: 'numeric',
+                                      hour: '2-digit',
+                                      minute: '2-digit',
+                                      hour12: true,
+                                    })
+                                  : 'Recent'}
+                              </span>
+                            </div>
+
+                            {/* Badges */}
+                            <div className="flex flex-wrap gap-1 mt-2">
+                              {movie.qualities?.slice(0, 3).map((q: string) => (
+                                <span
+                                  key={q}
+                                  className="text-[9px] px-1.5 py-0.5 rounded bg-white/5 border border-white/10 text-gray-300 font-mono"
+                                >
+                                  {q}
+                                </span>
+                              ))}
+                              {movie.downloadLinks?.length > 0 && (
+                                <span className="text-[9px] px-1.5 py-0.5 rounded bg-green-500/15 border border-green-500/20 text-green-400 font-bold">
+                                  {movie.downloadLinks.length} Links
+                                </span>
+                              )}
+                            </div>
+                          </div>
+
+                          {/* 1-Click Insert Button for this single movie */}
+                          <div className="mt-3 pt-2 border-t border-white/5 flex items-center justify-between">
+                            <span className="text-[10px] text-gray-500 font-mono">
+                              wpId: {movie.wpId}
+                            </span>
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                insertNewMovies([movie]);
+                              }}
+                              disabled={isInsertingNewMovies}
+                              className="px-2.5 py-1 bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/30 rounded-lg text-[10px] font-bold transition flex items-center space-x-1 active:scale-95 disabled:opacity-50"
+                            >
+                              <span>📥 Insert to DB</span>
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
                 </div>
               )}
             </div>

@@ -436,10 +436,17 @@ class _MovieDetailScreenState extends State<MovieDetailScreen> {
                                 child: Stack(
                                   children: [
                                     CachedNetworkImage(
-                                      imageUrl: _movie.screenshots[index],
+                                      imageUrl: _movie.screenshots[index].contains('movies4u.kg')
+                                          ? 'https://movieman4u.vercel.app/api/image-proxy?url=${Uri.encodeComponent(_movie.screenshots[index])}'
+                                          : _movie.screenshots[index],
                                       fit: BoxFit.cover,
                                       width: double.infinity,
                                       height: double.infinity,
+                                      httpHeaders: const {
+                                        'User-Agent':
+                                            'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36',
+                                        'Referer': 'https://movieman4u.vercel.app/',
+                                      },
                                       placeholder: (_, __) => const ShimmerBox(
                                         width: double.infinity,
                                         height: double.infinity,
