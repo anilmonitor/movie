@@ -726,6 +726,8 @@ class _CategoryDetailScreenState extends State<CategoryDetailScreen> {
                                     : GridView.builder(
                                         shrinkWrap: true,
                                         physics: const NeverScrollableScrollPhysics(),
+                                        addAutomaticKeepAlives: true,
+                                        addRepaintBoundaries: true,
                                         gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                                           crossAxisCount: 2,
                                           childAspectRatio: 0.52,

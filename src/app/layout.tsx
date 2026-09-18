@@ -67,19 +67,20 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <head>
         <meta name="referrer" content="no-referrer" />
-        {/* Anti-flicker theme script: Light mode default unless user explicitly set dark */}
+        {/* Anti-flicker theme script: Dark mode default for movie site unless user explicitly selected light */}
         <script
           dangerouslySetInnerHTML={{
             __html: `
               try {
                 var theme = localStorage.getItem('movies4u-theme');
-                if (theme === 'dark') {
-                  document.documentElement.classList.add('dark');
-                  document.documentElement.setAttribute('data-theme', 'dark');
-                } else {
+                if (theme === 'light') {
                   document.documentElement.classList.remove('dark');
                   document.documentElement.classList.add('light');
                   document.documentElement.setAttribute('data-theme', 'light');
+                } else {
+                  document.documentElement.classList.add('dark');
+                  document.documentElement.classList.remove('light');
+                  document.documentElement.setAttribute('data-theme', 'dark');
                 }
               } catch (e) {}
             `,

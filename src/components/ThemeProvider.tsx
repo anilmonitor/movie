@@ -17,19 +17,19 @@ const ThemeContext = createContext<ThemeContextType>({
 });
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
-  // Default to light mode as requested
-  const [theme, setThemeState] = useState<Theme>('light');
+  // Default to dark mode for cinematic movie experience
+  const [theme, setThemeState] = useState<Theme>('dark');
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    // Check saved theme or default to light
+    // Check saved theme or default to dark
     const saved = localStorage.getItem('movies4u-theme') as Theme | null;
-    if (saved === 'dark' || saved === 'light') {
-      setThemeState(saved);
-      applyTheme(saved);
-    } else {
+    if (saved === 'light') {
       setThemeState('light');
       applyTheme('light');
+    } else {
+      setThemeState('dark');
+      applyTheme('dark');
     }
     setMounted(true);
   }, []);
@@ -40,10 +40,18 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
       root.classList.add('dark');
       root.classList.remove('light');
       root.setAttribute('data-theme', 'dark');
+      if (document.body) {
+        document.body.classList.add('dark');
+        document.body.classList.remove('light');
+      }
     } else {
       root.classList.add('light');
       root.classList.remove('dark');
       root.setAttribute('data-theme', 'light');
+      if (document.body) {
+        document.body.classList.add('light');
+        document.body.classList.remove('dark');
+      }
     }
   };
 

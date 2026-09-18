@@ -18,15 +18,16 @@ class MovieCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
-    return GestureDetector(
-      onTap: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (_) => MovieDetailScreen(movie: movie),
-          ),
-        );
-      },
+    return RepaintBoundary(
+      child: GestureDetector(
+        onTap: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (_) => MovieDetailScreen(movie: movie),
+            ),
+          );
+        },
       child: Container(
         width: width,
         decoration: BoxDecoration(
@@ -168,6 +169,7 @@ class MovieCard extends StatelessWidget {
           ],
         ),
       ),
-    );
-  }
+    ),
+  );
+}
 }

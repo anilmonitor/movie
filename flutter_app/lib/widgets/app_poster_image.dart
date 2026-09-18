@@ -63,11 +63,17 @@ class AppPosterImage extends StatelessWidget {
       }
     }
 
-    // Handle standard network images with anti-hotlink Referer headers
+    // Handle standard network images with anti-hotlink Referer headers & memory cache limits
     return CachedNetworkImage(
       imageUrl: imageUrl,
       fit: fit,
       alignment: alignment,
+      memCacheWidth: 400,
+      memCacheHeight: 600,
+      maxWidthDiskCache: 600,
+      maxHeightDiskCache: 900,
+      fadeInDuration: const Duration(milliseconds: 120),
+      fadeOutDuration: const Duration(milliseconds: 100),
       httpHeaders: const {
         'User-Agent':
             'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36',

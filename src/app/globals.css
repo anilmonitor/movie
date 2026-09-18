@@ -1,7 +1,11 @@
 @import "tailwindcss";
 
+@custom-variant dark (&:where([data-theme=dark], [data-theme=dark] *, .dark, .dark *));
+
 @layer base {
-  :root {
+  :root,
+  :root[data-theme="light"],
+  .light {
     --bg-main: #f8fafc;
     --bg-card: #ffffff;
     --bg-surface: #f1f5f9;
@@ -17,7 +21,9 @@
     --nav-bg: rgba(255, 255, 255, 0.88);
   }
 
-  :root.dark {
+  :root.dark,
+  :root[data-theme="dark"],
+  .dark {
     --bg-main: #07090e;
     --bg-card: #0f141f;
     --bg-surface: #161d2d;
@@ -64,13 +70,15 @@
   border-color: var(--border-hover);
 }
 
-.dark .glass-card {
+.dark .glass-card,
+[data-theme="dark"] .glass-card {
   background: rgba(15, 20, 31, 0.75);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
 }
 
-.dark .glass-card:hover {
+.dark .glass-card:hover,
+[data-theme="dark"] .glass-card:hover {
   box-shadow: 0 10px 30px -10px rgba(229, 9, 20, 0.25);
 }
 
@@ -98,7 +106,8 @@
   border-radius: 4px;
 }
 
-.dark ::-webkit-scrollbar-thumb {
+.dark ::-webkit-scrollbar-thumb,
+[data-theme="dark"] ::-webkit-scrollbar-thumb {
   background: #1f293d;
 }
 
@@ -109,9 +118,32 @@
 /* Touch targets and mobile optimizations */
 @media (max-width: 640px) {
   button, a {
-    min-height: 38px;
+    min-height: 36px;
     touch-action: manipulation;
   }
+
+  /* Prevent text size adjust on orientation change */
+  html {
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+  }
+
+  /* Safe area padding for notched phones */
+  body {
+    padding-left: env(safe-area-inset-left);
+    padding-right: env(safe-area-inset-right);
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+}
+
+/* Hide scrollbar but allow scrolling */
+.scrollbar-none {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
 }
 
 /* Line clamp utilities */

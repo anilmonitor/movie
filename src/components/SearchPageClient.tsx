@@ -75,8 +75,8 @@ export default function SearchPageClient({
     return (
       <div className="py-20 text-center glass-card rounded-2xl p-8 space-y-4">
         <Loader2 className="w-10 h-10 text-red-500 animate-spin mx-auto" />
-        <h3 className="text-base font-semibold text-gray-300">Searching cinema archives for &quot;{query}&quot;...</h3>
-        <p className="text-xs text-gray-500">Connecting directly to live database</p>
+        <h3 className="text-base font-semibold text-slate-700 dark:text-gray-300">Searching cinema archives for &quot;{query}&quot;...</h3>
+        <p className="text-xs text-slate-500 dark:text-gray-500">Connecting directly to live database</p>
       </div>
     );
   }
