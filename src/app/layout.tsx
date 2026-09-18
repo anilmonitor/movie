@@ -1,7 +1,6 @@
 import type { Metadata } from 'next';
 import './globals.css';
-import Navbar from '@/components/Navbar';
-import Footer from '@/components/Footer';
+import AppLayout from '@/components/AppLayout';
 import { ThemeProvider } from '@/components/ThemeProvider';
 
 export const metadata: Metadata = {
@@ -89,11 +88,7 @@ export default function RootLayout({
       </head>
       <body className="min-h-screen flex flex-col antialiased selection:bg-red-600 selection:text-white">
         <ThemeProvider>
-          <Navbar />
-          <main className="flex-1 w-full max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-4 sm:py-6">
-            {children}
-          </main>
-          <Footer />
+          <AppLayout>{children}</AppLayout>
         </ThemeProvider>
       </body>
     </html>

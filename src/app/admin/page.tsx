@@ -188,28 +188,28 @@ export default function AdminPage() {
     }
   };
 
-  // Login View
+  // Standalone Clean Admin Login View
   if (!isAuthenticated) {
     return (
-      <div className="min-h-screen bg-[#090D16] flex items-center justify-center p-4 text-white">
-        <div className="w-full max-w-md bg-[#0F1422] border border-white/10 rounded-2xl p-8 shadow-2xl">
-          <div className="flex items-center justify-center space-x-3 mb-6">
-            <div className="w-12 h-12 bg-red-600 rounded-xl flex items-center justify-center text-white shadow-lg shadow-red-600/30">
-              <Film className="w-7 h-7" />
+      <div className="min-h-screen w-full bg-[#080B12] flex items-center justify-center p-4 text-white">
+        <div className="w-full max-w-sm bg-[#111726] border border-white/10 rounded-2xl p-7 shadow-2xl">
+          {/* Header Brand */}
+          <div className="flex flex-col items-center text-center mb-6">
+            <div className="w-12 h-12 bg-red-600 rounded-xl flex items-center justify-center text-white shadow-lg shadow-red-600/30 mb-3">
+              <Film className="w-6 h-6" />
             </div>
-            <div>
-              <h1 className="text-2xl font-black tracking-tight">MOVIE MAN</h1>
-              <p className="text-xs text-red-500 font-bold uppercase tracking-wider">Admin Control Portal</p>
-            </div>
+            <h1 className="text-xl font-bold tracking-tight text-white">MOVIE MAN</h1>
+            <p className="text-[11px] font-bold uppercase tracking-wider text-red-400 mt-0.5">
+              Admin Control Portal
+            </p>
+            <p className="text-xs text-gray-300 mt-2">
+              Sign in to manage database & movie catalog
+            </p>
           </div>
 
-          <p className="text-sm text-gray-400 text-center mb-6">
-            Sign in to manage Hostinger MySQL database & trigger movie sync.
-          </p>
-
           {loginError && (
-            <div className="mb-4 p-3 bg-red-500/10 border border-red-500/20 rounded-xl flex items-center space-x-2 text-red-400 text-xs">
-              <AlertCircle className="w-4 h-4 flex-shrink-0" />
+            <div className="mb-4 p-3 bg-red-500/10 border border-red-500/30 rounded-xl flex items-center space-x-2 text-red-300 text-xs">
+              <AlertCircle className="w-4 h-4 flex-shrink-0 text-red-400" />
               <span>{loginError}</span>
             </div>
           )}
@@ -218,9 +218,9 @@ export default function AdminPage() {
           <button
             type="button"
             onClick={() => signIn('google', { callbackUrl: '/admin' })}
-            className="w-full bg-white hover:bg-gray-100 text-gray-900 font-bold py-3 rounded-xl transition shadow-md text-sm flex items-center justify-center space-x-3 mb-5 active:scale-[0.98]"
+            className="w-full bg-white hover:bg-gray-100 text-gray-900 font-semibold py-2.5 px-4 rounded-xl transition shadow text-sm flex items-center justify-center space-x-3 active:scale-[0.99]"
           >
-            <svg className="w-5 h-5" viewBox="0 0 24 24">
+            <svg className="w-4 h-4" viewBox="0 0 24 24">
               <path
                 fill="#4285F4"
                 d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
@@ -241,15 +241,18 @@ export default function AdminPage() {
             <span>Sign in with Google</span>
           </button>
 
-          <div className="relative flex items-center justify-center mb-5">
+          {/* Simple Divider */}
+          <div className="relative flex items-center justify-center my-4">
             <div className="border-t border-white/10 w-full"></div>
-            <span className="bg-[#0F1422] px-3 text-[11px] text-gray-500 uppercase tracking-wider font-semibold">Or Email / Passcode</span>
+            <span className="bg-[#111726] px-3 text-[11px] text-gray-400 font-medium whitespace-nowrap">
+              or credentials
+            </span>
             <div className="border-t border-white/10 w-full"></div>
           </div>
 
-          <form onSubmit={handleLogin} className="space-y-4">
+          <form onSubmit={handleLogin} className="space-y-3.5">
             <div>
-              <label className="block text-xs font-semibold uppercase text-gray-400 mb-1">
+              <label className="block text-[11px] font-medium uppercase tracking-wider text-gray-300 mb-1">
                 Admin Email
               </label>
               <input
@@ -258,13 +261,13 @@ export default function AdminPage() {
                 value={adminEmail}
                 onChange={(e) => setAdminEmail(e.target.value)}
                 placeholder="admin@example.com"
-                className="w-full bg-[#182032] border border-white/10 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-red-500 text-white placeholder-gray-500"
+                className="w-full bg-[#080B12] border border-white/15 focus:border-red-500 rounded-xl px-3.5 py-2 text-sm text-white placeholder-gray-500 focus:outline-none transition"
               />
             </div>
 
             <div>
-              <label className="block text-xs font-semibold uppercase text-gray-400 mb-1">
-                Admin Passcode
+              <label className="block text-[11px] font-medium uppercase tracking-wider text-gray-300 mb-1">
+                Passcode
               </label>
               <div className="relative">
                 <input
@@ -272,18 +275,18 @@ export default function AdminPage() {
                   value={passcode}
                   onChange={(e) => setPasscode(e.target.value)}
                   placeholder="••••••••••••"
-                  className="w-full bg-[#182032] border border-white/10 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-red-500 text-white placeholder-gray-500 pl-10"
+                  className="w-full bg-[#080B12] border border-white/15 focus:border-red-500 rounded-xl px-3.5 py-2 pl-9 text-sm text-white placeholder-gray-500 focus:outline-none transition"
                 />
-                <Lock className="w-4 h-4 text-gray-400 absolute left-3.5 top-3" />
+                <Lock className="w-4 h-4 text-gray-400 absolute left-3 top-2.5" />
               </div>
             </div>
 
             <button
               type="submit"
-              className="w-full bg-red-600 hover:bg-red-700 active:scale-[0.98] text-white font-bold py-3 rounded-xl transition shadow-lg shadow-red-600/20 text-sm flex items-center justify-center space-x-2 mt-4"
+              className="w-full bg-red-600 hover:bg-red-500 active:scale-[0.99] text-white font-semibold py-2.5 rounded-xl transition shadow-md shadow-red-600/20 text-sm flex items-center justify-center space-x-2 mt-2"
             >
               <ShieldCheck className="w-4 h-4" />
-              <span>Access Admin Dashboard</span>
+              <span>Sign In to Dashboard</span>
             </button>
           </form>
         </div>
