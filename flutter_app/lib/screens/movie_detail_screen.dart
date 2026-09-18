@@ -436,9 +436,7 @@ class _MovieDetailScreenState extends State<MovieDetailScreen> {
                                 child: Stack(
                                   children: [
                                     CachedNetworkImage(
-                                      imageUrl: _movie.screenshots[index].contains('movies4u.kg')
-                                          ? 'https://movieman4u.vercel.app/api/image-proxy?url=${Uri.encodeComponent(_movie.screenshots[index])}'
-                                          : _movie.screenshots[index],
+                                      imageUrl: _movie.screenshots[index],
                                       fit: BoxFit.cover,
                                       width: double.infinity,
                                       height: double.infinity,

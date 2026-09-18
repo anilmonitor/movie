@@ -204,9 +204,7 @@ class _ScreenshotGalleryDialogState extends State<ScreenshotGalleryDialog> {
                             child: ClipRRect(
                               borderRadius: BorderRadius.circular(7),
                               child: CachedNetworkImage(
-                                imageUrl: widget.images[index].contains('movies4u.kg')
-                                    ? 'https://movieman4u.vercel.app/api/image-proxy?url=${Uri.encodeComponent(widget.images[index])}'
-                                    : widget.images[index],
+                                imageUrl: widget.images[index],
                                 fit: BoxFit.cover,
                                 httpHeaders: const {
                                   'User-Agent':
@@ -383,9 +381,7 @@ class _ZoomableScreenshotItemState extends State<_ZoomableScreenshotItem>
         },
         child: Center(
           child: CachedNetworkImage(
-            imageUrl: widget.imageUrl.contains('movies4u.kg')
-                ? 'https://movieman4u.vercel.app/api/image-proxy?url=${Uri.encodeComponent(widget.imageUrl)}'
-                : widget.imageUrl,
+            imageUrl: widget.imageUrl,
             fit: BoxFit.contain,
             httpHeaders: const {
               'User-Agent':
