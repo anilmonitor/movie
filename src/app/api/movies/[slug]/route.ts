@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getMovieBySlug } from '@/lib/api';
 
+export const dynamic = 'force-dynamic';
+
 export async function GET(
   request: NextRequest,
   props: { params: Promise<{ slug: string }> }
