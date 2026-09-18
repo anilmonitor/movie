@@ -20,6 +20,8 @@ export default function HeroFeatured({ movie }: HeroFeaturedProps) {
           alt={movie.title}
           fill
           priority
+          unoptimized={true}
+          referrerPolicy="no-referrer"
           className="object-cover object-center scale-110 blur-2xl opacity-15 dark:opacity-30 dark:brightness-50"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-white/95 dark:from-[#07090e] via-white/80 dark:via-[#07090e]/80 to-transparent" />
@@ -35,6 +37,8 @@ export default function HeroFeatured({ movie }: HeroFeaturedProps) {
             alt={movie.title}
             fill
             priority
+            unoptimized={true}
+            referrerPolicy="no-referrer"
             className="object-cover"
           />
           {movie.rating && (

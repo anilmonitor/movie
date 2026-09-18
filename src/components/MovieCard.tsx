@@ -26,6 +26,8 @@ export default function MovieCard({ movie }: MovieCardProps) {
           src={imgSrc}
           alt={movie.title}
           fill
+          unoptimized={true}
+          referrerPolicy="no-referrer"
           sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 20vw"
           className="object-cover transition-transform duration-500 group-hover:scale-105"
           onError={() => setImgSrc('/poster-placeholder.svg')}

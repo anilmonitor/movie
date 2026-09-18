@@ -140,6 +140,8 @@ export default function MovieDetailClient({
             alt={movie.title}
             fill
             priority
+            unoptimized={true}
+            referrerPolicy="no-referrer"
             className="object-cover scale-125 blur-2xl opacity-10 dark:opacity-20 dark:brightness-50"
           />
           <div className="absolute inset-0 bg-white/90 dark:bg-[#07090e]/85" />
@@ -154,6 +156,8 @@ export default function MovieDetailClient({
                 alt={movie.title}
                 fill
                 priority
+                unoptimized={true}
+                referrerPolicy="no-referrer"
                 className="object-cover"
               />
               {movie.rating && (
@@ -301,6 +305,8 @@ export default function MovieDetailClient({
                   src={src}
                   alt={`${movie.title} screenshot ${idx + 1}`}
                   fill
+                  unoptimized={true}
+                  referrerPolicy="no-referrer"
                   sizes="(max-width: 640px) 100vw, 33vw"
                   className="object-cover group-hover:scale-105 transition-transform duration-300"
                 />

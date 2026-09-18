@@ -5,7 +5,8 @@ import Footer from '@/components/Footer';
 import { ThemeProvider } from '@/components/ThemeProvider';
 
 export const metadata: Metadata = {
-  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'https://allmoviesite.vercel.app'),
+  referrer: 'no-referrer',
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'https://movieman4u.vercel.app'),
   title: {
     default: 'Movie Man - Download Bollywood, Hollywood, South Movies & Web Series',
     template: '%s | Movie Man',
@@ -66,6 +67,7 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
+        <meta name="referrer" content="no-referrer" />
         {/* Anti-flicker theme script: Light mode default unless user explicitly set dark */}
         <script
           dangerouslySetInnerHTML={{

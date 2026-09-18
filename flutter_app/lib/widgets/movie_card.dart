@@ -4,6 +4,7 @@ import '../models/movie.dart';
 import '../theme/app_theme.dart';
 import '../screens/movie_detail_screen.dart';
 import 'shimmer_loading.dart';
+import 'app_poster_image.dart';
 
 class MovieCard extends StatelessWidget {
   final Movie movie;
@@ -57,24 +58,9 @@ class MovieCard extends StatelessWidget {
               children: [
                 AspectRatio(
                   aspectRatio: 2 / 3,
-                  child: CachedNetworkImage(
+                  child: AppPosterImage(
                     imageUrl: movie.poster,
                     fit: BoxFit.cover,
-                    placeholder: (_, __) => const ShimmerBox(
-                      width: double.infinity,
-                      height: double.infinity,
-                      borderRadius: 0,
-                    ),
-                    errorWidget: (_, __, ___) => Container(
-                      color: isDark ? Colors.grey[900] : Colors.grey[200],
-                      child: Center(
-                        child: Icon(
-                          Icons.movie_outlined,
-                          color: isDark ? Colors.grey[700] : Colors.grey[400],
-                          size: 32,
-                        ),
-                      ),
-                    ),
                   ),
                 ),
 

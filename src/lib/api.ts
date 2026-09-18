@@ -119,40 +119,60 @@ export function parseDownloadLinks(html: string): DownloadLink[] {
 
   const seenUrls = new Set<string>();
 
-  // 1. Heading + Button pattern (standard WP movie sites)
-  const blockRegex = /<h[34][^>]*>(.*?)<\/h[34]>[\s\S]*?<a\s+[^>]*href=["']([^"']+)["'][^>]*>(?:<button[^>]*>)?(.*?)(?:<\/button>)?<\/a>/gi;
-  let match;
-  while ((match = blockRegex.exec(html)) !== null) {
-    const rawHeading = decodeHtml(match[1].replace(/<[^>]+>/g, '').trim());
-    const url = match[2]?.trim();
-    const btnText = decodeHtml(match[3].replace(/<[^>]+>/g, '').trim()) || 'Download';
+  // 1. Block-based parsing by heading
+  const blocks = html.split(/(?=<h[34][^>]*>)/i);
+  for (const block of blocks) {
+    const headingMatch = block.match(/<h[34][^>]*>(.*?)<\/h[34]>/i);
+    if (!headingMatch) continue;
 
-    const qualityMatch = (rawHeading + ' ' + btnText).match(/\b(480p|720p|1080p|2160p|4K|HEVC)\b/i);
-    const sizeMatch = (rawHeading + ' ' + btnText).match(/\[?([0-9.]+\s*(?:MB|GB)(?:\/[A-Za-z]+)?)\]?/i);
+    const heading = decodeHtml(headingMatch[1].replace(/<[^>]+>/g, '').trim());
+    const lowerHead = heading.toLowerCase();
 
+    // Skip non-download headings
     if (
-      url &&
-      !url.includes('movies4u.kg') &&
-      !url.includes('t.me') &&
-      !url.includes('how-to-download') &&
-      !url.startsWith('#') &&
-      !seenUrls.has(url)
+      lowerHead.includes('movie info') ||
+      lowerHead.includes('series info') ||
+      lowerHead.includes('show info') ||
+      lowerHead.includes('storyline') ||
+      lowerHead.includes('screenshot')
     ) {
-      seenUrls.add(url);
-      links.push({
-        title: rawHeading || btnText,
-        url,
-        quality: qualityMatch ? qualityMatch[1].toUpperCase() : undefined,
-        size: sizeMatch ? sizeMatch[1] : undefined,
-      });
+      continue;
     }
+
+    const aMatch = block.match(/<a\s+[^>]*href=["']([^"']+)["']/i);
+    if (!aMatch) continue;
+
+    const url = aMatch[1].trim();
+    if (
+      !url ||
+      url.includes('movies4u.kg') ||
+      url.includes('t.me') ||
+      url.includes('how-to-download') ||
+      url.startsWith('#') ||
+      seenUrls.has(url)
+    ) {
+      continue;
+    }
+
+    seenUrls.add(url);
+
+    const qualityMatch = heading.match(/\b(480p|720p|1080p|2160p|4K|HEVC)\b/i);
+    const sizeMatch = heading.match(/\[?([0-9.]+\s*(?:MB|GB)(?:\/[A-Za-z]+)?)\]?/i);
+
+    links.push({
+      title: heading,
+      url: url,
+      quality: qualityMatch ? qualityMatch[1].toUpperCase() : undefined,
+      size: sizeMatch ? sizeMatch[1] : undefined,
+    });
   }
 
   // 2. Standalone Download links or buttons in paragraphs
   const fallbackRegex = /<a\s+[^>]*href=["']([^"']+)["'][^>]*>(?:<button[^>]*>)?([\s\S]*?)(?:<\/button>)?<\/a>/gi;
-  while ((match = fallbackRegex.exec(html)) !== null) {
-    const url = match[1]?.trim();
-    const text = decodeHtml(match[2].replace(/<[^>]+>/g, '').trim());
+  let fallbackMatch: RegExpExecArray | null;
+  while ((fallbackMatch = fallbackRegex.exec(html)) !== null) {
+    const url = fallbackMatch[1]?.trim();
+    const text = decodeHtml(fallbackMatch[2].replace(/<[^>]+>/g, '').trim());
     const lower = text.toLowerCase();
     if (
       url &&

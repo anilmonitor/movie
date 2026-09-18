@@ -17,7 +17,7 @@ model Movie {
   rating        String?        @db.VarChar(10)
   size          String?        @db.VarChar(50)
   storyline     String?        @db.Text
-  poster        String         @db.Text
+  poster        String         @db.MediumText
   screenshots   Json?
   languages     Json?
   qualities     Json?

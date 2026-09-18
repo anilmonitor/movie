@@ -5,6 +5,7 @@ import '../models/movie.dart';
 import '../theme/app_theme.dart';
 import '../screens/movie_detail_screen.dart';
 import 'download_sheet.dart';
+import 'app_poster_image.dart';
 
 class HeroCarousel extends StatefulWidget {
   final List<Movie> movies;
@@ -76,11 +77,10 @@ class _HeroCarouselState extends State<HeroCarousel> {
                   fit: StackFit.expand,
                   children: [
                     // Backdrop Image
-                    CachedNetworkImage(
+                    AppPosterImage(
                       imageUrl: movie.poster,
                       fit: BoxFit.cover,
                       alignment: Alignment.topCenter,
-                      errorWidget: (_, __, ___) => Container(color: Colors.grey[900]),
                     ),
 
                     // Multi-layer Gradient Fade

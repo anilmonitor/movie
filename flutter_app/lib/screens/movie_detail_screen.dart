@@ -7,6 +7,7 @@ import '../services/watchlist_service.dart';
 import '../widgets/download_sheet.dart';
 import '../widgets/horizontal_movie_list.dart';
 import '../widgets/shimmer_loading.dart';
+import '../widgets/app_poster_image.dart';
 import '../widgets/screenshot_gallery_dialog.dart';
 import '../widgets/telegram_button.dart';
 
@@ -114,15 +115,9 @@ class _MovieDetailScreenState extends State<MovieDetailScreen> {
               background: Stack(
                 fit: StackFit.expand,
                 children: [
-                  CachedNetworkImage(
+                  AppPosterImage(
                     imageUrl: _movie.poster,
                     fit: BoxFit.cover,
-                    placeholder: (_, __) => const ShimmerBox(
-                      width: double.infinity,
-                      height: double.infinity,
-                      borderRadius: 0,
-                    ),
-                    errorWidget: (_, __, ___) => Container(color: Colors.grey[900]),
                   ),
                   Container(
                     decoration: BoxDecoration(
