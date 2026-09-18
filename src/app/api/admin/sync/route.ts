@@ -5,6 +5,19 @@ import { isAdminEmail, verifyAdminPasscode } from '@/lib/auth';
 
 export const dynamic = 'force-dynamic';
 
+const corsHeaders = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+  'Access-Control-Allow-Headers': 'Content-Type, Authorization, x-admin-email, x-admin-passcode',
+};
+
+export async function OPTIONS() {
+  return new NextResponse(null, {
+    status: 204,
+    headers: corsHeaders,
+  });
+}
+
 export async function POST(request: NextRequest) {
   try {
     const authHeader = request.headers.get('authorization') || '';
@@ -20,7 +33,7 @@ export async function POST(request: NextRequest) {
     if (!isAuthorized) {
       return NextResponse.json(
         { error: 'Unauthorized: Admin access required' },
-        { status: 401 }
+        { status: 401, headers: corsHeaders }
       );
     }
 
@@ -151,12 +164,12 @@ export async function POST(request: NextRequest) {
       totalProcessed: posts.length,
       added,
       updated,
-    });
+    }, { headers: corsHeaders });
   } catch (error: any) {
     console.error('Error during movie sync:', error);
     return NextResponse.json(
       { error: error?.message || 'Sync failed' },
-      { status: 500 }
+      { status: 500, headers: corsHeaders }
     );
   }
 }
