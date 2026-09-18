@@ -364,9 +364,12 @@ export default function AdminPage() {
                   className="bg-transparent font-bold text-gray-200 focus:outline-none cursor-pointer"
                 >
                   <option value={1} className="bg-[#182032]">1 Page</option>
-                  <option value={2} className="bg-[#182032]">2 Pages ({syncCount * 2} max)</option>
-                  <option value={5} className="bg-[#182032]">5 Pages ({syncCount * 5} max)</option>
-                  <option value={10} className="bg-[#182032]">10 Pages ({syncCount * 10} max)</option>
+                  <option value={5} className="bg-[#182032]">5 Pages ({syncCount * 5})</option>
+                  <option value={10} className="bg-[#182032]">10 Pages ({syncCount * 10})</option>
+                  <option value={20} className="bg-[#182032]">20 Pages ({syncCount * 20})</option>
+                  <option value={50} className="bg-[#182032]">50 Pages ({syncCount * 50})</option>
+                  <option value={100} className="bg-[#182032]">100 Pages ({syncCount * 100})</option>
+                  <option value={160} className="bg-[#182032]">⚡ All 160 Pages (Full 7,900+ Catalog)</option>
                 </select>
               </div>
 
@@ -376,7 +379,7 @@ export default function AdminPage() {
                 className="bg-red-600 hover:bg-red-700 disabled:opacity-50 active:scale-[0.98] text-white font-bold px-5 py-2 rounded-xl transition text-xs flex items-center space-x-2 shadow-lg shadow-red-600/20"
               >
                 <RefreshCw className={`w-4 h-4 ${isSyncing ? 'animate-spin' : ''}`} />
-                <span>{isSyncing ? 'Syncing...' : `Sync (${syncCount * pagesToSync} max)`}</span>
+                <span>{isSyncing ? 'Syncing...' : pagesToSync >= 160 ? '⚡ Sync Entire Catalog (7,900+ Movies)' : `Sync (${syncCount * pagesToSync} max)`}</span>
               </button>
             </div>
           </div>
