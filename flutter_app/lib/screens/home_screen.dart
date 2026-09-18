@@ -49,8 +49,19 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Future<void> _loadInitialData() async {
-    setState(() => _isLoading = true);
+    // 1. Immediately display cached / pre-bundled movies with ZERO delay
+    final initial = await ApiService.getCachedMovies();
+    if (mounted && initial.isNotEmpty && _allMovies.isEmpty) {
+      setState(() {
+        _allMovies = initial;
+        _heroMovies = initial.take(15).toList();
+        _isLoading = false;
+      });
+    } else if (_allMovies.isEmpty) {
+      setState(() => _isLoading = true);
+    }
 
+    // 2. Fetch live updates in background and refresh if new movies found
     try {
       final res = await ApiService.fetchMovies(
         page: 1,
@@ -60,14 +71,12 @@ class _HomeScreenState extends State<HomeScreen> {
         endDate: _selectedDateRange?.end,
       );
 
-      if (mounted) {
+      if (mounted && res.movies.isNotEmpty) {
         setState(() {
           _allMovies = res.movies;
           _currentPage = res.currentPage;
           _totalPages = res.totalPages;
-          if (_heroMovies.isEmpty && res.movies.isNotEmpty) {
-            _heroMovies = res.movies.take(15).toList();
-          }
+          _heroMovies = res.movies.take(15).toList();
           _isLoading = false;
         });
       }
@@ -733,34 +742,46 @@ class _HomeScreenState extends State<HomeScreen> {
                             )
                           : _allMovies.isEmpty
                               ? Container(
-                                  padding: const EdgeInsets.symmetric(vertical: 40),
+                                  padding: const EdgeInsets.symmetric(vertical: 40, horizontal: 20),
                                   alignment: Alignment.center,
                                   child: Column(
                                     children: [
                                       Icon(
-                                        Icons.event_busy_rounded,
-                                        size: 42,
+                                        _selectedDateRange != null ? Icons.event_busy_rounded : Icons.cloud_off_rounded,
+                                        size: 46,
                                         color: isDark ? Colors.grey[600] : Colors.grey[400],
                                       ),
-                                      const SizedBox(height: 10),
+                                      const SizedBox(height: 12),
                                       Text(
                                         _selectedDateRange != null
                                             ? 'No movies found between ${_formatDate(_selectedDateRange!.start)} and ${_formatDate(_selectedDateRange!.end)}'
-                                            : 'No movies found.',
+                                            : 'No movies loaded yet. Cloudflare security check may be required.',
                                         textAlign: TextAlign.center,
                                         style: TextStyle(
                                           fontSize: 13,
                                           color: isDark ? AppTheme.darkTextSecondary : AppTheme.lightTextSecondary,
                                         ),
                                       ),
+                                      const SizedBox(height: 16),
                                       if (_selectedDateRange != null) ...[
-                                        const SizedBox(height: 12),
                                         TextButton.icon(
                                           onPressed: _clearDateFilter,
                                           icon: const Icon(Icons.refresh_rounded, size: 16),
                                           label: const Text('Reset Date Filter'),
                                           style: TextButton.styleFrom(
                                             foregroundColor: AppTheme.primaryRed,
+                                          ),
+                                        ),
+                                      ] else ...[
+                                        ElevatedButton.icon(
+                                          onPressed: () => _loadInitialData(),
+                                          icon: const Icon(Icons.refresh_rounded, size: 16),
+                                          label: const Text('Refresh Movies'),
+                                          style: ElevatedButton.styleFrom(
+                                            backgroundColor: AppTheme.primaryRed,
+                                            foregroundColor: Colors.white,
+                                            padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
+                                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                                           ),
                                         ),
                                       ],

@@ -3,9 +3,12 @@ import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'theme/app_theme.dart';
 import 'screens/main_navigation_screen.dart';
+import 'services/webview_api_client.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  // Warm up WebViewApiClient in background to resolve Cloudflare session
+  WebViewApiClient.instance.ensureInitialized();
 
   // Set default status bar style
   SystemChrome.setSystemUIOverlayStyle(

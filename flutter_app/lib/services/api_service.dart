@@ -1,10 +1,15 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 import '../models/movie.dart';
+import 'webview_api_client.dart';
+import 'offline_movies_data.dart';
 
 class ApiService {
-  static const String baseUrl = 'https://allmoviesite.vercel.app/api';
-  static const String directWpUrl = 'https://movies4u.kg/wp-json/wp/v2';
+  static const String baseUrl =
+      String.fromEnvironment('API_BASE_URL', defaultValue: 'https://movieman4u.vercel.app/api');
+  static const String directWpUrl =
+      String.fromEnvironment('WP_API_URL', defaultValue: 'https://movies4u.kg/wp-json/wp/v2');
 
   // Decode common HTML entities in title/storyline
   static String decodeHtml(String? text) {
@@ -258,6 +263,30 @@ class ApiService {
     MovieCategory(id: 4, name: '18+', slug: '18', count: 206),
   ];
 
+  static const String _cacheKey = 'cached_movies_v1';
+
+  static Future<void> cacheMovies(List<Movie> movies) async {
+    if (movies.isEmpty) return;
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final jsonStr = json.encode(movies.map((m) => m.toJson()).toList());
+      await prefs.setString(_cacheKey, jsonStr);
+    } catch (_) {}
+  }
+
+  static Future<List<Movie>> getCachedMovies() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final str = prefs.getString(_cacheKey);
+      if (str != null && str.isNotEmpty) {
+        final list = json.decode(str) as List<dynamic>;
+        final parsed = list.map((e) => Movie.fromJson(e as Map<String, dynamic>)).toList();
+        if (parsed.isNotEmpty) return parsed;
+      }
+    } catch (_) {}
+    return OfflineMoviesData.sampleMovies;
+  }
+
   // Fetch paginated movies
   static Future<MovieListResponse> fetchMovies({
     int page = 1,
@@ -275,63 +304,7 @@ class ApiService {
         ? '${endDate.year}-${endDate.month.toString().padLeft(2, '0')}-${endDate.day.toString().padLeft(2, '0')}T23:59:59'
         : null;
 
-    // 1. Direct WordPress REST API (Primary - Fast & direct with Referer headers)
-    try {
-      final isNumeric = category != null && int.tryParse(category) != null;
-      final params = <String, String>{
-        '_embed': '1',
-        'page': page.toString(),
-        'per_page': perPage.toString(),
-        'orderby': 'date',
-        'order': sort == 'oldest' ? 'asc' : 'desc',
-        if (isNumeric) 'categories': category,
-        if (search != null && search.isNotEmpty)
-          'search': search
-        else if (category != null && !isNumeric)
-          'search': category,
-      };
-      if (afterIso != null) params['after'] = afterIso;
-      if (beforeIso != null) params['before'] = beforeIso;
-
-      final uri = Uri.parse('$directWpUrl/posts').replace(queryParameters: params);
-      final res = await http.get(uri, headers: requestHeaders).timeout(const Duration(seconds: 15));
-
-      if (res.statusCode == 200) {
-        final totalMovies = int.tryParse(res.headers['x-wp-total'] ?? '0') ?? 0;
-        final totalPages = int.tryParse(res.headers['x-wp-totalpages'] ?? '1') ?? 1;
-
-        final list = json.decode(res.body) as List<dynamic>;
-        var movies = list
-            .map((e) => parseWpPost(e as Map<String, dynamic>))
-            .where((m) => !isAdultMovie(m))
-            .toList();
-
-        if (startDate != null || endDate != null) {
-          movies = movies.where((m) {
-            final dt = m.uploadDateTime;
-            if (dt == null) return false;
-            if (startDate != null && dt.isBefore(DateTime(startDate.year, startDate.month, startDate.day, 0, 0, 0))) {
-              return false;
-            }
-            if (endDate != null && dt.isAfter(DateTime(endDate.year, endDate.month, endDate.day, 23, 59, 59))) {
-              return false;
-            }
-            return true;
-          }).toList();
-        }
-
-        if (movies.isNotEmpty) {
-          return MovieListResponse(
-            movies: movies,
-            totalPages: totalPages,
-            totalMovies: totalMovies,
-            currentPage: page,
-          );
-        }
-      }
-    } catch (_) {}
-
-    // 2. Fallback to Vercel API
+    // 1. Primary: Query Vercel API (backed directly by Hostinger MySQL Database - Zero Cloudflare blocks)
     try {
       final queryParams = <String, String>{
         'page': page.toString(),
@@ -365,6 +338,7 @@ class ApiService {
         }
 
         if (cleanMovies.isNotEmpty) {
+          cacheMovies(cleanMovies);
           return MovieListResponse(
             movies: cleanMovies,
             totalPages: response.totalPages,
@@ -375,31 +349,146 @@ class ApiService {
       }
     } catch (_) {}
 
+    // 2. Fallback: Direct WordPress REST API
+    try {
+      final isNumeric = category != null && int.tryParse(category) != null;
+      final params = <String, String>{
+        '_embed': '1',
+        'page': page.toString(),
+        'per_page': perPage.toString(),
+        'orderby': 'date',
+        'order': sort == 'oldest' ? 'asc' : 'desc',
+        if (isNumeric) 'categories': category,
+        if (search != null && search.isNotEmpty)
+          'search': search
+        else if (category != null && !isNumeric)
+          'search': category,
+      };
+      if (afterIso != null) params['after'] = afterIso;
+      if (beforeIso != null) params['before'] = beforeIso;
+
+      final uri = Uri.parse('$directWpUrl/posts').replace(queryParameters: params);
+      final res = await http.get(uri, headers: requestHeaders).timeout(const Duration(seconds: 10));
+
+      if (res.statusCode == 200) {
+        final totalMovies = int.tryParse(res.headers['x-wp-total'] ?? '0') ?? 0;
+        final totalPages = int.tryParse(res.headers['x-wp-totalpages'] ?? '1') ?? 1;
+
+        final list = json.decode(res.body) as List<dynamic>;
+        var movies = list
+            .map((e) => parseWpPost(e as Map<String, dynamic>))
+            .where((m) => !isAdultMovie(m))
+            .toList();
+
+        if (startDate != null || endDate != null) {
+          movies = movies.where((m) {
+            final dt = m.uploadDateTime;
+            if (dt == null) return false;
+            if (startDate != null && dt.isBefore(DateTime(startDate.year, startDate.month, startDate.day, 0, 0, 0))) {
+              return false;
+            }
+            if (endDate != null && dt.isAfter(DateTime(endDate.year, endDate.month, endDate.day, 23, 59, 59))) {
+              return false;
+            }
+            return true;
+          }).toList();
+        }
+
+        if (movies.isNotEmpty) {
+          cacheMovies(movies);
+          return MovieListResponse(
+            movies: movies,
+            totalPages: totalPages,
+            totalMovies: totalMovies,
+            currentPage: page,
+          );
+        }
+      }
+    } catch (_) {}
+
+    // 3. Fallback to WebView Client (Cloudflare Bypass)
+    try {
+      final isNumeric = category != null && int.tryParse(category) != null;
+      final queryBuffer = StringBuffer('/wp-json/wp/v2/posts?_embed=1&page=$page&per_page=$perPage&orderby=date&order=${sort == 'oldest' ? 'asc' : 'desc'}');
+      if (isNumeric) queryBuffer.write('&categories=$category');
+      if (search != null && search.isNotEmpty) {
+        queryBuffer.write('&search=${Uri.encodeComponent(search)}');
+      } else if (category != null && !isNumeric) {
+        queryBuffer.write('&search=${Uri.encodeComponent(category)}');
+      }
+      if (afterIso != null) queryBuffer.write('&after=$afterIso');
+      if (beforeIso != null) queryBuffer.write('&before=$beforeIso');
+
+      final webResponse = await WebViewApiClient.instance.fetch(queryBuffer.toString());
+      if (webResponse.isSuccess && webResponse.data is List) {
+        final list = webResponse.data as List<dynamic>;
+        var movies = list
+            .map((e) => parseWpPost(e as Map<String, dynamic>))
+            .where((m) => !isAdultMovie(m))
+            .toList();
+
+        if (startDate != null || endDate != null) {
+          movies = movies.where((m) {
+            final dt = m.uploadDateTime;
+            if (dt == null) return false;
+            if (startDate != null && dt.isBefore(DateTime(startDate.year, startDate.month, startDate.day, 0, 0, 0))) {
+              return false;
+            }
+            if (endDate != null && dt.isAfter(DateTime(endDate.year, endDate.month, endDate.day, 23, 59, 59))) {
+              return false;
+            }
+            return true;
+          }).toList();
+        }
+
+        if (movies.isNotEmpty) {
+          cacheMovies(movies);
+          return MovieListResponse(
+            movies: movies,
+            totalPages: webResponse.totalPages > 0 ? webResponse.totalPages : 1,
+            totalMovies: webResponse.total > 0 ? webResponse.total : movies.length,
+            currentPage: page,
+          );
+        }
+      }
+    } catch (_) {}
+
+    // 4. Guaranteed Native Fallback: Return cached / seed movies
+    final cached = await getCachedMovies();
+    if (cached.isNotEmpty) {
+      var filtered = cached;
+      if (category != null && category.isNotEmpty) {
+        final isNum = int.tryParse(category) != null;
+        filtered = filtered.where((m) =>
+          m.categories.any((c) =>
+            (isNum && c.id.toString() == category) ||
+            c.slug.toLowerCase() == category.toLowerCase() ||
+            c.name.toLowerCase().contains(category.toLowerCase())
+          )
+        ).toList();
+      }
+      if (search != null && search.isNotEmpty) {
+        final q = search.toLowerCase();
+        filtered = filtered.where((m) =>
+          m.title.toLowerCase().contains(q) ||
+          m.rawTitle.toLowerCase().contains(q) ||
+          (m.storyline != null && m.storyline!.toLowerCase().contains(q))
+        ).toList();
+      }
+      return MovieListResponse(
+        movies: filtered.isNotEmpty ? filtered : cached,
+        totalPages: 1,
+        totalMovies: filtered.isNotEmpty ? filtered.length : cached.length,
+        currentPage: page,
+      );
+    }
+
     return MovieListResponse(movies: [], totalPages: 0, totalMovies: 0, currentPage: page);
   }
 
   // Fetch single movie by slug
   static Future<Movie?> fetchMovieBySlug(String slug) async {
-    // 1. Direct WP REST (Primary - Fast & Reliable)
-    try {
-      final res = await http
-          .get(
-            Uri.parse('$directWpUrl/posts?slug=${Uri.encodeComponent(slug)}&_embed=1'),
-            headers: requestHeaders,
-          )
-          .timeout(const Duration(seconds: 15));
-      if (res.statusCode == 200) {
-        final list = json.decode(res.body) as List<dynamic>;
-        if (list.isNotEmpty) {
-          final movie = parseWpPost(list[0] as Map<String, dynamic>);
-          if (!isAdultMovie(movie)) {
-            return movie;
-          }
-        }
-      }
-    } catch (_) {}
-
-    // 2. Fallback to Vercel API
+    // 1. Primary: Vercel API (backed by Hostinger MySQL)
     try {
       final res = await http
           .get(Uri.parse('$baseUrl/movies/$slug'), headers: requestHeaders)
@@ -412,6 +501,49 @@ class ApiService {
         }
       }
     } catch (_) {}
+
+    // 2. Fallback: Direct WP REST
+    try {
+      final res = await http
+          .get(
+            Uri.parse('$directWpUrl/posts?slug=${Uri.encodeComponent(slug)}&_embed=1'),
+            headers: requestHeaders,
+          )
+          .timeout(const Duration(seconds: 10));
+      if (res.statusCode == 200) {
+        final list = json.decode(res.body) as List<dynamic>;
+        if (list.isNotEmpty) {
+          final movie = parseWpPost(list[0] as Map<String, dynamic>);
+          if (!isAdultMovie(movie)) {
+            return movie;
+          }
+        }
+      }
+    } catch (_) {}
+
+    // 3. Fallback to WebView Client (Cloudflare Bypass)
+    try {
+      final webResponse = await WebViewApiClient.instance.fetch(
+        '/wp-json/wp/v2/posts?slug=${Uri.encodeComponent(slug)}&_embed=1',
+      );
+      if (webResponse.isSuccess && webResponse.data is List) {
+        final list = webResponse.data as List<dynamic>;
+        if (list.isNotEmpty) {
+          final movie = parseWpPost(list[0] as Map<String, dynamic>);
+          if (!isAdultMovie(movie)) {
+            return movie;
+          }
+        }
+      }
+    } catch (_) {}
+
+    // 4. Guaranteed Native Fallback: Find in cached/offline movies
+    final cached = await getCachedMovies();
+    for (final m in cached) {
+      if (m.slug == slug || m.id.toString() == slug) {
+        return m;
+      }
+    }
 
     return null;
   }
@@ -472,7 +604,24 @@ class ApiService {
 
   // Fetch categories
   static Future<List<MovieCategory>> fetchCategories() async {
-    // 1. Direct fetch from WordPress (fast & reliable)
+    // 1. Primary: Vercel API (backed by Hostinger MySQL)
+    try {
+      final res = await http
+          .get(Uri.parse('$baseUrl/categories'), headers: requestHeaders)
+          .timeout(const Duration(seconds: 6));
+      if (res.statusCode == 200) {
+        final list = json.decode(res.body) as List<dynamic>;
+        final parsed = list
+            .map((e) => MovieCategory.fromJson(e as Map<String, dynamic>))
+            .where((c) => !isAdultCategory(c.name, c.slug))
+            .toList();
+        if (parsed.isNotEmpty) {
+          return _ensureEssentialCategories(parsed);
+        }
+      }
+    } catch (_) {}
+
+    // 2. Fallback: Direct fetch from WordPress
     try {
       final res = await http
           .get(Uri.parse('$directWpUrl/categories?per_page=100'), headers: requestHeaders)
@@ -495,15 +644,19 @@ class ApiService {
       }
     } catch (_) {}
 
-    // 2. Fallback to Vercel API
+    // 3. Fallback to WebView Client (Cloudflare Bypass)
     try {
-      final res = await http
-          .get(Uri.parse('$baseUrl/categories'), headers: requestHeaders)
-          .timeout(const Duration(seconds: 6));
-      if (res.statusCode == 200) {
-        final list = json.decode(res.body) as List<dynamic>;
+      final webResponse = await WebViewApiClient.instance.fetch('/wp-json/wp/v2/categories?per_page=100');
+      if (webResponse.isSuccess && webResponse.data is List) {
+        final list = webResponse.data as List<dynamic>;
         final parsed = list
-            .map((e) => MovieCategory.fromJson(e as Map<String, dynamic>))
+            .where((e) => (e['count'] as int? ?? 0) > 0 && e['slug'] != 'uncategorized')
+            .map((e) => MovieCategory(
+                  id: e['id'] as int? ?? 0,
+                  name: decodeHtml(e['name']?.toString()),
+                  slug: e['slug']?.toString() ?? '',
+                  count: e['count'] as int?,
+                ))
             .where((c) => !isAdultCategory(c.name, c.slug))
             .toList();
         if (parsed.isNotEmpty) {
@@ -512,7 +665,7 @@ class ApiService {
       }
     } catch (_) {}
 
-    // 3. Fallback to guaranteed default categories so screen is NEVER empty
+    // 4. Fallback to guaranteed default categories so screen is NEVER empty
     return defaultCategories;
   }
 }
