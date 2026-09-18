@@ -11,8 +11,17 @@ interface MovieCardProps {
   movie: Movie;
 }
 
+function getPosterUrl(url?: string): string {
+  if (!url) return '/poster-placeholder.svg';
+  if (url.startsWith('data:image')) return url;
+  if (url.includes('movies4u.kg/wp-content/uploads')) {
+    return `/api/image-proxy?url=${encodeURIComponent(url)}`;
+  }
+  return url;
+}
+
 export default function MovieCard({ movie }: MovieCardProps) {
-  const [imgSrc, setImgSrc] = useState(movie.poster || '/poster-placeholder.svg');
+  const [imgSrc, setImgSrc] = useState(() => getPosterUrl(movie.poster));
 
   return (
     <Link

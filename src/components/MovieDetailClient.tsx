@@ -28,14 +28,25 @@ interface MovieDetailClientProps {
   initialRelated: Movie[];
 }
 
+function getPosterUrl(url?: string): string {
+  if (!url) return '/poster-placeholder.svg';
+  if (url.startsWith('data:image')) return url;
+  if (url.includes('movies4u.kg/wp-content/uploads')) {
+    return `/api/image-proxy?url=${encodeURIComponent(url)}`;
+  }
+  return url;
+}
+
 export default function MovieDetailClient({
   initialMovie,
   slug,
-  initialRelated,
+  initialRelated = [],
 }: MovieDetailClientProps) {
-  const [movie, setMovie] = useState<Movie | null>(initialMovie);
+  const [movie, setMovie] = useState<Movie | null>(initialMovie || null);
   const [relatedMovies, setRelatedMovies] = useState<Movie[]>(initialRelated);
-  const [isLoading, setIsLoading] = useState(!initialMovie);
+  const [isLoading, setIsLoading] = useState<boolean>(!initialMovie);
+
+  const posterUrl = getPosterUrl(movie?.poster);
 
   // Client-side fallback if server was blocked
   useEffect(() => {
@@ -136,7 +147,7 @@ export default function MovieDetailClient({
       <div className="relative rounded-2xl sm:rounded-3xl overflow-hidden glass-card border border-black/10 dark:border-white/10 p-4 sm:p-8 md:p-10 shadow-xl">
         <div className="absolute inset-0 -z-10">
           <Image
-            src={movie.poster || '/poster-placeholder.svg'}
+            src={posterUrl}
             alt={movie.title}
             fill
             priority
@@ -152,7 +163,7 @@ export default function MovieDetailClient({
           <div className="w-52 sm:w-64 md:w-72 shrink-0 flex flex-col items-center">
             <div className="relative aspect-[2/3] w-full rounded-xl sm:rounded-2xl overflow-hidden shadow-2xl border border-black/10 dark:border-white/15 bg-slate-100 dark:bg-gray-900">
               <Image
-                src={movie.poster || '/poster-placeholder.svg'}
+                src={posterUrl}
                 alt={movie.title}
                 fill
                 priority

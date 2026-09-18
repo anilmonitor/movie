@@ -8,15 +8,25 @@ interface HeroFeaturedProps {
   movie: Movie;
 }
 
+function getPosterUrl(url?: string): string {
+  if (!url) return '/poster-placeholder.svg';
+  if (url.startsWith('data:image')) return url;
+  if (url.includes('movies4u.kg/wp-content/uploads')) {
+    return `/api/image-proxy?url=${encodeURIComponent(url)}`;
+  }
+  return url;
+}
+
 export default function HeroFeatured({ movie }: HeroFeaturedProps) {
   if (!movie) return null;
+  const posterUrl = getPosterUrl(movie.poster);
 
   return (
     <div className="relative w-full rounded-2xl sm:rounded-3xl overflow-hidden glass-card my-4 sm:my-6 border border-black/10 dark:border-white/10 shadow-xl">
       {/* Background Poster Blur / Backdrop */}
       <div className="absolute inset-0 z-0">
         <Image
-          src={movie.poster || '/poster-placeholder.svg'}
+          src={posterUrl}
           alt={movie.title}
           fill
           priority
@@ -33,7 +43,7 @@ export default function HeroFeatured({ movie }: HeroFeaturedProps) {
         {/* Main Poster */}
         <div className="relative aspect-[2/3] w-40 sm:w-52 md:w-60 rounded-xl sm:rounded-2xl overflow-hidden shadow-2xl border border-black/10 dark:border-white/20 shrink-0 transform md:-rotate-1 hover:rotate-0 transition-transform duration-300">
           <Image
-            src={movie.poster || '/poster-placeholder.svg'}
+            src={posterUrl}
             alt={movie.title}
             fill
             priority
