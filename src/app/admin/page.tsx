@@ -410,19 +410,6 @@ export default function AdminPage() {
             </a>
           </nav>
 
-          {/* Database Live Health Status */}
-          <div className="px-4 py-3 mx-3 mt-4 bg-[#080B12] border border-white/5 rounded-xl">
-            <div className="flex items-center space-x-2">
-              <span className="relative flex h-2 w-2">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
-              </span>
-              <span className="text-[11px] font-bold text-gray-200">Hostinger MySQL Live</span>
-            </div>
-            <p className="text-[10px] text-gray-400 mt-1">
-              Connected: 8,000 movies active
-            </p>
-          </div>
         </div>
 
         {/* Sidebar Bottom: Admin Profile & Sign Out */}
