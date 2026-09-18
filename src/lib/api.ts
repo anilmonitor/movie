@@ -130,7 +130,14 @@ export function parseDownloadLinks(html: string): DownloadLink[] {
     const qualityMatch = (rawHeading + ' ' + btnText).match(/\b(480p|720p|1080p|2160p|4K|HEVC)\b/i);
     const sizeMatch = (rawHeading + ' ' + btnText).match(/\[?([0-9.]+\s*(?:MB|GB)(?:\/[A-Za-z]+)?)\]?/i);
 
-    if (url && !url.includes('t.me') && !url.includes('how-to-download') && !url.startsWith('#') && !seenUrls.has(url)) {
+    if (
+      url &&
+      !url.includes('movies4u.kg') &&
+      !url.includes('t.me') &&
+      !url.includes('how-to-download') &&
+      !url.startsWith('#') &&
+      !seenUrls.has(url)
+    ) {
       seenUrls.add(url);
       links.push({
         title: rawHeading || btnText,
@@ -150,6 +157,7 @@ export function parseDownloadLinks(html: string): DownloadLink[] {
     if (
       url &&
       !seenUrls.has(url) &&
+      !url.includes('movies4u.kg') &&
       !url.includes('how-to-download') &&
       !url.includes('t.me') &&
       !url.startsWith('#') &&

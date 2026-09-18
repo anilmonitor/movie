@@ -15,13 +15,13 @@ const sampleMovies = [
     size: '1.2 GB',
     storyline:
       'After the events of Stree, the town of Chanderi is being haunted by a new headless monster named Sarkata who abducts modern independent women. Vicky and his friends must team up once again to save their town.',
-    poster: 'https://image.tmdb.org/t/p/w500/m2zELz9XmD3s1B8d2kXvP2W6M4.jpg',
-    screenshots: ['https://image.tmdb.org/t/p/w780/m2zELz9XmD3s1B8d2kXvP2W6M4.jpg'],
+    poster: 'https://m.media-amazon.com/images/M/MV5BMjA4NzUyNWEtZTI0Mi00MThhLThlYjktYzA1Y2VjYmFiY2I5XkEyXkFqcGc@._V1_FMjpg_UX1000_.jpg',
+    screenshots: ['https://m.media-amazon.com/images/M/MV5BMjA4NzUyNWEtZTI0Mi00MThhLThlYjktYzA1Y2VjYmFiY2I5XkEyXkFqcGc@._V1_FMjpg_UX1000_.jpg'],
     categories: ['Bollywood', 'Hindi', 'Comedy', 'Horror'],
     downloadLinks: [
-      { title: 'Download 480p [450MB]', url: 'https://movies4u.kg/download/stree-2-480p', quality: '480p', size: '450MB' },
-      { title: 'Download 720p HEVC [950MB]', url: 'https://movies4u.kg/download/stree-2-720p', quality: '720p', size: '950MB' },
-      { title: 'Download 1080p FHD [2.1GB]', url: 'https://movies4u.kg/download/stree-2-1080p', quality: '1080p', size: '2.1GB' },
+      { title: 'Download 480p [450MB] - Direct Cloud', url: 'https://hubcloud.club/drive/stree2-480p-hindi', quality: '480p', size: '450MB' },
+      { title: 'Download 720p HEVC [950MB] - Fast Server', url: 'https://hubcloud.club/drive/stree2-720p-hevc', quality: '720p', size: '950MB' },
+      { title: 'Download 1080p FHD [2.1GB] - Ultra HD', url: 'https://hubcloud.club/drive/stree2-1080p-fhd', quality: '1080p', size: '2.1GB' },
     ],
     date: new Date('2024-08-16T12:00:00Z'),
   },
@@ -37,13 +37,13 @@ const sampleMovies = [
     size: '1.8 GB',
     storyline:
       'Set in a post-apocalyptic world in the year 2898 AD, a modern avatar of Vishnu descends to Earth to protect the world from evil forces in the city of Kasi.',
-    poster: 'https://image.tmdb.org/t/p/w500/3UoJ4w2Vqf91rN0D3S2fW3L8b8V.jpg',
-    screenshots: ['https://image.tmdb.org/t/p/w780/3UoJ4w2Vqf91rN0D3S2fW3L8b8V.jpg'],
+    poster: 'https://m.media-amazon.com/images/M/MV5BZGQ1NWFiZjEtYTI2MS00N2Y3LTkzMDAtODExYzQ3ZDQ3YWFjXkEyXkFqcGc@._V1_FMjpg_UX1000_.jpg',
+    screenshots: ['https://m.media-amazon.com/images/M/MV5BZGQ1NWFiZjEtYTI2MS00N2Y3LTkzMDAtODExYzQ3ZDQ3YWFjXkEyXkFqcGc@._V1_FMjpg_UX1000_.jpg'],
     categories: ['South Indian', 'Dual Audio', 'Action', 'Sci-Fi & Fantasy'],
     downloadLinks: [
-      { title: 'Download 480p [550MB]', url: 'https://movies4u.kg/download/kalki-480p', quality: '480p', size: '550MB' },
-      { title: 'Download 720p [1.3GB]', url: 'https://movies4u.kg/download/kalki-720p', quality: '720p', size: '1.3GB' },
-      { title: 'Download 1080p [2.8GB]', url: 'https://movies4u.kg/download/kalki-1080p', quality: '1080p', size: '2.8GB' },
+      { title: 'Download 480p [550MB] - Direct Cloud', url: 'https://hubcloud.club/drive/kalki-480p-multi', quality: '480p', size: '550MB' },
+      { title: 'Download 720p [1.3GB] - Fast Server', url: 'https://hubcloud.club/drive/kalki-720p-multi', quality: '720p', size: '1.3GB' },
+      { title: 'Download 1080p [2.8GB] - Ultra HD', url: 'https://hubcloud.club/drive/kalki-1080p-multi', quality: '1080p', size: '2.8GB' },
     ],
     date: new Date('2024-07-28T14:30:00Z'),
   },
@@ -63,9 +63,9 @@ const sampleMovies = [
     screenshots: ['https://image.tmdb.org/t/p/w780/8cdWjvZQUExUUTzyp4t6EDMubfO.jpg'],
     categories: ['Hollywood', 'Dual Audio', 'Action', 'Comedy'],
     downloadLinks: [
-      { title: 'Download 480p [480MB]', url: 'https://movies4u.kg/download/dp-wolverine-480p', quality: '480p', size: '480MB' },
-      { title: 'Download 720p [1.1GB]', url: 'https://movies4u.kg/download/dp-wolverine-720p', quality: '720p', size: '1.1GB' },
-      { title: 'Download 1080p [2.4GB]', url: 'https://movies4u.kg/download/dp-wolverine-1080p', quality: '1080p', size: '2.4GB' },
+      { title: 'Download 480p [480MB] - Direct Cloud', url: 'https://hubcloud.club/drive/dp-wolverine-480p', quality: '480p', size: '480MB' },
+      { title: 'Download 720p [1.1GB] - Fast Server', url: 'https://hubcloud.club/drive/dp-wolverine-720p', quality: '720p', size: '1.1GB' },
+      { title: 'Download 1080p [2.4GB] - Ultra HD', url: 'https://hubcloud.club/drive/dp-wolverine-1080p', quality: '1080p', size: '2.4GB' },
     ],
     date: new Date('2024-07-26T10:15:00Z'),
   },
@@ -81,12 +81,13 @@ const sampleMovies = [
     size: '1.4 GB',
     storyline:
       'Top IAF aviators come together in the face of imminent danger to form Air Dragons, giving their all for the country whilst going through emotional highs and lows.',
-    poster: 'https://image.tmdb.org/t/p/w500/zDZow7elTij7Aelr8P96w6u11h8.jpg',
-    screenshots: ['https://image.tmdb.org/t/p/w780/zDZow7elTij7Aelr8P96w6u11h8.jpg'],
+    poster: 'https://m.media-amazon.com/images/M/MV5BM2M0YzQyOTktMjkzYS00YjVlLWI5YjktN2FjMDliMjg1Y2U1XkEyXkFqcGc@._V1_FMjpg_UX1000_.jpg',
+    screenshots: ['https://m.media-amazon.com/images/M/MV5BM2M0YzQyOTktMjkzYS00YjVlLWI5YjktN2FjMDliMjg1Y2U1XkEyXkFqcGc@._V1_FMjpg_UX1000_.jpg'],
     categories: ['Bollywood', 'Hindi', 'Action'],
     downloadLinks: [
-      { title: 'Download 480p [500MB]', url: 'https://movies4u.kg/download/fighter-480p', quality: '480p', size: '500MB' },
-      { title: 'Download 720p [1.2GB]', url: 'https://movies4u.kg/download/fighter-720p', quality: '720p', size: '1.2GB' },
+      { title: 'Download 480p [500MB] - Direct Cloud', url: 'https://hubcloud.club/drive/fighter-480p-hindi', quality: '480p', size: '500MB' },
+      { title: 'Download 720p [1.2GB] - Fast Server', url: 'https://hubcloud.club/drive/fighter-720p-hindi', quality: '720p', size: '1.2GB' },
+      { title: 'Download 1080p [2.5GB] - Ultra HD', url: 'https://hubcloud.club/drive/fighter-1080p-hindi', quality: '1080p', size: '2.5GB' },
     ],
     date: new Date('2024-03-21T09:00:00Z'),
   },
@@ -106,8 +107,8 @@ const sampleMovies = [
     screenshots: ['https://image.tmdb.org/t/p/w780/1pdfLvkbY9ohJlCjQH2CZjjYVvJ.jpg'],
     categories: ['Hollywood', 'Dual Audio', 'Sci-Fi & Fantasy', 'Adventure'],
     downloadLinks: [
-      { title: 'Download 720p [1.4GB]', url: 'https://movies4u.kg/download/dune-2-720p', quality: '720p', size: '1.4GB' },
-      { title: 'Download 1080p [3.1GB]', url: 'https://movies4u.kg/download/dune-2-1080p', quality: '1080p', size: '3.1GB' },
+      { title: 'Download 720p [1.4GB] - Direct Cloud', url: 'https://hubcloud.club/drive/dune2-720p-dual', quality: '720p', size: '1.4GB' },
+      { title: 'Download 1080p [3.1GB] - Ultra HD', url: 'https://hubcloud.club/drive/dune2-1080p-dual', quality: '1080p', size: '3.1GB' },
     ],
     date: new Date('2024-04-16T18:45:00Z'),
   },
@@ -123,12 +124,13 @@ const sampleMovies = [
     size: '1.7 GB',
     storyline:
       'A father-son bond carved in blood. Ranvijay sets out on a ruthless path of vengeance across the globe when an assassination attempt is made on his father.',
-    poster: 'https://image.tmdb.org/t/p/w500/hr9rjR4JOpFiIM3j4dHJfACH3cu.jpg',
-    screenshots: ['https://image.tmdb.org/t/p/w780/hr9rjR4JOpFiIM3j4dHJfACH3cu.jpg'],
+    poster: 'https://m.media-amazon.com/images/M/MV5BNGViM2M4NmUtMmNkNy00MTU5LWIyYzgtYDA2NzFiZGU4MzVkXkEyXkFqcGc@._V1_FMjpg_UX1000_.jpg',
+    screenshots: ['https://m.media-amazon.com/images/M/MV5BNGViM2M4NmUtMmNkNy00MTU5LWIyYzgtYDA2NzFiZGU4MzVkXkEyXkFqcGc@._V1_FMjpg_UX1000_.jpg'],
     categories: ['Bollywood', 'Hindi', 'Action', 'Drama'],
     downloadLinks: [
-      { title: 'Download 480p [600MB]', url: 'https://movies4u.kg/download/animal-480p', quality: '480p', size: '600MB' },
-      { title: 'Download 720p [1.5GB]', url: 'https://movies4u.kg/download/animal-720p', quality: '720p', size: '1.5GB' },
+      { title: 'Download 480p [600MB] - Direct Cloud', url: 'https://hubcloud.club/drive/animal-480p-hindi', quality: '480p', size: '600MB' },
+      { title: 'Download 720p [1.5GB] - Fast Server', url: 'https://hubcloud.club/drive/animal-720p-hindi', quality: '720p', size: '1.5GB' },
+      { title: 'Download 1080p [3.0GB] - Ultra HD', url: 'https://hubcloud.club/drive/animal-1080p-hindi', quality: '1080p', size: '3.0GB' },
     ],
     date: new Date('2024-01-26T08:30:00Z'),
   },
@@ -144,12 +146,12 @@ const sampleMovies = [
     size: '3.5 GB',
     storyline:
       'Guddu and Golu stake their claim to the throne of Mirzapur while Kaleen Bhaiya plots his ultimate resurgence in the heartland of Purvanchal.',
-    poster: 'https://image.tmdb.org/t/p/w500/7dJ5v46X2rQf6u8kL78w8m4t.jpg',
-    screenshots: ['https://image.tmdb.org/t/p/w780/7dJ5v46X2rQf6u8kL78w8m4t.jpg'],
+    poster: 'https://m.media-amazon.com/images/M/MV5BZDU5ZGYzZTYtMTZhYS00MjY1LWE4MmItYmI2M2RkOTYwZWE2XkEyXkFqcGc@._V1_FMjpg_UX1000_.jpg',
+    screenshots: ['https://m.media-amazon.com/images/M/MV5BZDU5ZGYzZTYtMTZhYS00MjY1LWE4MmItYmI2M2RkOTYwZWE2XkEyXkFqcGc@._V1_FMjpg_UX1000_.jpg'],
     categories: ['Web Series', 'Hindi', 'Crime & Mystery', 'Drama'],
     downloadLinks: [
-      { title: 'Download All Episodes 720p [2.8GB]', url: 'https://movies4u.kg/download/mirzapur-s3-720p', quality: '720p', size: '2.8GB' },
-      { title: 'Download All Episodes 1080p [5.5GB]', url: 'https://movies4u.kg/download/mirzapur-s3-1080p', quality: '1080p', size: '5.5GB' },
+      { title: 'Download All Episodes 720p [2.8GB] - Fast Server', url: 'https://hubcloud.club/drive/mirzapur-s3-720p', quality: '720p', size: '2.8GB' },
+      { title: 'Download All Episodes 1080p [5.5GB] - Ultra HD', url: 'https://hubcloud.club/drive/mirzapur-s3-1080p', quality: '1080p', size: '5.5GB' },
     ],
     date: new Date('2024-07-05T00:00:00Z'),
   },
@@ -165,12 +167,12 @@ const sampleMovies = [
     size: '1.2 GB',
     storyline:
       'Inspired by real-life events, Manoj Kumar Sharma from Chambal overcomes extreme poverty, academic setbacks, and relentless struggles to crack the prestigious UPSC exam.',
-    poster: 'https://image.tmdb.org/t/p/w500/oEuhXGqMfZw59j7Z6QGg7l8f.jpg',
-    screenshots: ['https://image.tmdb.org/t/p/w780/oEuhXGqMfZw59j7Z6QGg7l8f.jpg'],
+    poster: 'https://m.media-amazon.com/images/M/MV5BOTU2NWVmMzYtNDVjMC00NWY2LWFmZTUtYzg2MGNhZGUzYmM2XkEyXkFqcGc@._V1_FMjpg_UX1000_.jpg',
+    screenshots: ['https://m.media-amazon.com/images/M/MV5BOTU2NWVmMzYtNDVjMC00NWY2LWFmZTUtYzg2MGNhZGUzYmM2XkEyXkFqcGc@._V1_FMjpg_UX1000_.jpg'],
     categories: ['Bollywood', 'Hindi', 'Drama'],
     downloadLinks: [
-      { title: 'Download 720p [1.1GB]', url: 'https://movies4u.kg/download/12th-fail-720p', quality: '720p', size: '1.1GB' },
-      { title: 'Download 1080p [2.2GB]', url: 'https://movies4u.kg/download/12th-fail-1080p', quality: '1080p', size: '2.2GB' },
+      { title: 'Download 720p [1.1GB] - Direct Cloud', url: 'https://hubcloud.club/drive/12thfail-720p-hindi', quality: '720p', size: '1.1GB' },
+      { title: 'Download 1080p [2.2GB] - Ultra HD', url: 'https://hubcloud.club/drive/12thfail-1080p-hindi', quality: '1080p', size: '2.2GB' },
     ],
     date: new Date('2023-12-29T11:00:00Z'),
   },
@@ -186,12 +188,12 @@ const sampleMovies = [
     size: '1.6 GB',
     storyline:
       'In the violent dystopian city-state of Khansaar, Deva returns from exile to help his childhood friend Varadha secure his rightful place as the ruler.',
-    poster: 'https://image.tmdb.org/t/p/w500/404n3tQW2d3m5R9d6f8m3v.jpg',
-    screenshots: ['https://image.tmdb.org/t/p/w780/404n3tQW2d3m5R9d6f8m3v.jpg'],
+    poster: 'https://m.media-amazon.com/images/M/MV5BMmU1YWU1MmMtMTNkMy00OGZmLTgwOWYtNjc5NmVkMDFmNTM2XkEyXkFqcGc@._V1_FMjpg_UX1000_.jpg',
+    screenshots: ['https://m.media-amazon.com/images/M/MV5BMmU1YWU1MmMtMTNkMy00OGZmLTgwOWYtNjc5NmVkMDFmNTM2XkEyXkFqcGc@._V1_FMjpg_UX1000_.jpg'],
     categories: ['South Indian', 'Dual Audio', 'Action', 'Thriller'],
     downloadLinks: [
-      { title: 'Download 720p [1.3GB]', url: 'https://movies4u.kg/download/salaar-720p', quality: '720p', size: '1.3GB' },
-      { title: 'Download 1080p [2.6GB]', url: 'https://movies4u.kg/download/salaar-1080p', quality: '1080p', size: '2.6GB' },
+      { title: 'Download 720p [1.4GB] - Direct Cloud', url: 'https://hubcloud.club/drive/salaar-720p-multi', quality: '720p', size: '1.4GB' },
+      { title: 'Download 1080p [2.9GB] - Ultra HD', url: 'https://hubcloud.club/drive/salaar-1080p-multi', quality: '1080p', size: '2.9GB' },
     ],
     date: new Date('2024-01-20T16:20:00Z'),
   },
@@ -207,11 +209,11 @@ const sampleMovies = [
     size: '2.1 GB',
     storyline:
       'Abhishek Tripathi tackles local elections, village politics, and administrative rivalries in the quirky village of Phulera.',
-    poster: 'https://image.tmdb.org/t/p/w500/xVbY4wQz7r6G8m4k8L8h8.jpg',
-    screenshots: ['https://image.tmdb.org/t/p/w780/xVbY4wQz7r6G8m4k8L8h8.jpg'],
+    poster: 'https://m.media-amazon.com/images/M/MV5BMjY5ZGE1N2ItMjA1Zi00YmY5LWI4NGEtNmQzYWMzOWExYTFmXkEyXkFqcGc@._V1_FMjpg_UX1000_.jpg',
+    screenshots: ['https://m.media-amazon.com/images/M/MV5BMjY5ZGE1N2ItMjA1Zi00YmY5LWI4NGEtNmQzYWMzOWExYTFmXkEyXkFqcGc@._V1_FMjpg_UX1000_.jpg'],
     categories: ['Web Series', 'Hindi', 'Comedy', 'Drama'],
     downloadLinks: [
-      { title: 'Download All Episodes 720p [1.8GB]', url: 'https://movies4u.kg/download/panchayat-s3-720p', quality: '720p', size: '1.8GB' },
+      { title: 'Download All Episodes 720p [1.8GB] - Fast Server', url: 'https://hubcloud.club/drive/panchayat-s3-720p', quality: '720p', size: '1.8GB' },
     ],
     date: new Date('2024-05-28T05:00:00Z'),
   },
@@ -227,11 +229,13 @@ const sampleMovies = [
     size: '1.5 GB',
     storyline:
       'A prison warden driven by a personal vendetta recruits inmates to commit outrageous acts of vigilante justice to right the wrongs of society.',
-    poster: 'https://image.tmdb.org/t/p/w500/jWsHn5J0wHj5H8o6K7m8.jpg',
-    screenshots: ['https://image.tmdb.org/t/p/w780/jWsHn5J0wHj5H8o6K7m8.jpg'],
+    poster: 'https://m.media-amazon.com/images/M/MV5BN2E1ZWI1NzUtOTk4OC00YzQ4LThjYmQtODhjNWU3OWEzODFkXkEyXkFqcGc@._V1_FMjpg_UX1000_.jpg',
+    screenshots: ['https://m.media-amazon.com/images/M/MV5BN2E1ZWI1NzUtOTk4OC00YzQ4LThjYmQtODhjNWU3OWEzODFkXkEyXkFqcGc@._V1_FMjpg_UX1000_.jpg'],
     categories: ['Bollywood', 'Hindi', 'Action', 'Thriller'],
     downloadLinks: [
-      { title: 'Download 720p [1.3GB]', url: 'https://movies4u.kg/download/jawan-720p', quality: '720p', size: '1.3GB' },
+      { title: 'Download 480p [500MB] - Direct Cloud', url: 'https://hubcloud.club/drive/jawan-480p-hindi', quality: '480p', size: '500MB' },
+      { title: 'Download 720p [1.3GB] - Fast Server', url: 'https://hubcloud.club/drive/jawan-720p-hindi', quality: '720p', size: '1.3GB' },
+      { title: 'Download 1080p [2.6GB] - Ultra HD', url: 'https://hubcloud.club/drive/jawan-1080p-hindi', quality: '1080p', size: '2.6GB' },
     ],
     date: new Date('2023-11-02T10:00:00Z'),
   },
@@ -247,11 +251,12 @@ const sampleMovies = [
     size: '2.5 GB',
     storyline:
       'The story of American scientist J. Robert Oppenheimer and his role in the development of the atomic bomb during the Manhattan Project.',
-    poster: 'https://image.tmdb.org/t/p/w500/8Gxv8gSFCU0XGDykEGv7zR1n2ua.jpg',
-    screenshots: ['https://image.tmdb.org/t/p/w780/8Gxv8gSFCU0XGDykEGv7zR1n2ua.jpg'],
+    poster: 'https://m.media-amazon.com/images/M/MV5BMDBmYTZjNjUtN2M1MS00MTQ2LTk2ODgtNzc2M2QyZGE5NTVjXkEyXkFqcGc@._V1_FMjpg_UX1000_.jpg',
+    screenshots: ['https://m.media-amazon.com/images/M/MV5BMDBmYTZjNjUtN2M1MS00MTQ2LTk2ODgtNzc2M2QyZGE5NTVjXkEyXkFqcGc@._V1_FMjpg_UX1000_.jpg'],
     categories: ['Hollywood', 'Dual Audio', 'Drama'],
     downloadLinks: [
-      { title: 'Download 720p [1.6GB]', url: 'https://movies4u.kg/download/oppenheimer-720p', quality: '720p', size: '1.6GB' },
+      { title: 'Download 720p [1.6GB] - Direct Cloud', url: 'https://hubcloud.club/drive/oppenheimer-720p-dual', quality: '720p', size: '1.6GB' },
+      { title: 'Download 1080p [3.4GB] - Ultra HD', url: 'https://hubcloud.club/drive/oppenheimer-1080p-dual', quality: '1080p', size: '3.4GB' },
     ],
     date: new Date('2023-11-21T14:00:00Z'),
   },
@@ -304,26 +309,31 @@ async function seed() {
       },
     });
 
-    await prisma.downloadLink.deleteMany({ where: { movieId: movie.id } });
+    await prisma.downloadLink.deleteMany({
+      where: { movieId: movie.id },
+    });
+
     await prisma.downloadLink.createMany({
-      data: m.downloadLinks.map((l) => ({
+      data: m.downloadLinks.map((link) => ({
         movieId: movie.id,
-        title: l.title,
-        url: l.url,
-        quality: l.quality,
-        size: l.size,
+        title: link.title,
+        url: link.url,
+        quality: link.quality,
+        size: link.size,
       })),
     });
 
-    console.log(`Synced: ${m.title}`);
+    console.log(`Seeded: ${m.title}`);
   }
 
-  const count = await prisma.movie.count();
-  console.log(`DONE! Total movies in Hostinger MySQL DB: ${count}`);
-  await prisma.$disconnect();
+  console.log('Seed completed successfully!');
 }
 
-seed().catch((e) => {
-  console.error('Seed error:', e);
-  process.exit(1);
-});
+seed()
+  .catch((e) => {
+    console.error('Error during seeding:', e);
+    process.exit(1);
+  })
+  .finally(async () => {
+    await prisma.$disconnect();
+  });

@@ -367,20 +367,12 @@ export default function MovieDetailClient({
             ))}
           </div>
         ) : (
-          <div className="p-6 sm:p-8 rounded-2xl glass-card text-center space-y-3">
-            <p className="text-slate-800 dark:text-gray-300 font-semibold text-sm sm:text-base">Direct Download Source</p>
+          <div className="p-6 sm:p-8 rounded-2xl glass-card text-center space-y-3 border border-slate-200 dark:border-white/10">
+            <ShieldCheck className="w-8 h-8 text-emerald-500 mx-auto" />
+            <p className="text-slate-800 dark:text-gray-200 font-bold text-sm sm:text-base">Direct Cloud Download</p>
             <p className="text-xs text-slate-500 dark:text-gray-400 max-w-md mx-auto">
-              Please click the official source button below to access download mirrors directly.
+              Direct high-speed mirrors are being synchronized for this title. Please check back shortly.
             </p>
-            <a
-              href={`https://movies4u.kg/${movie.slug}/`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-red-600 hover:bg-red-700 text-white font-bold text-xs sm:text-sm shadow-md"
-            >
-              <Download className="w-4 h-4" />
-              <span>Open Download Mirrors Page</span>
-            </a>
           </div>
         )}
       </section>
