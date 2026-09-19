@@ -321,7 +321,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
               const SizedBox(height: 18),
 
-              // TOP: APP UPDATE
+              // TOP: APP UPDATE (Kept separate as requested)
               _buildCardGroup(
                 isDark: isDark,
                 children: [
@@ -361,15 +361,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ],
               ),
 
-              const SizedBox(height: 16),
+              const SizedBox(height: 14),
 
-              // SECTION 1: PREFERENCES
-              _buildSectionHeader('PREFERENCES', isDark),
-              const SizedBox(height: 6),
+              // UNIFIED OPTIONS CARD (All settings in one clean card)
               _buildCardGroup(
                 isDark: isDark,
                 children: [
-                  if (widget.onThemeChanged != null)
+                  // 1. Appearance
+                  if (widget.onThemeChanged != null) ...[
                     _buildSettingsTile(
                       isDark: isDark,
                       icon: Icons.palette_outlined,
@@ -394,10 +393,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       ),
                       onTap: _showThemeSelectionDialog,
                     ),
-
-                  if (widget.onThemeChanged != null)
                     _buildDivider(isDark),
+                  ],
 
+                  // 2. Saved Movies
                   _buildSettingsTile(
                     isDark: isDark,
                     icon: Icons.bookmark_outline_rounded,
@@ -437,17 +436,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       _loadData();
                     },
                   ),
-                ],
-              ),
 
-              const SizedBox(height: 12),
+                  _buildDivider(isDark),
 
-              // SECTION 2: ABOUT & LEGAL (Tightly positioned below Preferences)
-              _buildSectionHeader('ABOUT & LEGAL', isDark),
-              const SizedBox(height: 6),
-              _buildCardGroup(
-                isDark: isDark,
-                children: [
+                  // 3. Disclaimer
                   _buildSettingsTile(
                     isDark: isDark,
                     icon: Icons.description_outlined,
@@ -457,30 +449,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
                   _buildDivider(isDark),
 
-                  _buildSettingsTile(
-                    isDark: isDark,
-                    icon: Icons.info_outline_rounded,
-                    title: 'App Version',
-                    trailing: Text(
-                      'v1.0.4 (5)',
-                      style: TextStyle(
-                        fontSize: 12.5,
-                        fontWeight: FontWeight.w600,
-                        color: isDark ? AppTheme.darkTextSecondary : AppTheme.lightTextSecondary,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-
-              const SizedBox(height: 16),
-
-              // SECTION 3: SUPPORT & STORAGE (Developer Support removed)
-              _buildSectionHeader('SUPPORT & STORAGE', isDark),
-              const SizedBox(height: 6),
-              _buildCardGroup(
-                isDark: isDark,
-                children: [
+                  // 4. Join Telegram Channel
                   _buildSettingsTile(
                     isDark: isDark,
                     icon: Icons.near_me_rounded,
@@ -499,6 +468,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
                   _buildDivider(isDark),
 
+                  // 5. Clear Local Watchlist
                   _buildSettingsTile(
                     isDark: isDark,
                     icon: Icons.delete_outline_rounded,
@@ -509,7 +479,22 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ],
               ),
 
-              const SizedBox(height: 30),
+              const SizedBox(height: 22),
+
+              // Simple, minimal App Version footer right below Clear Local Watchlist
+              Center(
+                child: Text(
+                  'App Version 1.0.4 (5)',
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: isDark ? Colors.white38 : Colors.black38,
+                    fontWeight: FontWeight.w500,
+                    letterSpacing: 0.2,
+                  ),
+                ),
+              ),
+
+              const SizedBox(height: 28),
             ],
           ),
         ),
