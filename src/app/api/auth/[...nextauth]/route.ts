@@ -52,6 +52,10 @@ export const authOptions: NextAuthOptions = {
       return session;
     },
   },
+  session: {
+    strategy: 'jwt',
+    maxAge: 7 * 24 * 60 * 60, // 7 days automatic session expiry
+  },
   pages: {
     signIn: '/admin',
     error: '/admin',

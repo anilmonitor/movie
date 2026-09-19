@@ -29,6 +29,9 @@ import {
   Square,
   Calendar,
   Download,
+  Mail,
+  KeyRound,
+  ArrowLeft,
 } from 'lucide-react';
 
 interface SyncStats {
@@ -43,6 +46,16 @@ export default function AdminPage() {
   const [adminEmail, setAdminEmail] = useState<string>('');
   const [passcode, setPasscode] = useState<string>('');
   const [loginError, setLoginError] = useState<string>('');
+  const [loginSuccessMsg, setLoginSuccessMsg] = useState<string>('');
+  const [showForgotModal, setShowForgotModal] = useState<boolean>(false);
+  const [forgotEmail, setForgotEmail] = useState<string>('');
+  const [forgotOtp, setForgotOtp] = useState<string>('');
+  const [newPassword, setNewPassword] = useState<string>('');
+  const [confirmPassword, setConfirmPassword] = useState<string>('');
+  const [otpSent, setOtpSent] = useState<boolean>(false);
+  const [isSendingOtp, setIsSendingOtp] = useState<boolean>(false);
+  const [isResettingPassword, setIsResettingPassword] = useState<boolean>(false);
+  const [forgotStatus, setForgotStatus] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
 
   const [stats, setStats] = useState<SyncStats | null>(null);
   const [isSyncing, setIsSyncing] = useState<boolean>(false);
@@ -99,8 +112,9 @@ export default function AdminPage() {
   };
 
   // Check persisted auth or NextAuth Google session
+  // Check persisted auth, 7-day automatic expiry, and password change invalidation
   useEffect(() => {
-    getSession().then((session) => {
+    getSession().then(async (session) => {
       if (session?.user?.email) {
         setAdminEmail(session.user.email);
         setIsAuthenticated(true);
@@ -110,9 +124,34 @@ export default function AdminPage() {
 
       const savedEmail = localStorage.getItem('mm_admin_email');
       const savedPass = localStorage.getItem('mm_admin_passcode');
-      if (savedEmail || savedPass) {
-        setAdminEmail(savedEmail || '');
-        setPasscode(savedPass || '');
+      const savedLoginAt = parseInt(localStorage.getItem('mm_admin_login_at') || '0', 10);
+      const SEVEN_DAYS_MS = 7 * 24 * 60 * 60 * 1000;
+
+      if (savedEmail && savedPass) {
+        // 1. Check 7-day automatic session expiry
+        if (savedLoginAt && Date.now() - savedLoginAt > SEVEN_DAYS_MS) {
+          handleLogout('Your admin session has expired after 7 days. Please sign in again.');
+          return;
+        }
+
+        // 2. Check if password was changed or session invalidated
+        try {
+          const res = await fetch('/api/admin/auth/check-session', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email: savedEmail, sessionLoginAt: savedLoginAt }),
+          });
+          const data = await res.json();
+          if (!data.valid) {
+            handleLogout(
+              data.message || 'Session expired or password was changed. Please sign in again.'
+            );
+            return;
+          }
+        } catch (_) {}
+
+        setAdminEmail(savedEmail);
+        setPasscode(savedPass);
         setIsAuthenticated(true);
         loadAllAdminData();
       }
@@ -130,6 +169,7 @@ export default function AdminPage() {
     e.preventDefault();
     const cleanEmail = adminEmail.trim().toLowerCase();
     setLoginError('');
+    setLoginSuccessMsg('');
 
     try {
       const res = await fetch('/api/admin/login', {
@@ -146,14 +186,104 @@ export default function AdminPage() {
       if (res.ok && data.success) {
         setIsAuthenticated(true);
         setLoginError('');
+        const loginTimestamp = data.session?.loginAt || Date.now();
         localStorage.setItem('mm_admin_email', cleanEmail);
-        localStorage.setItem('mm_admin_passcode', passcode);
+        localStorage.setItem('mm_admin_passcode', passcode.trim());
+        localStorage.setItem('mm_admin_login_at', String(loginTimestamp));
         loadAllAdminData();
       } else {
         setLoginError(data.error || 'Access Denied: Invalid credentials or unauthorized account.');
       }
     } catch (err: any) {
       setLoginError(`Login request failed: ${err.message || 'Network error'}`);
+    }
+  };
+
+  const handleSendOtp = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    const cleanEmail = forgotEmail.trim().toLowerCase();
+    if (!cleanEmail) {
+      setForgotStatus({ type: 'error', message: 'Please enter your registered admin email.' });
+      return;
+    }
+    setIsSendingOtp(true);
+    setForgotStatus(null);
+    try {
+      const res = await fetch('/api/admin/auth/send-otp', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: cleanEmail }),
+      });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        setOtpSent(true);
+        setForgotStatus({ type: 'success', message: data.message });
+      } else {
+        setForgotStatus({ type: 'error', message: data.error || 'Failed to send OTP.' });
+      }
+    } catch (err: any) {
+      setForgotStatus({ type: 'error', message: err?.message || 'Network error while sending OTP.' });
+    } finally {
+      setIsSendingOtp(false);
+    }
+  };
+
+  const handleResetPassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const cleanEmail = forgotEmail.trim().toLowerCase();
+    const cleanOtp = forgotOtp.trim();
+
+    if (!cleanOtp) {
+      setForgotStatus({ type: 'error', message: 'Please enter the 6-digit OTP code.' });
+      return;
+    }
+    if (newPassword.length < 6) {
+      setForgotStatus({ type: 'error', message: 'New password must be at least 6 characters long.' });
+      return;
+    }
+    if (newPassword !== confirmPassword) {
+      setForgotStatus({ type: 'error', message: 'New password and confirm password do not match.' });
+      return;
+    }
+
+    setIsResettingPassword(true);
+    setForgotStatus(null);
+    try {
+      const res = await fetch('/api/admin/auth/reset-password', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: cleanEmail,
+          otp: cleanOtp,
+          newPassword,
+        }),
+      });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        // Clear all stored credentials and log out any session
+        localStorage.removeItem('mm_admin_email');
+        localStorage.removeItem('mm_admin_passcode');
+        localStorage.removeItem('mm_admin_login_at');
+        setIsAuthenticated(false);
+
+        // Reset forgot modal state and show success on login card
+        setShowForgotModal(false);
+        setOtpSent(false);
+        setForgotOtp('');
+        setNewPassword('');
+        setConfirmPassword('');
+        setAdminEmail(cleanEmail);
+        setPasscode('');
+        setLoginSuccessMsg(
+          '✅ Password reset successfully! All active sessions have been terminated. Please sign in with your new password.'
+        );
+      } else {
+        setForgotStatus({ type: 'error', message: data.error || 'Failed to reset password.' });
+      }
+    } catch (err: any) {
+      setForgotStatus({ type: 'error', message: err?.message || 'Network error while resetting password.' });
+    } finally {
+      setIsResettingPassword(false);
     }
   };
 
@@ -256,10 +386,14 @@ export default function AdminPage() {
     }
   };
 
-  const handleLogout = async () => {
+  const handleLogout = async (message?: string) => {
     setIsAuthenticated(false);
     localStorage.removeItem('mm_admin_email');
     localStorage.removeItem('mm_admin_passcode');
+    localStorage.removeItem('mm_admin_login_at');
+    if (message) {
+      setLoginError(message);
+    }
     try {
       await signOut({ redirect: false });
     } catch (_) {}
@@ -386,7 +520,7 @@ export default function AdminPage() {
     }
   };
 
-  // Standalone Clean Admin Login View
+  // Standalone Clean Admin Login & OTP Reset View
   if (!isAuthenticated) {
     return (
       <div className="min-h-screen w-full bg-[#080B12] flex items-center justify-center p-4 text-white">
@@ -401,94 +535,289 @@ export default function AdminPage() {
               Admin Control Portal
             </p>
             <p className="text-xs text-gray-300 mt-2">
-              Sign in to manage database & movie catalog
+              {showForgotModal
+                ? 'Reset your password via 6-digit email OTP'
+                : 'Sign in to manage database & movie catalog'}
             </p>
           </div>
 
-          {loginError && (
+          {/* Success Banner */}
+          {loginSuccessMsg && !showForgotModal && (
+            <div className="mb-4 p-3 bg-emerald-500/10 border border-emerald-500/30 rounded-xl flex items-start space-x-2 text-emerald-300 text-xs leading-relaxed">
+              <CheckCircle className="w-4 h-4 flex-shrink-0 text-emerald-400 mt-0.5" />
+              <span>{loginSuccessMsg}</span>
+            </div>
+          )}
+
+          {/* Error Banner */}
+          {loginError && !showForgotModal && (
             <div className="mb-4 p-3 bg-red-500/10 border border-red-500/30 rounded-xl flex items-center space-x-2 text-red-300 text-xs">
               <AlertCircle className="w-4 h-4 flex-shrink-0 text-red-400" />
               <span>{loginError}</span>
             </div>
           )}
 
-          {/* 1-Click Google Sign In */}
-          <button
-            type="button"
-            onClick={() => signIn('google', { callbackUrl: '/admin' }, { prompt: 'select_account' })}
-            style={{ cursor: 'pointer' }}
-            className="w-full bg-white hover:bg-gray-100 text-gray-900 font-semibold py-2.5 px-4 rounded-xl transition shadow text-sm flex items-center justify-center space-x-3 active:scale-[0.99] cursor-pointer hover:shadow-md"
-          >
-            <svg className="w-4 h-4" viewBox="0 0 24 24">
-              <path
-                fill="#4285F4"
-                d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
-              />
-              <path
-                fill="#34A853"
-                d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
-              />
-              <path
-                fill="#FBBC05"
-                d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"
-              />
-              <path
-                fill="#EA4335"
-                d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"
-              />
-            </svg>
-            <span>Sign in with Google</span>
-          </button>
-
-          {/* Simple Divider */}
-          <div className="relative flex items-center justify-center my-4">
-            <div className="border-t border-white/10 w-full"></div>
-            <span className="bg-[#111726] px-3 text-[11px] text-gray-400 font-medium whitespace-nowrap">
-              or credentials
-            </span>
-            <div className="border-t border-white/10 w-full"></div>
-          </div>
-
-          <form onSubmit={handleLogin} className="space-y-3.5">
-            <div>
-              <label className="block text-[11px] font-medium uppercase tracking-wider text-gray-300 mb-1">
-                Admin Email
-              </label>
-              <input
-                type="email"
-                required
-                value={adminEmail}
-                onChange={(e) => setAdminEmail(e.target.value)}
-                placeholder="admin@example.com"
-                className="w-full bg-[#080B12] border border-white/15 focus:border-red-500 rounded-xl px-3.5 py-2 text-sm text-white placeholder-gray-500 focus:outline-none transition"
-              />
-            </div>
-
-            <div>
-              <label className="block text-[11px] font-medium uppercase tracking-wider text-gray-300 mb-1">
-                Passcode
-              </label>
-              <div className="relative">
-                <input
-                  type="password"
-                  value={passcode}
-                  onChange={(e) => setPasscode(e.target.value)}
-                  placeholder="••••••••••••"
-                  className="w-full bg-[#080B12] border border-white/15 focus:border-red-500 rounded-xl px-3.5 py-2 pl-9 text-sm text-white placeholder-gray-500 focus:outline-none transition"
-                />
-                <Lock className="w-4 h-4 text-gray-400 absolute left-3 top-2.5" />
-              </div>
-            </div>
-
-            <button
-              type="submit"
-              style={{ cursor: 'pointer' }}
-              className="w-full bg-red-600 hover:bg-red-500 active:scale-[0.99] text-white font-semibold py-2.5 rounded-xl transition shadow-md shadow-red-600/20 text-sm flex items-center justify-center space-x-2 mt-2 cursor-pointer"
+          {/* Forgot Modal Status Banner */}
+          {showForgotModal && forgotStatus && (
+            <div
+              className={`mb-4 p-3 rounded-xl flex items-start space-x-2 text-xs leading-relaxed ${
+                forgotStatus.type === 'success'
+                  ? 'bg-emerald-500/10 border border-emerald-500/30 text-emerald-300'
+                  : 'bg-red-500/10 border border-red-500/30 text-red-300'
+              }`}
             >
-              <ShieldCheck className="w-4 h-4" />
-              <span>Sign In to Dashboard</span>
-            </button>
-          </form>
+              {forgotStatus.type === 'success' ? (
+                <CheckCircle className="w-4 h-4 flex-shrink-0 text-emerald-400 mt-0.5" />
+              ) : (
+                <AlertCircle className="w-4 h-4 flex-shrink-0 text-red-400 mt-0.5" />
+              )}
+              <span>{forgotStatus.message}</span>
+            </div>
+          )}
+
+          {!showForgotModal ? (
+            /* Standard Admin Login Form */
+            <>
+              {/* 1-Click Google Sign In */}
+              <button
+                type="button"
+                onClick={() =>
+                  signIn('google', { callbackUrl: '/admin' }, { prompt: 'select_account' })
+                }
+                style={{ cursor: 'pointer' }}
+                className="w-full bg-white hover:bg-gray-100 text-gray-900 font-semibold py-2.5 px-4 rounded-xl transition shadow text-sm flex items-center justify-center space-x-3 active:scale-[0.99] cursor-pointer hover:shadow-md"
+              >
+                <svg className="w-4 h-4" viewBox="0 0 24 24">
+                  <path
+                    fill="#4285F4"
+                    d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
+                  />
+                  <path
+                    fill="#34A853"
+                    d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
+                  />
+                  <path
+                    fill="#FBBC05"
+                    d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"
+                  />
+                  <path
+                    fill="#EA4335"
+                    d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"
+                  />
+                </svg>
+                <span>Sign in with Google</span>
+              </button>
+
+              {/* Divider */}
+              <div className="relative flex items-center justify-center my-4">
+                <div className="border-t border-white/10 w-full"></div>
+                <span className="bg-[#111726] px-3 text-[11px] text-gray-400 font-medium whitespace-nowrap">
+                  or credentials
+                </span>
+                <div className="border-t border-white/10 w-full"></div>
+              </div>
+
+              <form onSubmit={handleLogin} className="space-y-3.5">
+                <div>
+                  <label className="block text-[11px] font-medium uppercase tracking-wider text-gray-300 mb-1">
+                    Admin Email
+                  </label>
+                  <input
+                    type="email"
+                    required
+                    value={adminEmail}
+                    onChange={(e) => setAdminEmail(e.target.value)}
+                    placeholder="admin@example.com"
+                    className="w-full bg-[#080B12] border border-white/15 focus:border-red-500 rounded-xl px-3.5 py-2 text-sm text-white placeholder-gray-500 focus:outline-none transition"
+                  />
+                </div>
+
+                <div>
+                  <div className="flex items-center justify-between mb-1">
+                    <label className="block text-[11px] font-medium uppercase tracking-wider text-gray-300">
+                      Password / Passcode
+                    </label>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setForgotEmail(adminEmail);
+                        setForgotStatus(null);
+                        setShowForgotModal(true);
+                      }}
+                      className="text-[11px] text-red-400 hover:text-red-300 transition font-medium hover:underline cursor-pointer"
+                    >
+                      Forgot?
+                    </button>
+                  </div>
+                  <div className="relative">
+                    <input
+                      type="password"
+                      value={passcode}
+                      onChange={(e) => setPasscode(e.target.value)}
+                      placeholder="••••••••••••"
+                      className="w-full bg-[#080B12] border border-white/15 focus:border-red-500 rounded-xl px-3.5 py-2 pl-9 text-sm text-white placeholder-gray-500 focus:outline-none transition"
+                    />
+                    <Lock className="w-4 h-4 text-gray-400 absolute left-3 top-2.5" />
+                  </div>
+                </div>
+
+                <button
+                  type="submit"
+                  style={{ cursor: 'pointer' }}
+                  className="w-full bg-red-600 hover:bg-red-500 active:scale-[0.99] text-white font-semibold py-2.5 rounded-xl transition shadow-md shadow-red-600/20 text-sm flex items-center justify-center space-x-2 mt-2 cursor-pointer"
+                >
+                  <ShieldCheck className="w-4 h-4" />
+                  <span>Sign In to Dashboard</span>
+                </button>
+              </form>
+            </>
+          ) : (
+            /* OTP Password Reset Flow */
+            <div className="space-y-4">
+              {!otpSent ? (
+                /* Step 1: Send OTP to Admin Email */
+                <form onSubmit={handleSendOtp} className="space-y-3.5">
+                  <div>
+                    <label className="block text-[11px] font-medium uppercase tracking-wider text-gray-300 mb-1">
+                      Admin Email
+                    </label>
+                    <div className="relative">
+                      <input
+                        type="email"
+                        required
+                        value={forgotEmail}
+                        onChange={(e) => setForgotEmail(e.target.value)}
+                        placeholder="admin@example.com"
+                        className="w-full bg-[#080B12] border border-white/15 focus:border-red-500 rounded-xl px-3.5 py-2 pl-9 text-sm text-white placeholder-gray-500 focus:outline-none transition"
+                      />
+                      <Mail className="w-4 h-4 text-gray-400 absolute left-3 top-2.5" />
+                    </div>
+                    <p className="text-[11px] text-gray-400 mt-1.5 leading-normal">
+                      We will send a 6-digit verification code to your registered admin email via Gmail SMTP.
+                    </p>
+                  </div>
+
+                  <button
+                    type="submit"
+                    disabled={isSendingOtp}
+                    style={{ cursor: isSendingOtp ? 'not-allowed' : 'pointer' }}
+                    className="w-full bg-red-600 hover:bg-red-500 disabled:opacity-50 text-white font-semibold py-2.5 rounded-xl transition shadow-md shadow-red-600/20 text-sm flex items-center justify-center space-x-2 mt-2 cursor-pointer"
+                  >
+                    {isSendingOtp ? (
+                      <>
+                        <RefreshCw className="w-4 h-4 animate-spin" />
+                        <span>Sending OTP...</span>
+                      </>
+                    ) : (
+                      <>
+                        <Mail className="w-4 h-4" />
+                        <span>Send 6-Digit OTP</span>
+                      </>
+                    )}
+                  </button>
+                </form>
+              ) : (
+                /* Step 2: Verify OTP and Set New Password */
+                <form onSubmit={handleResetPassword} className="space-y-3.5">
+                  <div>
+                    <div className="flex items-center justify-between mb-1">
+                      <label className="block text-[11px] font-medium uppercase tracking-wider text-gray-300">
+                        6-Digit OTP Code
+                      </label>
+                      <button
+                        type="button"
+                        onClick={() => handleSendOtp()}
+                        disabled={isSendingOtp}
+                        className="text-[11px] text-red-400 hover:text-red-300 transition font-medium hover:underline cursor-pointer disabled:opacity-50"
+                      >
+                        Resend OTP
+                      </button>
+                    </div>
+                    <div className="relative">
+                      <input
+                        type="text"
+                        required
+                        maxLength={6}
+                        value={forgotOtp}
+                        onChange={(e) => setForgotOtp(e.target.value.replace(/\D/g, ''))}
+                        placeholder="123456"
+                        className="w-full bg-[#080B12] border border-white/15 focus:border-red-500 rounded-xl px-3.5 py-2 pl-9 text-sm text-white font-mono tracking-widest placeholder-gray-500 focus:outline-none transition"
+                      />
+                      <KeyRound className="w-4 h-4 text-gray-400 absolute left-3 top-2.5" />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-[11px] font-medium uppercase tracking-wider text-gray-300 mb-1">
+                      New Password
+                    </label>
+                    <div className="relative">
+                      <input
+                        type="password"
+                        required
+                        minLength={6}
+                        value={newPassword}
+                        onChange={(e) => setNewPassword(e.target.value)}
+                        placeholder="••••••••••••"
+                        className="w-full bg-[#080B12] border border-white/15 focus:border-red-500 rounded-xl px-3.5 py-2 pl-9 text-sm text-white placeholder-gray-500 focus:outline-none transition"
+                      />
+                      <Lock className="w-4 h-4 text-gray-400 absolute left-3 top-2.5" />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-[11px] font-medium uppercase tracking-wider text-gray-300 mb-1">
+                      Confirm New Password
+                    </label>
+                    <div className="relative">
+                      <input
+                        type="password"
+                        required
+                        minLength={6}
+                        value={confirmPassword}
+                        onChange={(e) => setConfirmPassword(e.target.value)}
+                        placeholder="••••••••••••"
+                        className="w-full bg-[#080B12] border border-white/15 focus:border-red-500 rounded-xl px-3.5 py-2 pl-9 text-sm text-white placeholder-gray-500 focus:outline-none transition"
+                      />
+                      <Lock className="w-4 h-4 text-gray-400 absolute left-3 top-2.5" />
+                    </div>
+                  </div>
+
+                  <button
+                    type="submit"
+                    disabled={isResettingPassword}
+                    style={{ cursor: isResettingPassword ? 'not-allowed' : 'pointer' }}
+                    className="w-full bg-red-600 hover:bg-red-500 disabled:opacity-50 text-white font-semibold py-2.5 rounded-xl transition shadow-md shadow-red-600/20 text-sm flex items-center justify-center space-x-2 mt-2 cursor-pointer"
+                  >
+                    {isResettingPassword ? (
+                      <>
+                        <RefreshCw className="w-4 h-4 animate-spin" />
+                        <span>Updating Password...</span>
+                      </>
+                    ) : (
+                      <>
+                        <ShieldCheck className="w-4 h-4" />
+                        <span>Reset Password</span>
+                      </>
+                    )}
+                  </button>
+                </form>
+              )}
+
+              {/* Back to Login Button */}
+              <button
+                type="button"
+                onClick={() => {
+                  setShowForgotModal(false);
+                  setForgotStatus(null);
+                }}
+                className="w-full text-center text-xs text-gray-400 hover:text-white transition flex items-center justify-center space-x-1.5 pt-1 cursor-pointer"
+              >
+                <ArrowLeft className="w-3.5 h-3.5" />
+                <span>Back to Sign In</span>
+              </button>
+            </div>
+          )}
         </div>
       </div>
     );
@@ -719,7 +1048,7 @@ export default function AdminPage() {
               <p className={`text-[10px] truncate ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>{adminEmail}</p>
             </div>
             <button
-              onClick={handleLogout}
+              onClick={() => handleLogout()}
               title="Sign Out"
               className="p-2 text-red-400 hover:text-red-300 hover:bg-red-500/10 rounded-xl transition flex-shrink-0"
             >
@@ -788,7 +1117,7 @@ export default function AdminPage() {
             </a>
 
             <button
-              onClick={handleLogout}
+              onClick={() => handleLogout()}
               className="sm:hidden p-2 text-red-400 hover:text-red-300 bg-red-500/10 rounded-xl border border-red-500/20"
             >
               <LogOut className="w-4 h-4" />
