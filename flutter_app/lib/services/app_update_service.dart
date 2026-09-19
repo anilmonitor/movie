@@ -101,222 +101,94 @@ class AppUpdateService {
           return PopScope(
             canPop: !forceUpdate,
             child: Dialog(
-              backgroundColor: isDark ? const Color(0xFF0F172A) : Colors.white,
+              backgroundColor: isDark ? const Color(0xFF1E293B) : Colors.white,
+              elevation: 8,
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(24),
+                borderRadius: BorderRadius.circular(20),
                 side: BorderSide(
-                  color: isDark ? const Color(0x33FFFFFF) : const Color(0x1A000000),
+                  color: isDark ? const Color(0x26FFFFFF) : const Color(0x14000000),
                   width: 1,
                 ),
               ),
               child: Padding(
-                padding: const EdgeInsets.all(22.0),
+                padding: const EdgeInsets.fromLTRB(22, 22, 22, 18),
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Header Badge & Close Button
+                    // Header: App icon + Title + Version + optional close button
                     Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                          width: 44,
+                          height: 44,
                           decoration: BoxDecoration(
-                            color: const Color(0x1AE50914),
-                            borderRadius: BorderRadius.circular(20),
-                            border: Border.all(color: const Color(0x4DE50914)),
+                            color: const Color(0xFFE50914).withOpacity(0.1),
+                            borderRadius: BorderRadius.circular(12),
                           ),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
+                          child: const Icon(
+                            Icons.system_update_rounded,
+                            color: Color(0xFFE50914),
+                            size: 24,
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              const Icon(Icons.warning_amber_rounded, color: Color(0xFFE50914), size: 14),
-                              const SizedBox(width: 4),
                               Text(
-                                forceUpdate ? 'COMPULSORY UPDATE (v$latestVersion)' : 'v$latestVersion UPDATE',
-                                style: const TextStyle(
-                                  color: Color(0xFFE50914),
-                                  fontSize: 10.5,
-                                  fontWeight: FontWeight.w800,
-                                  letterSpacing: 0.5,
+                                'App Update Required',
+                                style: TextStyle(
+                                  fontSize: 16.5,
+                                  fontWeight: FontWeight.bold,
+                                  color: isDark ? Colors.white : const Color(0xFF0F172A),
+                                ),
+                              ),
+                              const SizedBox(height: 2),
+                              Text(
+                                'Version $latestVersion Available',
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  color: isDark ? Colors.white54 : Colors.black45,
                                 ),
                               ),
                             ],
                           ),
                         ),
                         if (!forceUpdate)
-                          GestureDetector(
-                            onTap: () {
+                          IconButton(
+                            icon: const Icon(Icons.close, size: 20),
+                            color: isDark ? Colors.white54 : Colors.black45,
+                            onPressed: () {
                               prefs.setInt(
                                 'app_update_dismissed_at',
                                 DateTime.now().millisecondsSinceEpoch,
                               );
                               Navigator.of(dialogContext).pop();
                             },
-                            child: Container(
-                              padding: const EdgeInsets.all(4),
-                              decoration: BoxDecoration(
-                                color: isDark ? const Color(0x1AFFFFFF) : const Color(0x0D000000),
-                                shape: BoxShape.circle,
-                              ),
-                              child: Icon(
-                                Icons.close,
-                                size: 18,
-                                color: isDark ? Colors.white70 : Colors.black54,
-                              ),
-                            ),
+                            padding: EdgeInsets.zero,
+                            constraints: const BoxConstraints(),
                           ),
                       ],
                     ),
                     const SizedBox(height: 16),
 
-                    // App Title & Icon
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Container(
-                          width: 52,
-                          height: 52,
-                          decoration: BoxDecoration(
-                            gradient: const LinearGradient(
-                              colors: [Color(0xFFE50914), Color(0xFFFF5252)],
-                              begin: Alignment.topLeft,
-                              end: Alignment.bottomRight,
-                            ),
-                            borderRadius: BorderRadius.circular(16),
-                            boxShadow: const [
-                              BoxShadow(
-                                color: Color(0x40E50914),
-                                blurRadius: 12,
-                                offset: Offset(0, 4),
-                              ),
-                            ],
-                          ),
-                          child: const Icon(
-                            Icons.system_update_rounded,
-                            color: Colors.white,
-                            size: 28,
-                          ),
-                        ),
-                        const SizedBox(width: 14),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                title,
-                                style: TextStyle(
-                                  fontSize: 17,
-                                  fontWeight: FontWeight.w900,
-                                  color: isDark ? Colors.white : const Color(0xFF0F172A),
-                                  letterSpacing: -0.3,
-                                ),
-                              ),
-                              const SizedBox(height: 4),
-                              Text(
-                                message,
-                                style: TextStyle(
-                                  fontSize: 12,
-                                  height: 1.4,
-                                  color: isDark ? Colors.white70 : Colors.black54,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 14),
-
-                    // Compulsory Notice Box in clean, normal English
-                    Container(
-                      width: double.infinity,
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-                      decoration: BoxDecoration(
-                        color: const Color(0x1AE50914),
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: const Color(0x4DE50914)),
-                      ),
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const Icon(Icons.info_outline_rounded, color: Color(0xFFE50914), size: 17),
-                          const SizedBox(width: 8),
-                          Expanded(
-                            child: Text(
-                              'Updating is compulsory to watch and download all newly added movies without any issues.',
-                              style: TextStyle(
-                                fontSize: 11.5,
-                                fontWeight: FontWeight.w600,
-                                height: 1.35,
-                                color: isDark ? const Color(0xFFFF8A80) : const Color(0xFFD32F2F),
-                              ),
-                            ),
-                          ),
-                        ],
+                    // Compulsory Notice Text (Simple, minimal style)
+                    Text(
+                      'Updating is compulsory to watch and download all the latest movies without any issues.',
+                      style: TextStyle(
+                        fontSize: 13.5,
+                        height: 1.45,
+                        color: isDark ? Colors.white70 : const Color(0xFF334155),
                       ),
                     ),
-                    const SizedBox(height: 14),
+                    const SizedBox(height: 22),
 
-                    // What's New Box
-                    Container(
-                      padding: const EdgeInsets.all(12),
-                      decoration: BoxDecoration(
-                        color: isDark ? const Color(0x14FFFFFF) : const Color(0x08000000),
-                        borderRadius: BorderRadius.circular(14),
-                        border: Border.all(
-                          color: isDark ? const Color(0x1AFFFFFF) : const Color(0x0F000000),
-                        ),
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            children: [
-                              const Icon(Icons.new_releases_rounded, size: 14, color: Color(0xFF10B981)),
-                              const SizedBox(width: 6),
-                              Text(
-                                "What's in This Update:",
-                                style: TextStyle(
-                                  fontSize: 11,
-                                  fontWeight: FontWeight.bold,
-                                  color: isDark ? Colors.white70 : Colors.black87,
-                                ),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 8),
-                          ...whatsNew.map(
-                            (item) => Padding(
-                              padding: const EdgeInsets.only(bottom: 4.0),
-                              child: Row(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  const Icon(Icons.check_circle_rounded,
-                                      size: 13, color: Color(0xFFF59E0B)),
-                                  const SizedBox(width: 6),
-                                  Expanded(
-                                    child: Text(
-                                      item,
-                                      style: TextStyle(
-                                        fontSize: 11,
-                                        height: 1.3,
-                                        color: isDark ? Colors.white70 : Colors.black87,
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(height: 20),
-
-                    // Primary Compulsory Update Button
+                    // Primary Update Button with Original Google Play Store Icon
                     SizedBox(
                       width: double.infinity,
-                      height: 48,
+                      height: 46,
                       child: ElevatedButton(
                         onPressed: () async {
                           final uri = Uri.parse(playStoreUrl);
@@ -334,22 +206,22 @@ class AppUpdateService {
                         style: ElevatedButton.styleFrom(
                           backgroundColor: const Color(0xFFE50914),
                           foregroundColor: Colors.white,
-                          elevation: 6,
-                          shadowColor: const Color(0x66E50914),
+                          elevation: 2,
                           shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(14),
+                            borderRadius: BorderRadius.circular(12),
                           ),
                         ),
                         child: const Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            Icon(Icons.shop_rounded, size: 19),
-                            SizedBox(width: 8),
+                            GooglePlayLogo(size: 20),
+                            SizedBox(width: 10),
                             Text(
                               'Update on Google Play',
                               style: TextStyle(
                                 fontSize: 14,
                                 fontWeight: FontWeight.bold,
+                                color: Colors.white,
                               ),
                             ),
                           ],
@@ -357,11 +229,12 @@ class AppUpdateService {
                       ),
                     ),
 
+                    // Optional Later Button
                     if (!forceUpdate) ...[
-                      const SizedBox(height: 8),
+                      const SizedBox(height: 6),
                       SizedBox(
                         width: double.infinity,
-                        height: 38,
+                        height: 36,
                         child: TextButton(
                           onPressed: () {
                             prefs.setInt(
@@ -373,9 +246,9 @@ class AppUpdateService {
                           child: Text(
                             'Later',
                             style: TextStyle(
-                              fontSize: 12,
+                              fontSize: 12.5,
                               color: isDark ? Colors.white54 : Colors.black45,
-                              fontWeight: FontWeight.w600,
+                              fontWeight: FontWeight.w500,
                             ),
                           ),
                         ),
@@ -392,4 +265,106 @@ class AppUpdateService {
       // Silently catch errors if network is down
     }
   }
+}
+
+/// Authentic 4-color Google Play Store Vector Icon
+class GooglePlayLogo extends StatelessWidget {
+  final double size;
+  const GooglePlayLogo({super.key, this.size = 20});
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: size * 0.9,
+      height: size,
+      child: CustomPaint(
+        painter: _GooglePlayPainter(),
+      ),
+    );
+  }
+}
+
+class _GooglePlayPainter extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
+    final w = size.width;
+    final h = size.height;
+
+    // Smooth rounded triangle clip for the Google Play logo shape
+    final clipPath = Path()
+      ..moveTo(w * 0.08, h * 0.03)
+      ..quadraticBezierTo(0, 0, 0, h * 0.12)
+      ..lineTo(0, h * 0.88)
+      ..quadraticBezierTo(0, h, w * 0.08, h * 0.97)
+      ..quadraticBezierTo(w * 0.16, h, w * 0.22, h * 0.95)
+      ..lineTo(w * 0.94, h * 0.54)
+      ..quadraticBezierTo(w, h * 0.5, w * 0.94, h * 0.46)
+      ..lineTo(w * 0.22, h * 0.05)
+      ..quadraticBezierTo(w * 0.16, 0, w * 0.08, h * 0.03)
+      ..close();
+
+    canvas.clipPath(clipPath);
+
+    final centerPoint = Offset(w * 0.48, h * 0.5);
+
+    // 1. Blue (Left Triangle)
+    final bluePath = Path()
+      ..moveTo(0, 0)
+      ..lineTo(centerPoint.dx, centerPoint.dy)
+      ..lineTo(0, h)
+      ..close();
+    final bluePaint = Paint()
+      ..shader = const LinearGradient(
+        colors: [Color(0xFF00C3FF), Color(0xFF007AFE)],
+        begin: Alignment.topLeft,
+        end: Alignment.bottomRight,
+      ).createShader(Rect.fromLTWH(0, 0, w, h));
+    canvas.drawPath(bluePath, bluePaint);
+
+    // 2. Green (Top Segment)
+    final greenPath = Path()
+      ..moveTo(0, 0)
+      ..lineTo(w * 0.72, h * 0.36)
+      ..lineTo(centerPoint.dx, centerPoint.dy)
+      ..close();
+    final greenPaint = Paint()
+      ..shader = const LinearGradient(
+        colors: [Color(0xFF00E676), Color(0xFF00D563)],
+        begin: Alignment.topLeft,
+        end: Alignment.bottomRight,
+      ).createShader(Rect.fromLTWH(0, 0, w, h));
+    canvas.drawPath(greenPath, greenPaint);
+
+    // 3. Red (Bottom Segment)
+    final redPath = Path()
+      ..moveTo(0, h)
+      ..lineTo(centerPoint.dx, centerPoint.dy)
+      ..lineTo(w * 0.72, h * 0.64)
+      ..close();
+    final redPaint = Paint()
+      ..shader = const LinearGradient(
+        colors: [Color(0xFFFF334C), Color(0xFFFF1744)],
+        begin: Alignment.bottomLeft,
+        end: Alignment.topRight,
+      ).createShader(Rect.fromLTWH(0, 0, w, h));
+    canvas.drawPath(redPath, redPaint);
+
+    // 4. Yellow (Right Tip)
+    final yellowPath = Path()
+      ..moveTo(centerPoint.dx, centerPoint.dy)
+      ..lineTo(w * 0.72, h * 0.36)
+      ..lineTo(w, h * 0.5)
+      ..lineTo(w * 0.72, h * 0.64)
+      ..close();
+    final yellowPaint = Paint()
+      ..shader = const LinearGradient(
+        colors: [Color(0xFFFFD600), Color(0xFFFFB300)],
+        begin: Alignment.centerLeft,
+        end: Alignment.centerRight,
+      ).createShader(Rect.fromLTWH(0, 0, w, h));
+    canvas.drawPath(yellowPath, yellowPaint);
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }
