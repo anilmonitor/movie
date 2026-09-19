@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import '../models/movie.dart';
+import '../services/app_update_service.dart';
 import '../services/watchlist_service.dart';
 import '../theme/app_theme.dart';
 import '../widgets/telegram_button.dart';
 import 'disclaimer_screen.dart';
-import 'privacy_policy_screen.dart';
 import 'watchlist_screen.dart';
 
 class ProfileScreen extends StatefulWidget {
@@ -51,18 +50,33 @@ class _ProfileScreenState extends State<ProfileScreen> {
     }
   }
 
-  void _openPrivacyPolicy() {
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (_) => const PrivacyPolicyScreen()),
-    );
-  }
-
   void _openDisclaimer() {
     Navigator.push(
       context,
       MaterialPageRoute(builder: (_) => const DisclaimerScreen()),
     );
+  }
+
+  Future<void> _handleCheckUpdate() async {
+    final messenger = ScaffoldMessenger.of(context);
+    messenger.showSnackBar(
+      const SnackBar(
+        content: Row(
+          children: [
+            SizedBox(
+              width: 14,
+              height: 14,
+              child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+            ),
+            SizedBox(width: 12),
+            Text('Checking Google Play for updates...'),
+          ],
+        ),
+        duration: Duration(seconds: 2),
+      ),
+    );
+
+    await AppUpdateService.checkAndShowUpdateDialog(context);
   }
 
   void _showThemeSelectionDialog() {
@@ -159,80 +173,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
-  void _showContactDialog() {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-
-    showDialog(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        backgroundColor: isDark ? AppTheme.darkCard : AppTheme.lightCard,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
-          side: BorderSide(color: isDark ? AppTheme.darkBorder : AppTheme.lightBorder),
-        ),
-        titlePadding: const EdgeInsets.fromLTRB(20, 18, 20, 10),
-        title: Text(
-          'Contact Support',
-          style: TextStyle(
-            fontSize: 17,
-            fontWeight: FontWeight.w700,
-            color: isDark ? AppTheme.darkTextPrimary : AppTheme.lightTextPrimary,
-          ),
-        ),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Email us for support or copyright inquiries:',
-              style: TextStyle(
-                fontSize: 13,
-                color: isDark ? AppTheme.darkTextSecondary : AppTheme.lightTextSecondary,
-              ),
-            ),
-            const SizedBox(height: 12),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-              decoration: BoxDecoration(
-                color: isDark ? const Color(0xFF141A28) : const Color(0xFFF8FAFC),
-                borderRadius: BorderRadius.circular(8),
-                border: Border.all(
-                  color: isDark ? AppTheme.darkBorder : AppTheme.lightBorder,
-                ),
-              ),
-              child: const SelectableText(
-                'anilarangi6@gmail.com',
-                style: TextStyle(
-                  fontWeight: FontWeight.w600,
-                  fontSize: 13.5,
-                ),
-              ),
-            ),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () {
-              Clipboard.setData(const ClipboardData(text: 'anilarangi6@gmail.com'));
-              Navigator.pop(ctx);
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Email copied to clipboard!')),
-              );
-            },
-            child: const Text('Copy Email'),
-          ),
-          TextButton(
-            onPressed: () => Navigator.pop(ctx),
-            style: TextButton.styleFrom(
-              foregroundColor: isDark ? AppTheme.darkTextSecondary : AppTheme.lightTextSecondary,
-            ),
-            child: const Text('Close'),
-          ),
-        ],
-      ),
-    );
-  }
-
   void _confirmClearData() {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
@@ -291,7 +231,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       appBar: AppBar(
         title: const Text(
           'Profile',
-          style: TextStyle(fontWeight: FontWeight.w700, fontSize: 18),
+          style: TextStyle(fontWeight: FontWeight.w800, fontSize: 20),
         ),
         centerTitle: false,
         actions: const [
@@ -308,57 +248,68 @@ class _ProfileScreenState extends State<ProfileScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Profile Header (Guest Account with DP Avatar)
+              // Red Header Card (Styled like reference image)
               Container(
-                padding: const EdgeInsets.all(16),
+                width: double.infinity,
+                padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 20),
                 decoration: BoxDecoration(
-                  color: isDark ? AppTheme.darkCard : AppTheme.lightCard,
-                  borderRadius: BorderRadius.circular(16),
-                  border: Border.all(
-                    color: isDark ? AppTheme.darkBorder : AppTheme.lightBorder,
+                  gradient: const LinearGradient(
+                    colors: [Color(0xFFE50914), Color(0xFFB71C1C)],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
                   ),
+                  borderRadius: BorderRadius.circular(22),
+                  boxShadow: const [
+                    BoxShadow(
+                      color: Color(0x40E50914),
+                      blurRadius: 18,
+                      offset: Offset(0, 6),
+                    ),
+                  ],
                 ),
                 child: Row(
                   children: [
-                    // DP (Display Picture) Avatar
+                    // Circle Avatar with initial 'U'
                     Container(
-                      width: 52,
-                      height: 52,
-                      decoration: BoxDecoration(
+                      width: 56,
+                      height: 56,
+                      decoration: const BoxDecoration(
                         shape: BoxShape.circle,
-                        color: isDark ? const Color(0xFF1E2638) : const Color(0xFFE2E8F0),
-                        border: Border.all(
-                          color: isDark ? Colors.white.withOpacity(0.12) : Colors.black.withOpacity(0.08),
-                          width: 1.5,
+                        color: Color(0x33FFFFFF),
+                      ),
+                      child: const Center(
+                        child: Text(
+                          'U',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 24,
+                            fontWeight: FontWeight.w900,
+                          ),
                         ),
                       ),
-                      child: Icon(
-                        Icons.person_rounded,
-                        size: 30,
-                        color: isDark ? Colors.grey[300] : Colors.grey[700],
-                      ),
                     ),
-                    const SizedBox(width: 14),
+                    const SizedBox(width: 15),
 
                     // User Info
-                    Expanded(
+                    const Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            'Guest Account',
+                            'User',
                             style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w700,
-                              color: isDark ? AppTheme.darkTextPrimary : AppTheme.lightTextPrimary,
+                              color: Colors.white,
+                              fontSize: 18,
+                              fontWeight: FontWeight.w800,
+                              letterSpacing: -0.3,
                             ),
                           ),
-                          const SizedBox(height: 4),
+                          SizedBox(height: 4),
                           Text(
-                            'Signed in as Guest',
+                            'Free Guest Account • HD Streaming',
                             style: TextStyle(
+                              color: Color(0xD9FFFFFF),
                               fontSize: 12,
-                              color: isDark ? AppTheme.darkTextSecondary : AppTheme.lightTextSecondary,
                             ),
                           ),
                         ],
@@ -368,32 +319,77 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ),
               ),
 
+              const SizedBox(height: 18),
+
+              // TOP: APP UPDATE (Placed above Preferences as requested)
+              _buildCardGroup(
+                isDark: isDark,
+                children: [
+                  _buildSettingsTile(
+                    isDark: isDark,
+                    icon: Icons.system_update_rounded,
+                    title: 'App Update',
+                    subtitle: 'Check for latest version on Google Play',
+                    trailing: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                          decoration: BoxDecoration(
+                            color: const Color(0x1AE50914),
+                            borderRadius: BorderRadius.circular(10),
+                            border: Border.all(color: const Color(0x33E50914)),
+                          ),
+                          child: const Text(
+                            'UPDATE',
+                            style: TextStyle(
+                              fontSize: 10,
+                              fontWeight: FontWeight.w800,
+                              color: Color(0xFFE50914),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 4),
+                        Icon(
+                          Icons.chevron_right_rounded,
+                          size: 20,
+                          color: isDark ? Colors.grey[600] : Colors.grey[400],
+                        ),
+                      ],
+                    ),
+                    onTap: _handleCheckUpdate,
+                  ),
+                ],
+              ),
+
               const SizedBox(height: 20),
 
               // SECTION 1: PREFERENCES
               _buildSectionHeader('PREFERENCES', isDark),
-              const SizedBox(height: 6),
+              const SizedBox(height: 8),
               _buildCardGroup(
                 isDark: isDark,
                 children: [
                   if (widget.onThemeChanged != null)
                     _buildSettingsTile(
                       isDark: isDark,
+                      icon: Icons.palette_outlined,
                       title: 'Appearance',
+                      subtitle: 'Switch theme ($_themeModeLabel)',
                       trailing: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           Text(
                             _themeModeLabel,
                             style: TextStyle(
-                              fontSize: 13,
+                              fontSize: 12,
                               color: isDark ? AppTheme.darkTextSecondary : AppTheme.lightTextSecondary,
                             ),
                           ),
                           const SizedBox(width: 4),
                           Icon(
                             Icons.chevron_right_rounded,
-                            size: 18,
+                            size: 20,
                             color: isDark ? Colors.grey[600] : Colors.grey[400],
                           ),
                         ],
@@ -406,7 +402,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
                   _buildSettingsTile(
                     isDark: isDark,
+                    icon: Icons.bookmark_outline_rounded,
                     title: 'Saved Movies',
+                    subtitle: 'View your bookmarked watchlist',
                     trailing: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
@@ -429,7 +427,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           ),
                         Icon(
                           Icons.chevron_right_rounded,
-                          size: 18,
+                          size: 20,
                           color: isDark ? Colors.grey[600] : Colors.grey[400],
                         ),
                       ],
@@ -447,20 +445,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
               const SizedBox(height: 20),
 
-              // SECTION 2: ABOUT & LEGAL (No icons, no subtitles)
+              // SECTION 2: ABOUT & LEGAL (Privacy Policy merged into DMC)
               _buildSectionHeader('ABOUT & LEGAL', isDark),
-              const SizedBox(height: 6),
+              const SizedBox(height: 8),
               _buildCardGroup(
                 isDark: isDark,
                 children: [
                   _buildSettingsTile(
                     isDark: isDark,
-                    title: 'Disclaimer & DMCA',
-                    trailing: Icon(
-                      Icons.chevron_right_rounded,
-                      size: 18,
-                      color: isDark ? Colors.grey[600] : Colors.grey[400],
-                    ),
+                    icon: Icons.verified_user_outlined,
+                    title: 'DMC',
+                    subtitle: 'DMCA, Disclaimer & Privacy Guidelines',
                     onTap: _openDisclaimer,
                   ),
 
@@ -468,25 +463,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
                   _buildSettingsTile(
                     isDark: isDark,
-                    title: 'Privacy Policy',
-                    trailing: Icon(
-                      Icons.chevron_right_rounded,
-                      size: 18,
-                      color: isDark ? Colors.grey[600] : Colors.grey[400],
-                    ),
-                    onTap: _openPrivacyPolicy,
-                  ),
-
-                  _buildDivider(isDark),
-
-                  _buildSettingsTile(
-                    isDark: isDark,
+                    icon: Icons.info_outline_rounded,
                     title: 'App Version',
+                    subtitle: 'Current installed build',
                     trailing: Text(
-                      'v1.0.1 (2)',
+                      'v1.0.4 (5)',
                       style: TextStyle(
-                        fontSize: 13,
-                        fontWeight: FontWeight.w500,
+                        fontSize: 12.5,
+                        fontWeight: FontWeight.w600,
                         color: isDark ? AppTheme.darkTextSecondary : AppTheme.lightTextSecondary,
                       ),
                     ),
@@ -496,19 +480,21 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
               const SizedBox(height: 20),
 
-              // SECTION 3: SUPPORT & STORAGE (No icons, no subtitles)
+              // SECTION 3: SUPPORT & STORAGE (Developer Support removed)
               _buildSectionHeader('SUPPORT & STORAGE', isDark),
-              const SizedBox(height: 6),
+              const SizedBox(height: 8),
               _buildCardGroup(
                 isDark: isDark,
                 children: [
                   _buildSettingsTile(
                     isDark: isDark,
+                    icon: Icons.near_me_outlined,
                     title: 'Join Telegram Channel',
+                    subtitle: 'Get instant movie updates & request links',
                     titleColor: const Color(0xFF229ED9),
                     trailing: const Icon(
                       Icons.open_in_new_rounded,
-                      size: 16,
+                      size: 18,
                       color: Color(0xFF229ED9),
                     ),
                     onTap: openTelegram,
@@ -518,20 +504,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
                   _buildSettingsTile(
                     isDark: isDark,
-                    title: 'Developer Support',
-                    trailing: Icon(
-                      Icons.chevron_right_rounded,
-                      size: 18,
-                      color: isDark ? Colors.grey[600] : Colors.grey[400],
-                    ),
-                    onTap: _showContactDialog,
-                  ),
-
-                  _buildDivider(isDark),
-
-                  _buildSettingsTile(
-                    isDark: isDark,
+                    icon: Icons.delete_outline_rounded,
                     title: 'Clear Local Watchlist',
+                    subtitle: 'Remove all saved bookmarks from device',
                     titleColor: Colors.redAccent,
                     onTap: _confirmClearData,
                   ),
@@ -548,12 +523,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   Widget _buildSectionHeader(String title, bool isDark) {
     return Padding(
-      padding: const EdgeInsets.only(left: 4),
+      padding: const EdgeInsets.only(left: 6),
       child: Text(
         title,
         style: TextStyle(
           fontSize: 11,
-          fontWeight: FontWeight.w700,
+          fontWeight: FontWeight.w800,
           letterSpacing: 1.1,
           color: isDark ? Colors.grey[500] : Colors.grey[500],
         ),
@@ -565,10 +540,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
     return Container(
       decoration: BoxDecoration(
         color: isDark ? AppTheme.darkCard : AppTheme.lightCard,
-        borderRadius: BorderRadius.circular(14),
+        borderRadius: BorderRadius.circular(18),
         border: Border.all(
           color: isDark ? AppTheme.darkBorder : AppTheme.lightBorder,
         ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(isDark ? 0.2 : 0.03),
+            blurRadius: 10,
+            offset: const Offset(0, 3),
+          ),
+        ],
       ),
       clipBehavior: Clip.antiAlias,
       child: Column(
@@ -580,7 +562,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   Widget _buildSettingsTile({
     required bool isDark,
+    required IconData icon,
     required String title,
+    String? subtitle,
     Widget? trailing,
     VoidCallback? onTap,
     Color? titleColor,
@@ -588,20 +572,59 @@ class _ProfileScreenState extends State<ProfileScreen> {
     return InkWell(
       onTap: onTap,
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 13),
         child: Row(
           children: [
-            Expanded(
-              child: Text(
-                title,
-                style: TextStyle(
-                  fontSize: 14.5,
-                  fontWeight: FontWeight.w500,
-                  color: titleColor ?? (isDark ? AppTheme.darkTextPrimary : AppTheme.lightTextPrimary),
-                ),
+            // Soft Red Icon Container (matching reference image)
+            Container(
+              width: 44,
+              height: 44,
+              decoration: BoxDecoration(
+                color: isDark ? const Color(0x26E50914) : const Color(0xFFFFEBEE),
+                borderRadius: BorderRadius.circular(14),
+              ),
+              child: Icon(
+                icon,
+                color: const Color(0xFFE50914),
+                size: 22,
               ),
             ),
-            ?trailing,
+            const SizedBox(width: 14),
+
+            // Title & Subtitle
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: TextStyle(
+                      fontSize: 14.5,
+                      fontWeight: FontWeight.w700,
+                      color: titleColor ?? (isDark ? AppTheme.darkTextPrimary : AppTheme.lightTextPrimary),
+                      letterSpacing: -0.2,
+                    ),
+                  ),
+                  if (subtitle != null) ...[
+                    const SizedBox(height: 2),
+                    Text(
+                      subtitle,
+                      style: TextStyle(
+                        fontSize: 11.5,
+                        color: isDark ? Colors.white54 : Colors.black45,
+                      ),
+                    ),
+                  ],
+                ],
+              ),
+            ),
+
+            trailing ??
+                Icon(
+                  Icons.chevron_right_rounded,
+                  size: 20,
+                  color: isDark ? Colors.grey[600] : Colors.grey[400],
+                ),
           ],
         ),
       ),
@@ -612,7 +635,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     return Divider(
       height: 1,
       thickness: 1,
-      indent: 16,
+      indent: 74,
       color: isDark ? AppTheme.darkBorder : AppTheme.lightBorder,
     );
   }

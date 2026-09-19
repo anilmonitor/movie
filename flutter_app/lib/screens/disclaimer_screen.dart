@@ -78,7 +78,7 @@ class DisclaimerScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text(
-          'Disclaimer',
+          'DMC & Privacy Policy',
           style: TextStyle(fontWeight: FontWeight.w700, fontSize: 18),
         ),
       ),
@@ -210,6 +210,20 @@ class DisclaimerScreen extends StatelessWidget {
               title: '7. 24-Hour Preview Advisory',
               content:
                   'Users exploring any external reference or educational links are advised to delete any downloaded preview files within 24 hours and purchase the authorized original copies from licensed platforms.',
+            ),
+            const SizedBox(height: 8),
+
+            _buildSection(
+              context,
+              title: '8. Privacy & Data Protection',
+              content:
+                  'We deeply value user privacy and believe in complete transparency. We do not require registration, personal details, or sensitive financial data to browse:',
+              bulletPoints: const [
+                'No Personal Data Collected: You can browse the app as a guest without providing phone numbers, names, or passwords.',
+                'Local Storage Only: Bookmarks and watchlist movies are stored strictly locally on your own device.',
+                'No Tracking or Selling: We never sell or share user data with third-party advertisers.',
+                'Security: All API network calls are encrypted via modern HTTPS standards.',
+              ],
             ),
 
             const SizedBox(height: 30),
