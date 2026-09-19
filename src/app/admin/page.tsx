@@ -2003,7 +2003,7 @@ export default function AdminPage() {
                             : true
                         )
                         .map((cat, index) => (
-                          <tr key={cat.id || cat.slug} className="hover:bg-white/[0.03] transition">
+                          <tr key={`cat-${cat.slug || cat.id || index}`} className="hover:bg-white/[0.03] transition">
                             <td className="py-3 px-4 text-gray-500 font-mono">{index + 1}</td>
                             <td className="py-3 px-4">
                               <div className="flex items-center space-x-2">

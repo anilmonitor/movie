@@ -546,7 +546,7 @@ export async function getCategories(): Promise<MovieCategory[]> {
     });
     if (dbCats.length > 0) {
       return dbCats.map((c) => ({
-        id: c.wpId || c.id,
+        id: c.id,
         name: c.name,
         slug: c.slug,
         count: c._count?.movies ?? c.count,
