@@ -78,7 +78,7 @@ class DisclaimerScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text(
-          'DMC & Privacy Policy',
+          'Disclaimer',
           style: TextStyle(fontWeight: FontWeight.w700, fontSize: 18),
         ),
       ),

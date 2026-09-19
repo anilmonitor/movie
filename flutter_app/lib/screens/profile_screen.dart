@@ -321,7 +321,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
               const SizedBox(height: 18),
 
-              // TOP: APP UPDATE (Placed above Preferences as requested)
+              // TOP: APP UPDATE
               _buildCardGroup(
                 isDark: isDark,
                 children: [
@@ -329,7 +329,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     isDark: isDark,
                     icon: Icons.system_update_rounded,
                     title: 'App Update',
-                    subtitle: 'Check for latest version on Google Play',
                     trailing: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
@@ -362,11 +361,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ],
               ),
 
-              const SizedBox(height: 20),
+              const SizedBox(height: 16),
 
               // SECTION 1: PREFERENCES
               _buildSectionHeader('PREFERENCES', isDark),
-              const SizedBox(height: 8),
+              const SizedBox(height: 6),
               _buildCardGroup(
                 isDark: isDark,
                 children: [
@@ -375,7 +374,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       isDark: isDark,
                       icon: Icons.palette_outlined,
                       title: 'Appearance',
-                      subtitle: 'Switch theme ($_themeModeLabel)',
                       trailing: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
@@ -404,7 +402,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     isDark: isDark,
                     icon: Icons.bookmark_outline_rounded,
                     title: 'Saved Movies',
-                    subtitle: 'View your bookmarked watchlist',
                     trailing: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
@@ -443,19 +440,18 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ],
               ),
 
-              const SizedBox(height: 20),
+              const SizedBox(height: 12),
 
-              // SECTION 2: ABOUT & LEGAL (Privacy Policy merged into DMC)
+              // SECTION 2: ABOUT & LEGAL (Tightly positioned below Preferences)
               _buildSectionHeader('ABOUT & LEGAL', isDark),
-              const SizedBox(height: 8),
+              const SizedBox(height: 6),
               _buildCardGroup(
                 isDark: isDark,
                 children: [
                   _buildSettingsTile(
                     isDark: isDark,
-                    icon: Icons.verified_user_outlined,
-                    title: 'DMC',
-                    subtitle: 'DMCA, Disclaimer & Privacy Guidelines',
+                    icon: Icons.description_outlined,
+                    title: 'Disclaimer',
                     onTap: _openDisclaimer,
                   ),
 
@@ -465,7 +461,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     isDark: isDark,
                     icon: Icons.info_outline_rounded,
                     title: 'App Version',
-                    subtitle: 'Current installed build',
                     trailing: Text(
                       'v1.0.4 (5)',
                       style: TextStyle(
@@ -478,19 +473,21 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ],
               ),
 
-              const SizedBox(height: 20),
+              const SizedBox(height: 16),
 
               // SECTION 3: SUPPORT & STORAGE (Developer Support removed)
               _buildSectionHeader('SUPPORT & STORAGE', isDark),
-              const SizedBox(height: 8),
+              const SizedBox(height: 6),
               _buildCardGroup(
                 isDark: isDark,
                 children: [
                   _buildSettingsTile(
                     isDark: isDark,
-                    icon: Icons.near_me_outlined,
+                    icon: Icons.near_me_rounded,
+                    iconColor: const Color(0xFF229ED9),
+                    iconBgColor: isDark ? const Color(0x2B229ED9) : const Color(0xFFE1F5FE),
                     title: 'Join Telegram Channel',
-                    subtitle: 'Get instant movie updates & request links',
+                    subtitle: 'Get instant movie updates',
                     titleColor: const Color(0xFF229ED9),
                     trailing: const Icon(
                       Icons.open_in_new_rounded,
@@ -506,7 +503,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     isDark: isDark,
                     icon: Icons.delete_outline_rounded,
                     title: 'Clear Local Watchlist',
-                    subtitle: 'Remove all saved bookmarks from device',
                     titleColor: Colors.redAccent,
                     onTap: _confirmClearData,
                   ),
@@ -568,6 +564,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
     Widget? trailing,
     VoidCallback? onTap,
     Color? titleColor,
+    Color? iconColor,
+    Color? iconBgColor,
   }) {
     return InkWell(
       onTap: onTap,
@@ -575,17 +573,18 @@ class _ProfileScreenState extends State<ProfileScreen> {
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 13),
         child: Row(
           children: [
-            // Soft Red Icon Container (matching reference image)
+            // Icon Container (Customizable colors, default soft red)
             Container(
               width: 44,
               height: 44,
               decoration: BoxDecoration(
-                color: isDark ? const Color(0x26E50914) : const Color(0xFFFFEBEE),
+                color: iconBgColor ??
+                    (isDark ? const Color(0x26E50914) : const Color(0xFFFFEBEE)),
                 borderRadius: BorderRadius.circular(14),
               ),
               child: Icon(
                 icon,
-                color: const Color(0xFFE50914),
+                color: iconColor ?? const Color(0xFFE50914),
                 size: 22,
               ),
             ),
@@ -601,7 +600,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     style: TextStyle(
                       fontSize: 14.5,
                       fontWeight: FontWeight.w700,
-                      color: titleColor ?? (isDark ? AppTheme.darkTextPrimary : AppTheme.lightTextPrimary),
+                      color: titleColor ??
+                          (isDark ? AppTheme.darkTextPrimary : AppTheme.lightTextPrimary),
                       letterSpacing: -0.2,
                     ),
                   ),
@@ -609,8 +609,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     const SizedBox(height: 2),
                     Text(
                       subtitle,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                       style: TextStyle(
-                        fontSize: 11.5,
+                        fontSize: 11,
                         color: isDark ? Colors.white54 : Colors.black45,
                       ),
                     ),
