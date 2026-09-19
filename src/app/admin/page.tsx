@@ -86,9 +86,90 @@ export default function AdminPage() {
   const [showManualInput, setShowManualInput] = useState<boolean>(false);
   const [isFilteringManual, setIsFilteringManual] = useState<boolean>(false);
 
+  type AdminTab = 'overview' | 'movies' | 'categories' | 'sync' | 'new_movies';
+  const VALID_TABS: AdminTab[] = ['overview', 'movies', 'categories', 'sync', 'new_movies'];
+
   const [sidebarOpen, setSidebarOpen] = useState<boolean>(false);
-  const [activeTab, setActiveTab] = useState<'overview' | 'movies' | 'categories' | 'sync' | 'new_movies'>('overview');
+  const [activeTab, setActiveTab] = useState<AdminTab>('overview');
   const [darkMode, setDarkMode] = useState<boolean>(true);
+
+  // Tab switching helper that updates state, localStorage, and URL search params
+  const switchTab = (
+    newTab: AdminTab,
+    options?: { page?: number; q?: string }
+  ) => {
+    setActiveTab(newTab);
+    setSidebarOpen(false);
+
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      params.set('tab', newTab);
+
+      if (newTab === 'movies') {
+        const p = options?.page !== undefined ? options.page : moviePage;
+        const q = options?.q !== undefined ? options.q : searchQuery;
+        if (p && p > 1) params.set('page', String(p));
+        else params.delete('page');
+        if (q && q.trim()) params.set('q', q.trim());
+        else params.delete('q');
+      } else {
+        params.delete('page');
+        params.delete('q');
+      }
+
+      const newUrl = `${window.location.pathname}?${params.toString()}`;
+      window.history.pushState({ tab: newTab }, '', newUrl);
+      localStorage.setItem('mm_admin_tab', newTab);
+    }
+  };
+
+  // Synchronize activeTab, page, and search query from URL or localStorage on mount & popstate
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+
+    const syncStateFromUrl = () => {
+      const params = new URLSearchParams(window.location.search);
+      const urlTab = params.get('tab') as AdminTab;
+      const savedTab = localStorage.getItem('mm_admin_tab') as AdminTab;
+
+      const resolvedTab: AdminTab = VALID_TABS.includes(urlTab)
+        ? urlTab
+        : VALID_TABS.includes(savedTab)
+        ? savedTab
+        : 'overview';
+
+      setActiveTab(resolvedTab);
+
+      // Restore movie page and search query if tab is movies
+      const pageFromUrl = parseInt(params.get('page') || '1', 10);
+      const qFromUrl = params.get('q') || '';
+      if (!isNaN(pageFromUrl) && pageFromUrl >= 1) {
+        setMoviePage(pageFromUrl);
+      }
+      if (qFromUrl) {
+        setSearchQuery(qFromUrl);
+      }
+
+      // Ensure URL search param is present
+      if (urlTab !== resolvedTab) {
+        params.set('tab', resolvedTab);
+        window.history.replaceState(
+          { tab: resolvedTab },
+          '',
+          `${window.location.pathname}?${params.toString()}`
+        );
+      }
+    };
+
+    syncStateFromUrl();
+
+    const handlePopState = () => {
+      syncStateFromUrl();
+    };
+
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, []);
 
   // Load saved theme preference
   useEffect(() => {
@@ -111,7 +192,6 @@ export default function AdminPage() {
     return `/api/image-proxy?url=${encodeURIComponent(url)}`;
   };
 
-  // Check persisted auth or NextAuth Google session
   // Check persisted auth, 7-day automatic expiry, and password change invalidation
   useEffect(() => {
     getSession().then(async (session) => {
@@ -160,7 +240,15 @@ export default function AdminPage() {
 
   const loadAllAdminData = () => {
     fetchStats();
-    fetchMovies(1, '');
+    let initialPage = 1;
+    let initialQuery = '';
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      const parsedPage = parseInt(params.get('page') || '1', 10);
+      if (!isNaN(parsedPage) && parsedPage >= 1) initialPage = parsedPage;
+      initialQuery = params.get('q') || '';
+    }
+    fetchMovies(initialPage, initialQuery);
     fetchCategories();
     fetchNewMovies();
   };
@@ -424,6 +512,30 @@ export default function AdminPage() {
     } catch (_) {
     } finally {
       setIsLoadingMovies(false);
+    }
+  };
+
+  const handleMovieSearch = (query: string) => {
+    setSearchQuery(query);
+    fetchMovies(1, query);
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      params.set('tab', 'movies');
+      params.delete('page');
+      if (query.trim()) params.set('q', query.trim());
+      else params.delete('q');
+      window.history.replaceState(null, '', `${window.location.pathname}?${params.toString()}`);
+    }
+  };
+
+  const handleMoviePageChange = (newPage: number) => {
+    fetchMovies(newPage, searchQuery);
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      params.set('tab', 'movies');
+      params.set('page', String(newPage));
+      if (searchQuery.trim()) params.set('q', searchQuery.trim());
+      window.history.pushState(null, '', `${window.location.pathname}?${params.toString()}`);
     }
   };
 
@@ -932,11 +1044,8 @@ export default function AdminPage() {
           {/* Navigation Links */}
           <nav className="p-3 space-y-1">
             <button
-              onClick={() => {
-                setActiveTab('overview');
-                setSidebarOpen(false);
-              }}
-              className={`w-full flex items-center space-x-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold transition ${
+              onClick={() => switchTab('overview')}
+              className={`w-full flex items-center space-x-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold transition cursor-pointer ${
                 activeTab === 'overview'
                   ? 'bg-red-600 text-white shadow-lg shadow-red-600/20'
                   : darkMode ? 'text-gray-300 hover:text-white hover:bg-white/5' : 'text-gray-600 hover:text-gray-900 hover:bg-black/5'
@@ -947,11 +1056,8 @@ export default function AdminPage() {
             </button>
 
             <button
-              onClick={() => {
-                setActiveTab('sync');
-                setSidebarOpen(false);
-              }}
-              className={`w-full flex items-center space-x-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold transition ${
+              onClick={() => switchTab('sync')}
+              className={`w-full flex items-center space-x-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold transition cursor-pointer ${
                 activeTab === 'sync'
                   ? 'bg-red-600 text-white shadow-lg shadow-red-600/20'
                   : darkMode ? 'text-gray-300 hover:text-white hover:bg-white/5' : 'text-gray-600 hover:text-gray-900 hover:bg-black/5'
@@ -962,11 +1068,8 @@ export default function AdminPage() {
             </button>
 
             <button
-              onClick={() => {
-                setActiveTab('new_movies');
-                setSidebarOpen(false);
-              }}
-              className={`w-full flex items-center space-x-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold transition ${
+              onClick={() => switchTab('new_movies')}
+              className={`w-full flex items-center space-x-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold transition cursor-pointer ${
                 activeTab === 'new_movies'
                   ? 'bg-red-600 text-white shadow-lg shadow-red-600/20'
                   : darkMode ? 'text-gray-300 hover:text-white hover:bg-white/5' : 'text-gray-600 hover:text-gray-900 hover:bg-black/5'
@@ -988,11 +1091,8 @@ export default function AdminPage() {
             </button>
 
             <button
-              onClick={() => {
-                setActiveTab('movies');
-                setSidebarOpen(false);
-              }}
-              className={`w-full flex items-center space-x-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold transition ${
+              onClick={() => switchTab('movies')}
+              className={`w-full flex items-center space-x-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold transition cursor-pointer ${
                 activeTab === 'movies'
                   ? 'bg-red-600 text-white shadow-lg shadow-red-600/20'
                   : darkMode ? 'text-gray-300 hover:text-white hover:bg-white/5' : 'text-gray-600 hover:text-gray-900 hover:bg-black/5'
@@ -1008,11 +1108,8 @@ export default function AdminPage() {
             </button>
 
             <button
-              onClick={() => {
-                setActiveTab('categories');
-                setSidebarOpen(false);
-              }}
-              className={`w-full flex items-center space-x-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold transition ${
+              onClick={() => switchTab('categories')}
+              className={`w-full flex items-center space-x-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold transition cursor-pointer ${
                 activeTab === 'categories'
                   ? 'bg-red-600 text-white shadow-lg shadow-red-600/20'
                   : darkMode ? 'text-gray-300 hover:text-white hover:bg-white/5' : 'text-gray-600 hover:text-gray-900 hover:bg-black/5'
@@ -1131,12 +1228,15 @@ export default function AdminPage() {
 
         {/* Dashboard Body */}
         <main className="flex-1 p-4 sm:p-6 lg:p-8 space-y-6 max-w-7xl w-full mx-auto">
-          {/* Stat Cards (Always visible on Overview, or top banner) */}
+          {/* Stat Cards (Visible on Overview and Sync pages) */}
           {(activeTab === 'overview' || activeTab === 'sync') && (
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               {/* Total Movies */}
-              <div className="bg-[#0F1524] border border-white/10 rounded-2xl p-5 flex items-center space-x-4 shadow-lg">
-                <div className="w-12 h-12 rounded-xl bg-red-500/10 border border-red-500/20 flex items-center justify-center text-red-500 flex-shrink-0">
+              <div
+                onClick={() => switchTab('movies')}
+                className="bg-[#0F1524] border border-white/10 hover:border-red-500/40 rounded-2xl p-5 flex items-center space-x-4 shadow-lg cursor-pointer transition group"
+              >
+                <div className="w-12 h-12 rounded-xl bg-red-500/10 border border-red-500/20 flex items-center justify-center text-red-500 flex-shrink-0 group-hover:scale-105 transition">
                   <Database className="w-6 h-6" />
                 </div>
                 <div className="min-w-0">
@@ -1146,8 +1246,11 @@ export default function AdminPage() {
               </div>
 
               {/* Categories */}
-              <div className="bg-[#0F1524] border border-white/10 rounded-2xl p-5 flex items-center space-x-4 shadow-lg">
-                <div className="w-12 h-12 rounded-xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-500 flex-shrink-0">
+              <div
+                onClick={() => switchTab('categories')}
+                className="bg-[#0F1524] border border-white/10 hover:border-blue-500/40 rounded-2xl p-5 flex items-center space-x-4 shadow-lg cursor-pointer transition group"
+              >
+                <div className="w-12 h-12 rounded-xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-500 flex-shrink-0 group-hover:scale-105 transition">
                   <Layers className="w-6 h-6" />
                 </div>
                 <div className="min-w-0">
@@ -1157,8 +1260,11 @@ export default function AdminPage() {
               </div>
 
               {/* Last Synced */}
-              <div className="bg-[#0F1524] border border-white/10 rounded-2xl p-5 flex items-center space-x-4 shadow-lg">
-                <div className="w-12 h-12 rounded-xl bg-green-500/10 border border-green-500/20 flex items-center justify-center text-green-500 flex-shrink-0">
+              <div
+                onClick={() => switchTab('sync')}
+                className="bg-[#0F1524] border border-white/10 hover:border-green-500/40 rounded-2xl p-5 flex items-center space-x-4 shadow-lg cursor-pointer transition group"
+              >
+                <div className="w-12 h-12 rounded-xl bg-green-500/10 border border-green-500/20 flex items-center justify-center text-green-500 flex-shrink-0 group-hover:scale-105 transition">
                   <Clock className="w-6 h-6" />
                 </div>
                 <div className="min-w-0">
@@ -1174,8 +1280,143 @@ export default function AdminPage() {
             </div>
           )}
 
-          {/* Sync Controls Section */}
-          {(activeTab === 'overview' || activeTab === 'sync') && (
+          {/* Overview Dashboard Hub: Quick Navigation Cards & Catalog Preview */}
+          {activeTab === 'overview' && (
+            <div className="space-y-6">
+              {/* Quick Navigation Cards */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                {/* Movies Card */}
+                <div
+                  onClick={() => switchTab('movies')}
+                  className="bg-[#0F1524] hover:bg-[#141B2D] border border-white/10 hover:border-red-500/40 rounded-2xl p-5 cursor-pointer transition shadow-lg group"
+                >
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="w-10 h-10 rounded-xl bg-red-500/15 border border-red-500/30 flex items-center justify-center text-red-500 group-hover:scale-105 transition">
+                      <Film className="w-5 h-5" />
+                    </div>
+                    <ChevronRight className="w-4 h-4 text-gray-500 group-hover:text-red-400 group-hover:translate-x-0.5 transition" />
+                  </div>
+                  <h4 className="text-sm font-bold text-white group-hover:text-red-400 transition">Movie Catalog</h4>
+                  <p className="text-xs text-gray-400 mt-1">Browse, search & manage database movies.</p>
+                  <div className="mt-4 pt-3 border-t border-white/5 flex items-center justify-between text-[11px]">
+                    <span className="text-gray-400">Total in DB</span>
+                    <span className="font-bold text-white">{totalMoviesCount || stats?.totalMovies || '8,000'}</span>
+                  </div>
+                </div>
+
+                {/* New Movies Card */}
+                <div
+                  onClick={() => switchTab('new_movies')}
+                  className="bg-[#0F1524] hover:bg-[#141B2D] border border-white/10 hover:border-amber-500/40 rounded-2xl p-5 cursor-pointer transition shadow-lg group"
+                >
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="w-10 h-10 rounded-xl bg-amber-500/15 border border-amber-500/30 flex items-center justify-center text-amber-400 group-hover:scale-105 transition">
+                      <Sparkles className="w-5 h-5" />
+                    </div>
+                    <ChevronRight className="w-4 h-4 text-gray-500 group-hover:text-amber-400 group-hover:translate-x-0.5 transition" />
+                  </div>
+                  <h4 className="text-sm font-bold text-white group-hover:text-amber-400 transition">New Movies Live</h4>
+                  <p className="text-xs text-gray-400 mt-1">Scan source for newly added releases.</p>
+                  <div className="mt-4 pt-3 border-t border-white/5 flex items-center justify-between text-[11px]">
+                    <span className="text-gray-400">Pending Import</span>
+                    <span className="font-bold text-amber-400">{newMoviesList.length} Pending</span>
+                  </div>
+                </div>
+
+                {/* Sync Card */}
+                <div
+                  onClick={() => switchTab('sync')}
+                  className="bg-[#0F1524] hover:bg-[#141B2D] border border-white/10 hover:border-blue-500/40 rounded-2xl p-5 cursor-pointer transition shadow-lg group"
+                >
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="w-10 h-10 rounded-xl bg-blue-500/15 border border-blue-500/30 flex items-center justify-center text-blue-400 group-hover:scale-105 transition">
+                      <RefreshCw className="w-5 h-5" />
+                    </div>
+                    <ChevronRight className="w-4 h-4 text-gray-500 group-hover:text-blue-400 group-hover:translate-x-0.5 transition" />
+                  </div>
+                  <h4 className="text-sm font-bold text-white group-hover:text-blue-400 transition">Database Sync</h4>
+                  <p className="text-xs text-gray-400 mt-1">Automated seeder with posters & mirrors.</p>
+                  <div className="mt-4 pt-3 border-t border-white/5 flex items-center justify-between text-[11px]">
+                    <span className="text-gray-400">Pages Available</span>
+                    <span className="font-bold text-white">160+ Pages</span>
+                  </div>
+                </div>
+
+                {/* Categories Card */}
+                <div
+                  onClick={() => switchTab('categories')}
+                  className="bg-[#0F1524] hover:bg-[#141B2D] border border-white/10 hover:border-purple-500/40 rounded-2xl p-5 cursor-pointer transition shadow-lg group"
+                >
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="w-10 h-10 rounded-xl bg-purple-500/15 border border-purple-500/30 flex items-center justify-center text-purple-400 group-hover:scale-105 transition">
+                      <Layers className="w-5 h-5" />
+                    </div>
+                    <ChevronRight className="w-4 h-4 text-gray-500 group-hover:text-purple-400 group-hover:translate-x-0.5 transition" />
+                  </div>
+                  <h4 className="text-sm font-bold text-white group-hover:text-purple-400 transition">All Categories</h4>
+                  <p className="text-xs text-gray-400 mt-1">Explore all categories & movie counts.</p>
+                  <div className="mt-4 pt-3 border-t border-white/5 flex items-center justify-between text-[11px]">
+                    <span className="text-gray-400">Total Genres</span>
+                    <span className="font-bold text-white">{categoriesList.length || '28'}</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Recent Catalog Preview */}
+              <div className="bg-[#0F1524] border border-white/10 rounded-2xl p-5 sm:p-6 shadow-xl space-y-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h3 className="text-base font-bold text-white flex items-center space-x-2">
+                      <Film className="w-4 h-4 text-red-500" />
+                      <span>Recent Catalog Movies</span>
+                    </h3>
+                    <p className="text-xs text-gray-400 mt-0.5">Quick preview of synced database movies</p>
+                  </div>
+                  <button
+                    onClick={() => switchTab('movies')}
+                    className="text-xs text-red-400 hover:text-red-300 font-semibold flex items-center space-x-1 cursor-pointer"
+                  >
+                    <span>View All ({totalMoviesCount || stats?.totalMovies || '8,000'})</span>
+                    <ChevronRight className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3">
+                  {moviesList.slice(0, 6).map((movie) => (
+                    <div
+                      key={movie.id || movie.slug}
+                      onClick={() => switchTab('movies')}
+                      className="group cursor-pointer space-y-1.5"
+                    >
+                      <div className="aspect-[2/3] rounded-xl overflow-hidden bg-slate-800 border border-white/10 relative">
+                        {movie.poster && movie.poster !== '/poster-placeholder.svg' ? (
+                          <img
+                            src={getProxiedPoster(movie.poster)}
+                            alt={movie.title}
+                            className="w-full h-full object-cover group-hover:scale-105 transition duration-300"
+                            onError={(e: any) => { e.target.style.display = 'none'; }}
+                          />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center text-gray-600">
+                            <Film className="w-6 h-6" />
+                          </div>
+                        )}
+                      </div>
+                      <p className="text-xs font-semibold text-white truncate group-hover:text-red-400 transition">
+                        {movie.title}
+                      </p>
+                      <p className="text-[10px] text-gray-400">
+                        {movie.year ? `${movie.year} • ` : ''}★ {movie.rating || 'N/A'}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Sync Engine Page */}
+          {activeTab === 'sync' && (
             <div className="bg-[#0F1524] border border-white/10 rounded-2xl p-5 sm:p-6 shadow-xl space-y-4">
               <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
                 <div>
@@ -1222,7 +1463,7 @@ export default function AdminPage() {
                   <button
                     onClick={handleSync}
                     disabled={isSyncing}
-                    className="w-full sm:w-auto bg-red-600 hover:bg-red-500 disabled:opacity-50 active:scale-[0.98] text-white font-bold px-5 py-2 rounded-xl transition text-xs flex items-center justify-center space-x-2 shadow-lg shadow-red-600/20"
+                    className="w-full sm:w-auto bg-red-600 hover:bg-red-500 disabled:opacity-50 active:scale-[0.98] text-white font-bold px-5 py-2 rounded-xl transition text-xs flex items-center justify-center space-x-2 shadow-lg shadow-red-600/20 cursor-pointer"
                   >
                     <RefreshCw className={`w-4 h-4 ${isSyncing ? 'animate-spin' : ''}`} />
                     <span>{isSyncing ? 'Syncing...' : pagesToSync >= 160 ? '⚡ Sync All 7,900+' : `Sync (${syncCount * pagesToSync} max)`}</span>
@@ -1540,15 +1781,15 @@ export default function AdminPage() {
             </div>
           )}
 
-          {/* Synced Movies Table */}
-          {(activeTab === 'overview' || activeTab === 'movies') && (
+          {/* Synced Movies Table (Movies Page) */}
+          {activeTab === 'movies' && (
             <div className="bg-[#0F1524] border border-white/10 rounded-2xl p-5 sm:p-6 shadow-xl space-y-4">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                 <div className="flex items-center space-x-2">
                   <Film className="w-4 h-4 text-red-500" />
                   <h3 className="text-base font-bold text-white">Movies in Database</h3>
                   <span className="bg-red-500/20 text-red-300 border border-red-500/30 text-[10px] px-2 py-0.5 rounded-full font-bold">
-                    8,000 Live
+                    {totalMoviesCount ? `${totalMoviesCount.toLocaleString()} Live` : '8,000 Live'}
                   </span>
                 </div>
 
@@ -1556,7 +1797,7 @@ export default function AdminPage() {
                   <input
                     type="text"
                     value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
+                    onChange={(e) => handleMovieSearch(e.target.value)}
                     placeholder="Search synced movies..."
                     className="w-full bg-[#172034] border border-white/10 rounded-xl px-3.5 py-2 text-xs text-white placeholder-gray-500 focus:outline-none focus:border-red-500 pl-8 transition"
                   />
@@ -1671,17 +1912,17 @@ export default function AdminPage() {
                   </p>
                   <div className="flex items-center space-x-2">
                     <button
-                      onClick={() => fetchMovies(moviePage - 1)}
+                      onClick={() => handleMoviePageChange(moviePage - 1)}
                       disabled={moviePage <= 1 || isLoadingMovies}
-                      className="flex items-center space-x-1 px-3 py-1.5 bg-[#172034] border border-white/10 rounded-lg text-xs text-gray-300 hover:text-white disabled:opacity-30 disabled:cursor-not-allowed transition"
+                      className="flex items-center space-x-1 px-3 py-1.5 bg-[#172034] border border-white/10 rounded-lg text-xs text-gray-300 hover:text-white disabled:opacity-30 disabled:cursor-not-allowed transition cursor-pointer"
                     >
                       <ChevronLeft className="w-3.5 h-3.5" />
                       <span>Previous</span>
                     </button>
                     <button
-                      onClick={() => fetchMovies(moviePage + 1)}
+                      onClick={() => handleMoviePageChange(moviePage + 1)}
                       disabled={moviePage >= movieTotalPages || isLoadingMovies}
-                      className="flex items-center space-x-1 px-3 py-1.5 bg-[#172034] border border-white/10 rounded-lg text-xs text-gray-300 hover:text-white disabled:opacity-30 disabled:cursor-not-allowed transition"
+                      className="flex items-center space-x-1 px-3 py-1.5 bg-[#172034] border border-white/10 rounded-lg text-xs text-gray-300 hover:text-white disabled:opacity-30 disabled:cursor-not-allowed transition cursor-pointer"
                     >
                       <span>Next</span>
                       <ChevronRight className="w-3.5 h-3.5" />
