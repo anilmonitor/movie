@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../models/movie.dart';
 import '../services/api_service.dart';
+import '../services/app_update_service.dart';
 import '../theme/app_theme.dart';
 import '../widgets/hero_carousel.dart';
 import '../widgets/horizontal_movie_list.dart';
@@ -40,6 +41,9 @@ class _HomeScreenState extends State<HomeScreen> {
   void initState() {
     super.initState();
     _loadInitialData();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      AppUpdateService.checkAndShowUpdateDialog(context);
+    });
   }
 
   @override

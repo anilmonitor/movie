@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import './globals.css';
 import AppLayout from '@/components/AppLayout';
 import { ThemeProvider } from '@/components/ThemeProvider';
+import AppUpdateModal from '@/components/AppUpdateModal';
 
 export const metadata: Metadata = {
   referrer: 'no-referrer',
@@ -90,6 +91,7 @@ export default function RootLayout({
       <body className="min-h-screen flex flex-col antialiased selection:bg-red-600 selection:text-white">
         <ThemeProvider>
           <AppLayout>{children}</AppLayout>
+          <AppUpdateModal />
         </ThemeProvider>
       </body>
     </html>
