@@ -6,9 +6,9 @@ import 'package:url_launcher/url_launcher.dart';
 import 'api_service.dart';
 
 class AppUpdateService {
-  // Current App Version (matches pubspec.yaml 1.0.4+5)
-  static const String currentVersion = '1.0.4';
-  static const int currentVersionCode = 5;
+  // Current App Version (matches pubspec.yaml 1.0.5+6)
+  static const String currentVersion = '1.0.5';
+  static const int currentVersionCode = 6;
 
   static const String defaultPlayStoreUrl =
       'https://play.google.com/store/apps/details?id=com.movie.man&pcampaignid=web_share';

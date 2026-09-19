@@ -484,7 +484,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               // Simple, minimal App Version footer right below Clear Local Watchlist
               Center(
                 child: Text(
-                  'App Version 1.0.4 (5)',
+                  'App Version 1.0.5 (6)',
                   style: TextStyle(
                     fontSize: 12,
                     color: isDark ? Colors.white38 : Colors.black38,
