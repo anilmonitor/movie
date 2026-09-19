@@ -289,7 +289,7 @@ export default function AdminPage() {
 
   const fetchNewMovies = async () => {
     setIsLoadingNewMovies(true);
-    setNewMoviesStatus('Scanning movies4u.kg for newly added movies...');
+    setNewMoviesStatus('');
     try {
       const res = await fetch('/api/admin/new-movies');
       if (res.ok) {
@@ -297,9 +297,9 @@ export default function AdminPage() {
         const incoming = data.newMovies || [];
         setNewMoviesList(incoming);
         if (incoming.length > 0) {
-          setNewMoviesStatus(`✨ Found ${incoming.length} new unique movie(s) ready to insert!`);
+          setNewMoviesStatus(`✨ Found ${incoming.length} new movie(s) ready to import.`);
         } else {
-          setNewMoviesStatus('✨ All caught up! Every movie from movies4u.kg is already in your database.');
+          setNewMoviesStatus('');
         }
       } else {
         setNewMoviesStatus('Failed to scan for new movies.');
@@ -367,13 +367,9 @@ export default function AdminPage() {
       if (res.ok && data.success) {
         setNewMoviesList(data.newMovies || []);
         if (data.newMovies?.length > 0) {
-          setNewMoviesStatus(
-            `✨ Checked ${data.totalChecked} posts: Found ${data.newCount} new unique movie(s) ready to insert! (${data.existingCount} already in DB)`
-          );
+          setNewMoviesStatus(`✨ Found ${data.newCount} new movie(s) ready to import.`);
         } else {
-          setNewMoviesStatus(
-            `✨ All ${data.totalChecked} posts are already in your database! Section is clean.`
-          );
+          setNewMoviesStatus('');
         }
         setShowManualInput(false);
       } else {
@@ -840,13 +836,20 @@ export default function AdminPage() {
         [data-theme="light"] header p { color: #64748B !important; }
         /* Cards & panels - target by dark bg classes */
         [data-theme="light"] .bg-\\[\\#0F1524\\] { background-color: #FFFFFF !important; border-color: #E2E8F0 !important; box-shadow: 0 1px 4px rgba(0,0,0,0.06) !important; }
+        [data-theme="light"] .bg-\\[\\#111726\\] { background-color: #FFFFFF !important; border-color: #E2E8F0 !important; box-shadow: 0 1px 3px rgba(0,0,0,0.05) !important; }
+        [data-theme="light"] .bg-\\[\\#141C30\\] { background-color: #F8FAFC !important; border-color: #E2E8F0 !important; }
+        [data-theme="light"] .bg-\\[\\#0B0F19\\] { background-color: #F1F5F9 !important; border-color: #CBD5E1 !important; color: #0F172A !important; }
         [data-theme="light"] .bg-\\[\\#0F1524\\] h2 { color: #0F172A !important; }
         [data-theme="light"] .bg-\\[\\#0F1524\\] h3 { color: #0F172A !important; }
         [data-theme="light"] .bg-\\[\\#0F1524\\] p { color: #64748B !important; }
         [data-theme="light"] .bg-\\[\\#0F1524\\] > .flex span { color: #475569; }
-        /* Sync panel internals */
-        [data-theme="light"] .bg-\\[\\#172034\\] { background-color: #F1F5F9 !important; border-color: #CBD5E1 !important; }
+        /* Sync panel & button internals */
+        [data-theme="light"] .bg-\\[\\#172034\\] { background-color: #F1F5F9 !important; border-color: #CBD5E1 !important; color: #1E293B !important; }
         [data-theme="light"] .bg-\\[\\#172034\\/60\\] { background-color: #F1F5F9 !important; }
+        [data-theme="light"] .hover\\:bg-\\[\\#1E2B47\\]:hover { background-color: #E2E8F0 !important; color: #0F172A !important; }
+        [data-theme="light"] .bg-\\[\\#141B2D\\] { background-color: #F8FAFC !important; border-color: #E2E8F0 !important; }
+        [data-theme="light"] .hover\\:bg-\\[\\#141B2D\\]:hover { background-color: #F1F5F9 !important; }
+        [data-theme="light"] .bg-black\\/40 { background-color: #E2E8F0 !important; }
         /* Table areas */
         [data-theme="light"] thead { background-color: #F1F5F9 !important; }
         [data-theme="light"] thead th { color: #64748B !important; }
@@ -856,9 +859,9 @@ export default function AdminPage() {
         [data-theme="light"] tbody tr:hover { background-color: rgba(0,0,0,0.02) !important; }
         [data-theme="light"] tbody td { color: #334155 !important; }
         [data-theme="light"] tbody td .font-semibold { color: #0F172A !important; }
-        /* Inputs & selects */
-        [data-theme="light"] input, [data-theme="light"] select { background-color: #F1F5F9 !important; border-color: #CBD5E1 !important; color: #0F172A !important; }
-        [data-theme="light"] input::placeholder { color: #94A3B8 !important; }
+        /* Inputs, textareas & selects */
+        [data-theme="light"] input, [data-theme="light"] textarea, [data-theme="light"] select { background-color: #F1F5F9 !important; border-color: #CBD5E1 !important; color: #0F172A !important; }
+        [data-theme="light"] input::placeholder, [data-theme="light"] textarea::placeholder { color: #94A3B8 !important; }
         [data-theme="light"] option { background-color: #FFFFFF !important; color: #0F172A !important; }
         /* Borders */
         [data-theme="light"] .border-white\\/10 { border-color: #E2E8F0 !important; }
@@ -873,6 +876,8 @@ export default function AdminPage() {
         [data-theme="light"] .text-red-400, [data-theme="light"] .text-red-500,
         [data-theme="light"] .text-blue-400, [data-theme="light"] .text-blue-500,
         [data-theme="light"] .text-green-400, [data-theme="light"] .text-green-500,
+        [data-theme="light"] .text-amber-300, [data-theme="light"] .text-amber-400,
+        [data-theme="light"] .text-amber-500,
         [data-theme="light"] .text-yellow-400 { color: inherit; }
         /* Active sidebar nav override */
         [data-theme="light"] aside nav button.bg-red-600 { color: #FFFFFF !important; }
@@ -880,7 +885,6 @@ export default function AdminPage() {
         /* Pagination + badge fixes */
         [data-theme="light"] .bg-white\\/10 { background-color: rgba(0,0,0,0.06) !important; }
         [data-theme="light"] .bg-white\\/5 { background-color: rgba(0,0,0,0.03) !important; }
-        [data-theme="light"] .bg-\\[\\#141B2D\\] { background-color: #FFFFFF !important; border-color: #CBD5E1 !important; }
       `}</style>
 
       {/* Mobile Backdrop Overlay */}
@@ -1248,43 +1252,44 @@ export default function AdminPage() {
 
           {/* New Movies Discovery & Insertion Section */}
           {activeTab === 'new_movies' && (
-            <div className="bg-[#0F1524] border border-white/10 rounded-2xl p-5 sm:p-6 shadow-xl space-y-5">
+            <div className="bg-[#0F1524] border border-white/10 rounded-2xl p-4 sm:p-6 shadow-xl space-y-4 sm:space-y-5">
               {/* Header & Controls */}
-              <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 border-b border-white/10 pb-5">
-                <div>
-                  <div className="flex items-center space-x-2.5">
-                    <div className="w-8 h-8 rounded-lg bg-amber-500/20 border border-amber-500/30 flex items-center justify-center text-amber-400">
-                      <Sparkles className="w-4 h-4" />
-                    </div>
-                    <h3 className="text-base sm:text-lg font-bold text-white flex items-center space-x-2">
-                      <span>New Movies Live from Source</span>
-                      <span className="bg-amber-500/20 text-amber-300 border border-amber-500/30 text-[11px] px-2.5 py-0.5 rounded-full font-bold">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-white/10">
+                <div className="flex items-center space-x-2.5">
+                  <div className="w-8 h-8 rounded-lg bg-amber-500/15 border border-amber-500/30 flex items-center justify-center text-amber-400 flex-shrink-0">
+                    <Sparkles className="w-4 h-4" />
+                  </div>
+                  <div>
+                    <div className="flex items-center space-x-2">
+                      <h3 className="text-base sm:text-lg font-bold text-white">New Movies</h3>
+                      <span className="bg-amber-500/15 text-amber-400 border border-amber-500/30 text-[11px] px-2 py-0.5 rounded-full font-semibold">
                         {newMoviesList.length} Pending
                       </span>
-                    </h3>
+                    </div>
+                    <p className="text-xs text-gray-400 mt-0.5">
+                      Discover and import new releases from source.
+                    </p>
                   </div>
-                  <p className="text-xs text-gray-400 mt-1">
-                    Live comparison with movies4u.kg. Only un-imported unique movies appear here. Select and click &apos;Insert to DB&apos; to instantly add them with exact publication timestamps.
-                  </p>
                 </div>
 
-                <div className="flex flex-wrap items-center gap-2.5">
+                {/* Header Action Buttons - Mobile Responsive */}
+                <div className="flex flex-wrap items-center gap-2 pt-1 sm:pt-0">
                   <button
                     onClick={fetchNewMovies}
                     disabled={isLoadingNewMovies}
-                    className="flex items-center space-x-1.5 px-3.5 py-2 bg-[#172034] hover:bg-[#1E2B47] border border-white/10 rounded-xl text-xs font-semibold text-gray-200 transition active:scale-[0.98] disabled:opacity-50"
+                    className="flex-1 sm:flex-none flex items-center justify-center space-x-1.5 px-3 py-2 bg-[#172034] hover:bg-[#1E2B47] border border-white/10 rounded-xl text-xs font-semibold text-gray-200 transition disabled:opacity-50 cursor-pointer"
                   >
                     <RefreshCw className={`w-3.5 h-3.5 ${isLoadingNewMovies ? 'animate-spin text-amber-400' : ''}`} />
-                    <span>{isLoadingNewMovies ? 'Scanning...' : 'Scan for New Movies'}</span>
+                    <span>{isLoadingNewMovies ? 'Scanning...' : 'Scan Source'}</span>
                   </button>
 
                   <button
                     type="button"
                     onClick={() => setShowManualInput((prev) => !prev)}
-                    className="flex items-center space-x-1.5 px-3.5 py-2 bg-[#172034] hover:bg-[#1E2B47] border border-white/10 rounded-xl text-xs font-semibold text-gray-300 transition"
+                    className="flex-1 sm:flex-none flex items-center justify-center space-x-1.5 px-3 py-2 bg-[#172034] hover:bg-[#1E2B47] border border-white/10 rounded-xl text-xs font-semibold text-gray-300 transition cursor-pointer"
                   >
                     <Globe className="w-3.5 h-3.5 text-blue-400" />
-                    <span>{showManualInput ? 'Close JSON Input' : 'Paste / Browser Posts'}</span>
+                    <span>{showManualInput ? 'Close' : 'JSON Import'}</span>
                   </button>
 
                   {newMoviesList.length > 0 && (
@@ -1297,7 +1302,7 @@ export default function AdminPage() {
                             setSelectedNewMovieSlugs(newMoviesList.map((m) => m.slug));
                           }
                         }}
-                        className="flex items-center space-x-1.5 px-3.5 py-2 bg-[#172034] hover:bg-[#1E2B47] border border-white/10 rounded-xl text-xs font-semibold text-gray-200 transition"
+                        className="w-full sm:w-auto flex items-center justify-center space-x-1.5 px-3 py-2 bg-[#172034] hover:bg-[#1E2B47] border border-white/10 rounded-xl text-xs font-semibold text-gray-200 transition cursor-pointer"
                       >
                         {selectedNewMovieSlugs.length === newMoviesList.length ? (
                           <CheckSquare className="w-3.5 h-3.5 text-amber-400" />
@@ -1319,13 +1324,13 @@ export default function AdminPage() {
                           insertNewMovies(toInsert);
                         }}
                         disabled={selectedNewMovieSlugs.length === 0 || isInsertingNewMovies}
-                        className="flex items-center space-x-2 px-4 py-2 bg-gradient-to-r from-amber-500 to-red-600 hover:from-amber-400 hover:to-red-500 text-white rounded-xl text-xs font-bold transition shadow-lg shadow-amber-600/20 active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed"
+                        className="w-full sm:w-auto flex items-center justify-center space-x-2 px-3.5 py-2 bg-gradient-to-r from-amber-500 to-red-600 hover:from-amber-400 hover:to-red-500 text-white rounded-xl text-xs font-bold transition shadow-lg shadow-amber-600/20 active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
                       >
-                        <Download className={`w-4 h-4 ${isInsertingNewMovies ? 'animate-bounce' : ''}`} />
+                        <Download className={`w-3.5 h-3.5 ${isInsertingNewMovies ? 'animate-bounce' : ''}`} />
                         <span>
                           {isInsertingNewMovies
-                            ? 'Inserting to Database...'
-                            : `📥 Insert Selected (${selectedNewMovieSlugs.length}) to DB`}
+                            ? 'Inserting...'
+                            : `Insert Selected (${selectedNewMovieSlugs.length})`}
                         </span>
                       </button>
                     </>
@@ -1333,39 +1338,36 @@ export default function AdminPage() {
                 </div>
               </div>
 
-              {/* Collapsible Manual JSON Import for Cloudflare Protected Environments */}
+              {/* Collapsible Manual JSON Import */}
               {showManualInput && (
-                <div className="p-4 bg-[#141C30] border border-blue-500/20 rounded-2xl space-y-3">
+                <div className="p-3.5 sm:p-4 bg-[#141C30] border border-blue-500/20 rounded-xl space-y-2.5">
                   <div className="flex items-center justify-between">
-                    <div className="flex items-center space-x-2">
-                      <Globe className="w-4 h-4 text-blue-400" />
-                      <h4 className="text-xs font-bold text-white">Browser-Assisted Live Posts Sync</h4>
-                    </div>
+                    <h4 className="text-xs font-semibold text-white flex items-center space-x-1.5">
+                      <Globe className="w-3.5 h-3.5 text-blue-400" />
+                      <span>Paste Posts JSON</span>
+                    </h4>
                     <a
                       href="https://movies4u.kg/wp-json/wp/v2/posts?_embed=1&per_page=40&orderby=date&order=desc"
                       target="_blank"
                       rel="noopener noreferrer"
                       className="text-[11px] text-blue-400 hover:text-blue-300 underline flex items-center space-x-1"
                     >
-                      <span>Open movies4u.kg Posts in Browser</span>
+                      <span>Open Source API</span>
                       <ExternalLink className="w-3 h-3" />
                     </a>
                   </div>
-                  <p className="text-[11px] text-gray-400">
-                    If movies4u.kg shows Cloudflare verification on server, open the link above in your browser (where Cloudflare verifies you), copy the JSON response, and paste it below. It will automatically match against your MySQL DB and show only the new movies!
-                  </p>
                   <textarea
-                    rows={4}
+                    rows={3}
                     value={rawPostsInput}
                     onChange={(e) => setRawPostsInput(e.target.value)}
-                    placeholder="Paste WordPress posts JSON array here: [ { id: ..., title: ..., ... } ]"
-                    className="w-full bg-[#0B0F19] border border-white/10 rounded-xl p-3 text-xs text-gray-200 placeholder-gray-500 font-mono focus:outline-none focus:border-blue-500/50"
+                    placeholder="Paste WordPress posts JSON array here: [{ id: ..., title: ... }]"
+                    className="w-full bg-[#0B0F19] border border-white/10 rounded-lg p-2.5 text-xs text-gray-200 placeholder-gray-500 font-mono focus:outline-none focus:border-blue-500/50"
                   />
                   <div className="flex items-center justify-end space-x-2">
                     <button
                       type="button"
                       onClick={() => setRawPostsInput('')}
-                      className="px-3 py-1.5 bg-white/5 hover:bg-white/10 text-gray-300 rounded-lg text-xs"
+                      className="px-2.5 py-1.5 bg-white/5 hover:bg-white/10 text-gray-300 rounded-lg text-xs cursor-pointer"
                     >
                       Clear
                     </button>
@@ -1373,14 +1375,14 @@ export default function AdminPage() {
                       type="button"
                       onClick={handleFilterRawPosts}
                       disabled={!rawPostsInput.trim() || isFilteringManual}
-                      className="px-4 py-1.5 bg-blue-600 hover:bg-blue-500 text-white rounded-lg text-xs font-bold transition flex items-center space-x-1.5 disabled:opacity-50"
+                      className="px-3.5 py-1.5 bg-blue-600 hover:bg-blue-500 text-white rounded-lg text-xs font-semibold transition flex items-center space-x-1.5 disabled:opacity-50 cursor-pointer"
                     >
                       {isFilteringManual ? (
-                        <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                        <RefreshCw className="w-3 h-3 animate-spin" />
                       ) : (
-                        <Sparkles className="w-3.5 h-3.5" />
+                        <Sparkles className="w-3 h-3" />
                       )}
-                      <span>⚡ Compare & Find New Movies</span>
+                      <span>Compare & Find</span>
                     </button>
                   </div>
                 </div>
@@ -1390,7 +1392,7 @@ export default function AdminPage() {
               {newMoviesStatus && (
                 <div className="p-3 bg-[#172034] border border-white/10 rounded-xl flex items-center justify-between text-xs">
                   <div className="flex items-center space-x-2">
-                    <Sparkles className="w-4 h-4 text-amber-400 flex-shrink-0" />
+                    <Sparkles className="w-3.5 h-3.5 text-amber-400 flex-shrink-0" />
                     <span className="text-gray-200">{newMoviesStatus}</span>
                   </div>
                   {isInsertingNewMovies && (
@@ -1401,30 +1403,31 @@ export default function AdminPage() {
 
               {/* Content / Movies Grid or Empty State */}
               {isLoadingNewMovies ? (
-                <div className="py-16 text-center text-gray-400">
-                  <RefreshCw className="w-8 h-8 animate-spin mx-auto mb-3 text-amber-400" />
-                  <p className="text-sm font-semibold text-white">Comparing movies4u.kg with your MySQL database...</p>
-                  <p className="text-xs text-gray-500 mt-1">Filtering out any movies you already have</p>
+                <div className="py-12 text-center text-gray-400">
+                  <RefreshCw className="w-7 h-7 animate-spin mx-auto mb-2 text-amber-400" />
+                  <p className="text-xs font-semibold text-white">Comparing source with database...</p>
                 </div>
               ) : newMoviesList.length === 0 ? (
-                <div className="py-16 text-center bg-[#111726] border border-white/5 rounded-2xl p-8">
-                  <div className="w-14 h-14 bg-green-500/10 border border-green-500/20 rounded-2xl flex items-center justify-center text-green-400 mx-auto mb-4">
-                    <CheckCircle className="w-8 h-8" />
+                /* Simple, Clean Empty State */
+                <div className="py-12 sm:py-16 text-center bg-[#111726] border border-white/5 rounded-2xl p-6">
+                  <div className="w-12 h-12 bg-emerald-500/15 border border-emerald-500/25 rounded-xl flex items-center justify-center text-emerald-400 mx-auto mb-3">
+                    <CheckCircle className="w-6 h-6" />
                   </div>
-                  <h4 className="text-base font-bold text-white">All Caught Up! Section is Empty</h4>
-                  <p className="text-xs text-gray-400 max-w-md mx-auto mt-1.5 leading-relaxed">
-                    Every unique movie from movies4u.kg is already in your database. When new movies are added on movies4u.kg, they will automatically appear here for 1-click insertion.
+                  <h4 className="text-sm sm:text-base font-bold text-white">All Caught Up</h4>
+                  <p className="text-xs text-gray-400 max-w-sm mx-auto mt-1 leading-relaxed">
+                    No pending movies. Every movie from source is already in your database.
                   </p>
                   <button
                     onClick={fetchNewMovies}
-                    className="mt-5 inline-flex items-center space-x-2 px-4 py-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl text-xs font-semibold text-gray-200 transition"
+                    className="mt-4 inline-flex items-center space-x-1.5 px-3.5 py-1.5 bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg text-xs font-semibold text-gray-200 transition cursor-pointer"
                   >
-                    <RefreshCw className="w-3.5 h-3.5 text-gray-400" />
-                    <span>Check Again</span>
+                    <RefreshCw className="w-3 h-3 text-gray-400" />
+                    <span>Scan Again</span>
                   </button>
                 </div>
               ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+                /* Responsive Movie Cards Grid */
+                <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3">
                   {newMoviesList.map((movie) => {
                     const isSelected = selectedNewMovieSlugs.includes(movie.slug);
                     return (
@@ -1437,14 +1440,14 @@ export default function AdminPage() {
                               : [...prev, movie.slug]
                           );
                         }}
-                        className={`group relative border rounded-2xl p-4 flex space-x-4 cursor-pointer transition-all ${
+                        className={`group relative border rounded-xl p-3 flex space-x-3 cursor-pointer transition-all ${
                           isSelected
-                            ? 'bg-amber-500/10 border-amber-500/40 shadow-lg shadow-amber-500/5'
-                            : 'bg-[#111726] border-white/10 hover:border-white/20 hover:bg-[#141B2D]'
+                            ? 'bg-amber-500/10 border-amber-500/40 shadow-sm'
+                            : 'bg-[#111726] border-white/10 hover:border-white/20'
                         }`}
                       >
-                        {/* Checkbox indicator */}
-                        <div className="absolute top-3 right-3 z-10">
+                        {/* Selection Checkbox */}
+                        <div className="absolute top-2.5 right-2.5 z-10">
                           {isSelected ? (
                             <CheckSquare className="w-4 h-4 text-amber-400" />
                           ) : (
@@ -1452,8 +1455,8 @@ export default function AdminPage() {
                           )}
                         </div>
 
-                        {/* Poster */}
-                        <div className="w-20 h-28 rounded-xl overflow-hidden bg-black/40 flex-shrink-0 border border-white/10 relative">
+                        {/* Movie Poster */}
+                        <div className="w-16 h-22 sm:w-18 sm:h-26 rounded-lg overflow-hidden bg-black/40 flex-shrink-0 border border-white/10 relative">
                           {movie.poster ? (
                             <img
                               src={getProxiedPoster(movie.poster)}
@@ -1465,21 +1468,20 @@ export default function AdminPage() {
                             />
                           ) : (
                             <div className="w-full h-full flex items-center justify-center text-gray-600">
-                              <Film className="w-6 h-6" />
+                              <Film className="w-5 h-5" />
                             </div>
                           )}
                         </div>
 
-                        {/* Details */}
-                        <div className="flex-1 min-w-0 flex flex-col justify-between pr-6">
+                        {/* Movie Info */}
+                        <div className="flex-1 min-w-0 flex flex-col justify-between pr-4">
                           <div>
-                            <h4 className="text-xs font-bold text-white line-clamp-2 leading-tight group-hover:text-amber-300 transition">
+                            <h4 className="text-xs font-semibold text-white line-clamp-2 leading-snug group-hover:text-amber-300 transition">
                               {movie.title}
                             </h4>
 
-                            {/* Exact Publication Date & Time Badge */}
-                            <div className="flex items-center space-x-1.5 text-[11px] text-amber-400 mt-1.5 font-medium">
-                              <Clock className="w-3.5 h-3.5 flex-shrink-0 text-amber-400" />
+                            <div className="flex items-center space-x-1.5 text-[11px] text-amber-400 mt-1 font-medium">
+                              <Clock className="w-3 h-3 flex-shrink-0" />
                               <span className="truncate">
                                 {movie.date
                                   ? new Date(movie.date).toLocaleDateString('en-GB', {
@@ -1494,9 +1496,8 @@ export default function AdminPage() {
                               </span>
                             </div>
 
-                            {/* Badges */}
-                            <div className="flex flex-wrap gap-1 mt-2">
-                              {movie.qualities?.slice(0, 3).map((q: string) => (
+                            <div className="flex flex-wrap gap-1 mt-1.5">
+                              {movie.qualities?.slice(0, 2).map((q: string) => (
                                 <span
                                   key={q}
                                   className="text-[9px] px-1.5 py-0.5 rounded bg-white/5 border border-white/10 text-gray-300 font-mono"
@@ -1505,17 +1506,17 @@ export default function AdminPage() {
                                 </span>
                               ))}
                               {movie.downloadLinks?.length > 0 && (
-                                <span className="text-[9px] px-1.5 py-0.5 rounded bg-green-500/15 border border-green-500/20 text-green-400 font-bold">
+                                <span className="text-[9px] px-1.5 py-0.5 rounded bg-emerald-500/15 border border-emerald-500/25 text-emerald-400 font-bold">
                                   {movie.downloadLinks.length} Links
                                 </span>
                               )}
                             </div>
                           </div>
 
-                          {/* 1-Click Insert Button for this single movie */}
-                          <div className="mt-3 pt-2 border-t border-white/5 flex items-center justify-between">
+                          {/* Action footer */}
+                          <div className="mt-2 pt-1.5 border-t border-white/5 flex items-center justify-between">
                             <span className="text-[10px] text-gray-500 font-mono">
-                              wpId: {movie.wpId}
+                              #{movie.wpId}
                             </span>
                             <button
                               type="button"
@@ -1524,9 +1525,10 @@ export default function AdminPage() {
                                 insertNewMovies([movie]);
                               }}
                               disabled={isInsertingNewMovies}
-                              className="px-2.5 py-1 bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/30 rounded-lg text-[10px] font-bold transition flex items-center space-x-1 active:scale-95 disabled:opacity-50"
+                              className="px-2 py-1 bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/30 rounded-md text-[10px] font-bold transition flex items-center space-x-1 active:scale-95 disabled:opacity-50 cursor-pointer"
                             >
-                              <span>📥 Insert to DB</span>
+                              <Download className="w-2.5 h-2.5" />
+                              <span>Insert</span>
                             </button>
                           </div>
                         </div>
