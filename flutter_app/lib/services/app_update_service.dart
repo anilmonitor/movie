@@ -51,25 +51,20 @@ class AppUpdateService {
 
       final data = jsonDecode(response.body);
       final bool hasUpdate = data['hasUpdate'] == true;
-      // Default to true for compulsory update as requested
-      final bool forceUpdate = data['forceUpdate'] ?? true;
-      final String latestVersion = data['latestVersion']?.toString() ?? '1.0.5';
-      final String title = data['title']?.toString() ?? 'Important App Update Required! 🚀';
-      final String message = data['message']?.toString() ??
-          'Updating this app is compulsory so you can watch and download all the latest movies without any errors or interruptions.';
-      final String playStoreUrl =
-          data['playStoreUrl']?.toString() ?? defaultPlayStoreUrl;
-      final List<String> whatsNew = (data['whatsNew'] as List<dynamic>?)
-              ?.map((e) => e.toString())
-              .toList() ??
-          [
-            '🎬 Watch all new & latest movies without issues',
-            '⚡ Fixed playback errors & broken download links',
-            '🚀 Faster loading speed with 4K download support',
-            '🛡️ Smooth performance and bug fixes',
-          ];
+      final int serverVersionCode =
+          int.tryParse(data['latestVersionCode']?.toString() ?? '') ?? 0;
+      final String serverVersion = data['latestVersion']?.toString() ?? '';
+      final String latestVersion =
+          serverVersion.isNotEmpty ? serverVersion : '1.0.5';
 
-      if (!hasUpdate) {
+      // Verify if client is already on the latest version
+      final bool isAlreadyUpdated = (serverVersionCode > 0 &&
+              currentVersionCode >= serverVersionCode) ||
+          (serverVersion.isNotEmpty &&
+              _compareSemVer(currentVersion, serverVersion) >= 0);
+
+      // If app is already updated to latest version or hasUpdate is false, NEVER show popup
+      if (!hasUpdate || isAlreadyUpdated) {
         if (forceCheck && context.mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
@@ -80,8 +75,8 @@ class AppUpdateService {
         return;
       }
 
-      // If dismissed recently and not a forced update, don't nag unless user explicitly clicked
-      if (!forceCheck && !forceUpdate && isDismissedRecently) return;
+      // If user recently dismissed (within 24 hours), don't show repeatedly on every app open
+      if (!forceCheck && isDismissedRecently) return;
 
       if (!context.mounted) return;
 
@@ -91,15 +86,34 @@ class AppUpdateService {
         if (!context.mounted) return;
       }
 
-      // Show compulsory update dialog
+      final String playStoreUrl =
+          data['playStoreUrl']?.toString() ?? defaultPlayStoreUrl;
+
+      // Show update dialog with Cut (X), Later, and White Google Play button
       await showDialog(
         context: context,
-        barrierDismissible: !forceUpdate,
+        barrierDismissible: true,
         builder: (dialogContext) {
           final isDark = Theme.of(dialogContext).brightness == Brightness.dark;
 
+          void dismissPopup() {
+            prefs.setInt(
+              'app_update_dismissed_at',
+              DateTime.now().millisecondsSinceEpoch,
+            );
+            Navigator.of(dialogContext).pop();
+          }
+
           return PopScope(
-            canPop: !forceUpdate,
+            canPop: true,
+            onPopInvokedWithResult: (didPop, result) {
+              if (didPop) {
+                prefs.setInt(
+                  'app_update_dismissed_at',
+                  DateTime.now().millisecondsSinceEpoch,
+                );
+              }
+            },
             child: Dialog(
               backgroundColor: isDark ? const Color(0xFF1E293B) : Colors.white,
               elevation: 8,
@@ -111,12 +125,12 @@ class AppUpdateService {
                 ),
               ),
               child: Padding(
-                padding: const EdgeInsets.fromLTRB(22, 22, 22, 18),
+                padding: const EdgeInsets.fromLTRB(22, 20, 20, 18),
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Header: App icon + Title + Version + optional close button
+                    // Header: App icon + Title + Version + Cut (X) button
                     Row(
                       children: [
                         Container(
@@ -156,25 +170,20 @@ class AppUpdateService {
                             ],
                           ),
                         ),
-                        if (!forceUpdate)
-                          IconButton(
-                            icon: const Icon(Icons.close, size: 20),
-                            color: isDark ? Colors.white54 : Colors.black45,
-                            onPressed: () {
-                              prefs.setInt(
-                                'app_update_dismissed_at',
-                                DateTime.now().millisecondsSinceEpoch,
-                              );
-                              Navigator.of(dialogContext).pop();
-                            },
-                            padding: EdgeInsets.zero,
-                            constraints: const BoxConstraints(),
-                          ),
+                        // Cut (X) button to dismiss and not bother repeatedly
+                        IconButton(
+                          icon: const Icon(Icons.close, size: 20),
+                          color: isDark ? Colors.white54 : Colors.black45,
+                          onPressed: dismissPopup,
+                          padding: EdgeInsets.zero,
+                          constraints: const BoxConstraints(),
+                          tooltip: 'Dismiss',
+                        ),
                       ],
                     ),
                     const SizedBox(height: 16),
 
-                    // Compulsory Notice Text (Simple, minimal style)
+                    // Compulsory Notice Text (Clean, minimal style)
                     Text(
                       'Updating is compulsory to watch and download all the latest movies without any issues.',
                       style: TextStyle(
@@ -185,75 +194,83 @@ class AppUpdateService {
                     ),
                     const SizedBox(height: 22),
 
-                    // Primary Update Button with Original Google Play Store Icon
-                    SizedBox(
+                    // White "Update on Google Play" Button with Box Shadow
+                    Container(
                       width: double.infinity,
-                      height: 46,
-                      child: ElevatedButton(
-                        onPressed: () async {
-                          final uri = Uri.parse(playStoreUrl);
-                          if (await canLaunchUrl(uri)) {
-                            await launchUrl(uri, mode: LaunchMode.externalApplication);
-                          }
-                          if (!forceUpdate && dialogContext.mounted) {
-                            prefs.setInt(
-                              'app_update_dismissed_at',
-                              DateTime.now().millisecondsSinceEpoch,
-                            );
-                            Navigator.of(dialogContext).pop();
-                          }
-                        },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFFE50914),
-                          foregroundColor: Colors.white,
-                          elevation: 2,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
+                      height: 48,
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(14),
+                        border: Border.all(
+                          color: const Color(0x1F000000),
+                          width: 1,
                         ),
-                        child: const Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            GooglePlayLogo(size: 20),
-                            SizedBox(width: 10),
-                            Text(
-                              'Update on Google Play',
-                              style: TextStyle(
-                                fontSize: 14,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.white,
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.12),
+                            blurRadius: 10,
+                            spreadRadius: 0,
+                            offset: const Offset(0, 4),
+                          ),
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.04),
+                            blurRadius: 3,
+                            spreadRadius: 0,
+                            offset: const Offset(0, 1),
+                          ),
+                        ],
+                      ),
+                      child: Material(
+                        color: Colors.transparent,
+                        child: InkWell(
+                          borderRadius: BorderRadius.circular(14),
+                          onTap: () async {
+                            final uri = Uri.parse(playStoreUrl);
+                            if (await canLaunchUrl(uri)) {
+                              await launchUrl(uri, mode: LaunchMode.externalApplication);
+                            }
+                            if (dialogContext.mounted) {
+                              dismissPopup();
+                            }
+                          },
+                          child: const Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              GooglePlayLogo(size: 22),
+                              SizedBox(width: 10),
+                              Text(
+                                'Update on Google Play',
+                                style: TextStyle(
+                                  fontSize: 14.5,
+                                  fontWeight: FontWeight.bold,
+                                  color: Color(0xFF0F172A),
+                                  letterSpacing: -0.2,
+                                ),
                               ),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
                       ),
                     ),
 
-                    // Optional Later Button
-                    if (!forceUpdate) ...[
-                      const SizedBox(height: 6),
-                      SizedBox(
-                        width: double.infinity,
-                        height: 36,
-                        child: TextButton(
-                          onPressed: () {
-                            prefs.setInt(
-                              'app_update_dismissed_at',
-                              DateTime.now().millisecondsSinceEpoch,
-                            );
-                            Navigator.of(dialogContext).pop();
-                          },
-                          child: Text(
-                            'Later',
-                            style: TextStyle(
-                              fontSize: 12.5,
-                              color: isDark ? Colors.white54 : Colors.black45,
-                              fontWeight: FontWeight.w500,
-                            ),
+                    const SizedBox(height: 8),
+
+                    // "Later" Button
+                    SizedBox(
+                      width: double.infinity,
+                      height: 38,
+                      child: TextButton(
+                        onPressed: dismissPopup,
+                        child: Text(
+                          'Later',
+                          style: TextStyle(
+                            fontSize: 13,
+                            color: isDark ? Colors.white54 : Colors.black54,
+                            fontWeight: FontWeight.w600,
                           ),
                         ),
                       ),
-                    ],
+                    ),
                   ],
                 ),
               ),
@@ -264,6 +281,20 @@ class AppUpdateService {
     } catch (_) {
       // Silently catch errors if network is down
     }
+  }
+
+  /// Helper to compare two Semantic Version strings like "1.0.4" vs "1.0.5"
+  static int _compareSemVer(String v1, String v2) {
+    final parts1 = v1.split('.').map((p) => int.tryParse(p) ?? 0).toList();
+    final parts2 = v2.split('.').map((p) => int.tryParse(p) ?? 0).toList();
+    final len = parts1.length > parts2.length ? parts1.length : parts2.length;
+    for (int i = 0; i < len; i++) {
+      final n1 = i < parts1.length ? parts1[i] : 0;
+      final n2 = i < parts2.length ? parts2[i] : 0;
+      if (n1 > n2) return 1;
+      if (n1 < n2) return -1;
+    }
+    return 0;
   }
 }
 
