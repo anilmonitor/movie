@@ -933,68 +933,9 @@ export default function AdminPage() {
 
   // Admin Dashboard View with Left Sidebar & Mobile Drawer
   return (
-    <div className={`min-h-screen flex transition-colors duration-300 ${darkMode ? 'bg-[#070A11] text-white' : 'bg-[#F1F5F9] text-[#0F172A]'}`} data-theme={darkMode ? 'dark' : 'light'}>
-      {/* Theme-aware CSS overrides */}
+    <div className={`min-h-screen flex transition-colors duration-300 ${darkMode ? 'bg-[#070A11] text-white' : 'bg-[#F8FAFC] text-[#0F172A]'}`} data-theme={darkMode ? 'dark' : 'light'}>
+      {/* Clean scrollbar styling */}
       <style>{`
-        /* ---- LIGHT MODE OVERRIDES ---- */
-        /* Sidebar */
-        [data-theme="light"] aside { background-color: #FFFFFF !important; border-color: #E2E8F0 !important; }
-        [data-theme="light"] aside > div:last-child { background-color: #F8FAFC !important; border-color: #E2E8F0 !important; }
-        [data-theme="light"] aside nav button { color: #475569; }
-        [data-theme="light"] aside nav button:hover { color: #0F172A; background-color: rgba(0,0,0,0.04); }
-        /* Header */
-        [data-theme="light"] header { background-color: rgba(255,255,255,0.95) !important; border-color: #E2E8F0 !important; }
-        [data-theme="light"] header h2 { color: #0F172A !important; }
-        [data-theme="light"] header p { color: #64748B !important; }
-        /* Cards & panels - target by dark bg classes */
-        [data-theme="light"] .bg-\\[\\#0F1524\\] { background-color: #FFFFFF !important; border-color: #E2E8F0 !important; box-shadow: 0 1px 4px rgba(0,0,0,0.06) !important; }
-        [data-theme="light"] .bg-\\[\\#111726\\] { background-color: #FFFFFF !important; border-color: #E2E8F0 !important; box-shadow: 0 1px 3px rgba(0,0,0,0.05) !important; }
-        [data-theme="light"] .bg-\\[\\#141C30\\] { background-color: #F8FAFC !important; border-color: #E2E8F0 !important; }
-        [data-theme="light"] .bg-\\[\\#0B0F19\\] { background-color: #F1F5F9 !important; border-color: #CBD5E1 !important; color: #0F172A !important; }
-        [data-theme="light"] .bg-\\[\\#0F1524\\] h2 { color: #0F172A !important; }
-        [data-theme="light"] .bg-\\[\\#0F1524\\] h3 { color: #0F172A !important; }
-        [data-theme="light"] .bg-\\[\\#0F1524\\] p { color: #64748B !important; }
-        [data-theme="light"] .bg-\\[\\#0F1524\\] > .flex span { color: #475569; }
-        /* Sync panel & button internals */
-        [data-theme="light"] .bg-\\[\\#172034\\] { background-color: #F1F5F9 !important; border-color: #CBD5E1 !important; color: #1E293B !important; }
-        [data-theme="light"] .bg-\\[\\#172034\\/60\\] { background-color: #F1F5F9 !important; }
-        [data-theme="light"] .hover\\:bg-\\[\\#1E2B47\\]:hover { background-color: #E2E8F0 !important; color: #0F172A !important; }
-        [data-theme="light"] .bg-\\[\\#141B2D\\] { background-color: #F8FAFC !important; border-color: #E2E8F0 !important; }
-        [data-theme="light"] .hover\\:bg-\\[\\#141B2D\\]:hover { background-color: #F1F5F9 !important; }
-        [data-theme="light"] .bg-black\\/40 { background-color: #E2E8F0 !important; }
-        /* Table areas */
-        [data-theme="light"] thead { background-color: #F1F5F9 !important; }
-        [data-theme="light"] thead th { color: #64748B !important; }
-        [data-theme="light"] tbody { background-color: #FFFFFF !important; }
-        [data-theme="light"] .bg-\\[\\#0D1322\\] { background-color: #FFFFFF !important; }
-        [data-theme="light"] tbody tr { border-color: #F1F5F9 !important; }
-        [data-theme="light"] tbody tr:hover { background-color: rgba(0,0,0,0.02) !important; }
-        [data-theme="light"] tbody td { color: #334155 !important; }
-        [data-theme="light"] tbody td .font-semibold { color: #0F172A !important; }
-        /* Inputs, textareas & selects */
-        [data-theme="light"] input, [data-theme="light"] textarea, [data-theme="light"] select { background-color: #F1F5F9 !important; border-color: #CBD5E1 !important; color: #0F172A !important; }
-        [data-theme="light"] input::placeholder, [data-theme="light"] textarea::placeholder { color: #94A3B8 !important; }
-        [data-theme="light"] option { background-color: #FFFFFF !important; color: #0F172A !important; }
-        /* Borders */
-        [data-theme="light"] .border-white\\/10 { border-color: #E2E8F0 !important; }
-        [data-theme="light"] .border-white\\/5 { border-color: #F1F5F9 !important; }
-        /* Text color fixes */
-        [data-theme="light"] .text-white { color: #0F172A !important; }
-        [data-theme="light"] .text-gray-200 { color: #1E293B !important; }
-        [data-theme="light"] .text-gray-300 { color: #475569 !important; }
-        [data-theme="light"] .text-gray-400 { color: #64748B !important; }
-        [data-theme="light"] .text-gray-500 { color: #94A3B8 !important; }
-        /* Preserve accent colors */
-        [data-theme="light"] .text-red-400, [data-theme="light"] .text-red-500,
-        [data-theme="light"] .text-blue-400, [data-theme="light"] .text-blue-500,
-        [data-theme="light"] .text-green-400, [data-theme="light"] .text-green-500,
-        [data-theme="light"] .text-amber-300, [data-theme="light"] .text-amber-400,
-        [data-theme="light"] .text-amber-500,
-        [data-theme="light"] .text-yellow-400 { color: inherit; }
-        /* Active sidebar nav override */
-        [data-theme="light"] aside nav button.bg-red-600 { color: #FFFFFF !important; }
-        [data-theme="light"] aside nav button.bg-red-600 span { color: #FFFFFF !important; }
-        /* Custom scrollbar for sidebar */
         .custom-scrollbar::-webkit-scrollbar {
           width: 5px;
         }
@@ -1241,53 +1182,59 @@ export default function AdminPage() {
           </div>
         </header>
 
-        {/* Dashboard Body */}
-        <main className="flex-1 p-4 sm:p-6 lg:p-8 space-y-6 max-w-7xl w-full mx-auto">
+        {/* Dashboard Body - Full Page Width */}
+        <main className={`flex-1 p-4 sm:p-6 lg:p-8 space-y-6 w-full min-w-0 ${darkMode ? 'bg-[#070A11] text-white' : 'bg-[#F8FAFC] text-[#0F172A]'}`}>
           {/* Stat Cards (Visible on Overview and Sync pages) */}
           {(activeTab === 'overview' || activeTab === 'sync') && (
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               {/* Total Movies */}
               <div
                 onClick={() => switchTab('movies')}
-                className="bg-[#0F1524] border border-white/10 hover:border-red-500/40 rounded-2xl p-5 flex items-center space-x-4 shadow-lg cursor-pointer transition group"
+                className={`border hover:border-red-500/40 rounded-2xl p-5 flex items-center space-x-4 shadow-sm cursor-pointer transition group ${
+                  darkMode ? 'bg-[#0D1322] border-white/10' : 'bg-white border-[#E2E8F0]'
+                }`}
               >
                 <div className="w-12 h-12 rounded-xl bg-red-500/10 border border-red-500/20 flex items-center justify-center text-red-500 flex-shrink-0 group-hover:scale-105 transition">
                   <Database className="w-6 h-6" />
                 </div>
                 <div className="min-w-0">
-                  <p className="text-[11px] font-bold text-gray-400 uppercase tracking-wider">Total Movies in DB</p>
-                  <h2 className="text-2xl font-black text-white mt-0.5 truncate">{stats?.totalMovies ?? '8,000'}</h2>
+                  <p className={`text-[11px] font-bold uppercase tracking-wider ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>Total Movies in DB</p>
+                  <h2 className={`text-2xl font-black mt-0.5 truncate ${darkMode ? 'text-white' : 'text-[#0F172A]'}`}>{stats?.totalMovies ?? '8,000'}</h2>
                 </div>
               </div>
 
               {/* Categories */}
               <div
                 onClick={() => switchTab('categories')}
-                className="bg-[#0F1524] border border-white/10 hover:border-blue-500/40 rounded-2xl p-5 flex items-center space-x-4 shadow-lg cursor-pointer transition group"
+                className={`border hover:border-blue-500/40 rounded-2xl p-5 flex items-center space-x-4 shadow-sm cursor-pointer transition group ${
+                  darkMode ? 'bg-[#0D1322] border-white/10' : 'bg-white border-[#E2E8F0]'
+                }`}
               >
                 <div className="w-12 h-12 rounded-xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-500 flex-shrink-0 group-hover:scale-105 transition">
                   <Layers className="w-6 h-6" />
                 </div>
                 <div className="min-w-0">
-                  <p className="text-[11px] font-bold text-gray-400 uppercase tracking-wider">Categories</p>
-                  <h2 className="text-2xl font-black text-white mt-0.5 truncate">{stats?.totalCategories ?? '28'}</h2>
+                  <p className={`text-[11px] font-bold uppercase tracking-wider ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>Categories</p>
+                  <h2 className={`text-2xl font-black mt-0.5 truncate ${darkMode ? 'text-white' : 'text-[#0F172A]'}`}>{stats?.totalCategories ?? '28'}</h2>
                 </div>
               </div>
 
               {/* Last Synced */}
               <div
                 onClick={() => switchTab('sync')}
-                className="bg-[#0F1524] border border-white/10 hover:border-green-500/40 rounded-2xl p-5 flex items-center space-x-4 shadow-lg cursor-pointer transition group"
+                className={`border hover:border-green-500/40 rounded-2xl p-5 flex items-center space-x-4 shadow-sm cursor-pointer transition group ${
+                  darkMode ? 'bg-[#0D1322] border-white/10' : 'bg-white border-[#E2E8F0]'
+                }`}
               >
                 <div className="w-12 h-12 rounded-xl bg-green-500/10 border border-green-500/20 flex items-center justify-center text-green-500 flex-shrink-0 group-hover:scale-105 transition">
                   <Clock className="w-6 h-6" />
                 </div>
                 <div className="min-w-0">
-                  <p className="text-[11px] font-bold text-gray-400 uppercase tracking-wider">Last Sync Activity</p>
-                  <h2 className="text-sm font-bold text-gray-200 mt-0.5 truncate">
+                  <p className={`text-[11px] font-bold uppercase tracking-wider ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>Last Sync Activity</p>
+                  <h2 className={`text-sm font-bold mt-0.5 truncate ${darkMode ? 'text-gray-200' : 'text-[#0F172A]'}`}>
                     {stats?.lastSync ? new Date(stats.lastSync).toLocaleTimeString() : 'Up to date'}
                   </h2>
-                  <p className="text-[10px] text-gray-400 truncate">
+                  <p className={`text-[10px] truncate ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
                     {stats?.latestMovieTitle || 'Catalog Loaded'}
                   </p>
                 </div>
@@ -1303,37 +1250,41 @@ export default function AdminPage() {
                 {/* Movies Card */}
                 <div
                   onClick={() => switchTab('movies')}
-                  className="bg-[#0F1524] hover:bg-[#141B2D] border border-white/10 hover:border-red-500/40 rounded-2xl p-5 cursor-pointer transition shadow-lg group"
+                  className={`border hover:border-red-500/40 rounded-2xl p-5 cursor-pointer transition shadow-sm group ${
+                    darkMode ? 'bg-[#0D1322] hover:bg-[#141B2D] border-white/10' : 'bg-white hover:bg-slate-50 border-[#E2E8F0]'
+                  }`}
                 >
                   <div className="flex items-center justify-between mb-3">
                     <div className="w-10 h-10 rounded-xl bg-red-500/15 border border-red-500/30 flex items-center justify-center text-red-500 group-hover:scale-105 transition">
                       <Film className="w-5 h-5" />
                     </div>
-                    <ChevronRight className="w-4 h-4 text-gray-500 group-hover:text-red-400 group-hover:translate-x-0.5 transition" />
+                    <ChevronRight className="w-4 h-4 text-gray-400 group-hover:text-red-500 group-hover:translate-x-0.5 transition" />
                   </div>
-                  <h4 className="text-sm font-bold text-white group-hover:text-red-400 transition">Movie Catalog</h4>
-                  <p className="text-xs text-gray-400 mt-1">Browse, search & manage database movies.</p>
-                  <div className="mt-4 pt-3 border-t border-white/5 flex items-center justify-between text-[11px]">
-                    <span className="text-gray-400">Total in DB</span>
-                    <span className="font-bold text-white">{totalMoviesCount || stats?.totalMovies || '8,000'}</span>
+                  <h4 className={`text-sm font-bold group-hover:text-red-500 transition ${darkMode ? 'text-white' : 'text-[#0F172A]'}`}>Movie Catalog</h4>
+                  <p className={`text-xs mt-1 ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>Browse, search & manage database movies.</p>
+                  <div className={`mt-4 pt-3 border-t flex items-center justify-between text-[11px] ${darkMode ? 'border-white/5' : 'border-[#E2E8F0]'}`}>
+                    <span className={darkMode ? 'text-gray-400' : 'text-gray-500'}>Total in DB</span>
+                    <span className={`font-bold ${darkMode ? 'text-white' : 'text-[#0F172A]'}`}>{totalMoviesCount || stats?.totalMovies || '8,000'}</span>
                   </div>
                 </div>
 
                 {/* New Movies Card */}
                 <div
                   onClick={() => switchTab('new_movies')}
-                  className="bg-[#0F1524] hover:bg-[#141B2D] border border-white/10 hover:border-amber-500/40 rounded-2xl p-5 cursor-pointer transition shadow-lg group"
+                  className={`border hover:border-amber-500/40 rounded-2xl p-5 cursor-pointer transition shadow-sm group ${
+                    darkMode ? 'bg-[#0D1322] hover:bg-[#141B2D] border-white/10' : 'bg-white hover:bg-slate-50 border-[#E2E8F0]'
+                  }`}
                 >
                   <div className="flex items-center justify-between mb-3">
                     <div className="w-10 h-10 rounded-xl bg-amber-500/15 border border-amber-500/30 flex items-center justify-center text-amber-400 group-hover:scale-105 transition">
                       <Sparkles className="w-5 h-5" />
                     </div>
-                    <ChevronRight className="w-4 h-4 text-gray-500 group-hover:text-amber-400 group-hover:translate-x-0.5 transition" />
+                    <ChevronRight className="w-4 h-4 text-gray-400 group-hover:text-amber-500 group-hover:translate-x-0.5 transition" />
                   </div>
-                  <h4 className="text-sm font-bold text-white group-hover:text-amber-400 transition">New Movies Live</h4>
-                  <p className="text-xs text-gray-400 mt-1">Scan source for newly added releases.</p>
-                  <div className="mt-4 pt-3 border-t border-white/5 flex items-center justify-between text-[11px]">
-                    <span className="text-gray-400">Pending Import</span>
+                  <h4 className={`text-sm font-bold group-hover:text-amber-500 transition ${darkMode ? 'text-white' : 'text-[#0F172A]'}`}>New Movies Live</h4>
+                  <p className={`text-xs mt-1 ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>Scan source for newly added releases.</p>
+                  <div className={`mt-4 pt-3 border-t flex items-center justify-between text-[11px] ${darkMode ? 'border-white/5' : 'border-[#E2E8F0]'}`}>
+                    <span className={darkMode ? 'text-gray-400' : 'text-gray-500'}>Pending Import</span>
                     <span className="font-bold text-amber-400">{newMoviesList.length} Pending</span>
                   </div>
                 </div>
@@ -1341,51 +1292,57 @@ export default function AdminPage() {
                 {/* Sync Card */}
                 <div
                   onClick={() => switchTab('sync')}
-                  className="bg-[#0F1524] hover:bg-[#141B2D] border border-white/10 hover:border-blue-500/40 rounded-2xl p-5 cursor-pointer transition shadow-lg group"
+                  className={`border hover:border-blue-500/40 rounded-2xl p-5 cursor-pointer transition shadow-sm group ${
+                    darkMode ? 'bg-[#0D1322] hover:bg-[#141B2D] border-white/10' : 'bg-white hover:bg-slate-50 border-[#E2E8F0]'
+                  }`}
                 >
                   <div className="flex items-center justify-between mb-3">
                     <div className="w-10 h-10 rounded-xl bg-blue-500/15 border border-blue-500/30 flex items-center justify-center text-blue-400 group-hover:scale-105 transition">
                       <RefreshCw className="w-5 h-5" />
                     </div>
-                    <ChevronRight className="w-4 h-4 text-gray-500 group-hover:text-blue-400 group-hover:translate-x-0.5 transition" />
+                    <ChevronRight className="w-4 h-4 text-gray-400 group-hover:text-blue-500 group-hover:translate-x-0.5 transition" />
                   </div>
-                  <h4 className="text-sm font-bold text-white group-hover:text-blue-400 transition">Database Sync</h4>
-                  <p className="text-xs text-gray-400 mt-1">Automated seeder with posters & mirrors.</p>
-                  <div className="mt-4 pt-3 border-t border-white/5 flex items-center justify-between text-[11px]">
-                    <span className="text-gray-400">Pages Available</span>
-                    <span className="font-bold text-white">160+ Pages</span>
+                  <h4 className={`text-sm font-bold group-hover:text-blue-500 transition ${darkMode ? 'text-white' : 'text-[#0F172A]'}`}>Database Sync</h4>
+                  <p className={`text-xs mt-1 ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>Automated seeder with posters & mirrors.</p>
+                  <div className={`mt-4 pt-3 border-t flex items-center justify-between text-[11px] ${darkMode ? 'border-white/5' : 'border-[#E2E8F0]'}`}>
+                    <span className={darkMode ? 'text-gray-400' : 'text-gray-500'}>Pages Available</span>
+                    <span className={`font-bold ${darkMode ? 'text-white' : 'text-[#0F172A]'}`}>160+ Pages</span>
                   </div>
                 </div>
 
                 {/* Categories Card */}
                 <div
                   onClick={() => switchTab('categories')}
-                  className="bg-[#0F1524] hover:bg-[#141B2D] border border-white/10 hover:border-purple-500/40 rounded-2xl p-5 cursor-pointer transition shadow-lg group"
+                  className={`border hover:border-purple-500/40 rounded-2xl p-5 cursor-pointer transition shadow-sm group ${
+                    darkMode ? 'bg-[#0D1322] hover:bg-[#141B2D] border-white/10' : 'bg-white hover:bg-slate-50 border-[#E2E8F0]'
+                  }`}
                 >
                   <div className="flex items-center justify-between mb-3">
                     <div className="w-10 h-10 rounded-xl bg-purple-500/15 border border-purple-500/30 flex items-center justify-center text-purple-400 group-hover:scale-105 transition">
                       <Layers className="w-5 h-5" />
                     </div>
-                    <ChevronRight className="w-4 h-4 text-gray-500 group-hover:text-purple-400 group-hover:translate-x-0.5 transition" />
+                    <ChevronRight className="w-4 h-4 text-gray-400 group-hover:text-purple-500 group-hover:translate-x-0.5 transition" />
                   </div>
-                  <h4 className="text-sm font-bold text-white group-hover:text-purple-400 transition">All Categories</h4>
-                  <p className="text-xs text-gray-400 mt-1">Explore all categories & movie counts.</p>
-                  <div className="mt-4 pt-3 border-t border-white/5 flex items-center justify-between text-[11px]">
-                    <span className="text-gray-400">Total Genres</span>
-                    <span className="font-bold text-white">{categoriesList.length || '28'}</span>
+                  <h4 className={`text-sm font-bold group-hover:text-purple-500 transition ${darkMode ? 'text-white' : 'text-[#0F172A]'}`}>All Categories</h4>
+                  <p className={`text-xs mt-1 ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>Explore all categories & movie counts.</p>
+                  <div className={`mt-4 pt-3 border-t flex items-center justify-between text-[11px] ${darkMode ? 'border-white/5' : 'border-[#E2E8F0]'}`}>
+                    <span className={darkMode ? 'text-gray-400' : 'text-gray-500'}>Total Genres</span>
+                    <span className={`font-bold ${darkMode ? 'text-white' : 'text-[#0F172A]'}`}>{categoriesList.length || '28'}</span>
                   </div>
                 </div>
               </div>
 
               {/* Recent Catalog Preview */}
-              <div className="bg-[#0F1524] border border-white/10 rounded-2xl p-5 sm:p-6 shadow-xl space-y-4">
+              <div className={`border rounded-2xl p-5 sm:p-6 shadow-sm space-y-4 ${
+                darkMode ? 'bg-[#0D1322] border-white/10' : 'bg-white border-[#E2E8F0]'
+              }`}>
                 <div className="flex items-center justify-between">
                   <div>
-                    <h3 className="text-base font-bold text-white flex items-center space-x-2">
+                    <h3 className={`text-base font-bold flex items-center space-x-2 ${darkMode ? 'text-white' : 'text-[#0F172A]'}`}>
                       <Film className="w-4 h-4 text-red-500" />
                       <span>Recent Catalog Movies</span>
                     </h3>
-                    <p className="text-xs text-gray-400 mt-0.5">Quick preview of synced database movies</p>
+                    <p className={`text-xs mt-0.5 ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>Quick preview of synced database movies</p>
                   </div>
                   <button
                     onClick={() => switchTab('movies')}
@@ -1432,46 +1389,54 @@ export default function AdminPage() {
 
           {/* Sync Engine Page */}
           {activeTab === 'sync' && (
-            <div className="bg-[#0F1524] border border-white/10 rounded-2xl p-5 sm:p-6 shadow-xl space-y-4">
+            <div className={`border rounded-2xl p-5 sm:p-6 space-y-4 w-full ${
+              darkMode ? 'bg-[#0D1322] border-white/10' : 'bg-white border-[#E2E8F0] shadow-sm'
+            }`}>
               <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
                 <div>
-                  <h3 className="text-base sm:text-lg font-bold flex items-center space-x-2 text-white">
+                  <h3 className={`text-base sm:text-lg font-bold flex items-center space-x-2 ${
+                    darkMode ? 'text-white' : 'text-[#0F172A]'
+                  }`}>
                     <RefreshCw className="w-5 h-5 text-red-500" />
                     <span>1-Click Database Sync & Seeding Engine</span>
                   </h3>
-                  <p className="text-xs text-gray-400 mt-1">
+                  <p className={`text-xs mt-1 ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
                     Fetches movies with posters, screenshots, categories, and direct cloud download mirrors into Hostinger MySQL.
                   </p>
                 </div>
 
                 <div className="flex flex-wrap items-center gap-2.5">
-                  <div className="flex items-center space-x-1.5 bg-[#172034] border border-white/10 rounded-xl px-2.5 py-2 text-xs text-gray-300">
-                    <span className="text-gray-400 text-[11px]">Per Page:</span>
+                  <div className={`flex items-center space-x-1.5 border rounded-xl px-2.5 py-2 text-xs ${
+                    darkMode ? 'bg-[#172034] border-white/10 text-gray-300' : 'bg-[#F8FAFC] border-[#CBD5E1] text-[#0F172A]'
+                  }`}>
+                    <span className={`text-[11px] ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>Per Page:</span>
                     <select
                       value={syncCount}
                       onChange={(e) => setSyncCount(Number(e.target.value))}
-                      className="bg-transparent font-bold text-gray-200 focus:outline-none cursor-pointer"
+                      className="bg-transparent font-bold focus:outline-none cursor-pointer"
                     >
-                      <option value={20} className="bg-[#172034]">20 Movies</option>
-                      <option value={50} className="bg-[#172034]">50 Movies</option>
-                      <option value={100} className="bg-[#172034]">100 Movies</option>
+                      <option value={20} className={darkMode ? 'bg-[#172034] text-white' : 'bg-white text-[#0F172A]'}>20 Movies</option>
+                      <option value={50} className={darkMode ? 'bg-[#172034] text-white' : 'bg-white text-[#0F172A]'}>50 Movies</option>
+                      <option value={100} className={darkMode ? 'bg-[#172034] text-white' : 'bg-white text-[#0F172A]'}>100 Movies</option>
                     </select>
                   </div>
 
-                  <div className="flex items-center space-x-1.5 bg-[#172034] border border-white/10 rounded-xl px-2.5 py-2 text-xs text-gray-300">
-                    <span className="text-gray-400 text-[11px]">Pages:</span>
+                  <div className={`flex items-center space-x-1.5 border rounded-xl px-2.5 py-2 text-xs ${
+                    darkMode ? 'bg-[#172034] border-white/10 text-gray-300' : 'bg-[#F8FAFC] border-[#CBD5E1] text-[#0F172A]'
+                  }`}>
+                    <span className={`text-[11px] ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>Pages:</span>
                     <select
                       value={pagesToSync}
                       onChange={(e) => setPagesToSync(Number(e.target.value))}
-                      className="bg-transparent font-bold text-gray-200 focus:outline-none cursor-pointer"
+                      className="bg-transparent font-bold focus:outline-none cursor-pointer"
                     >
-                      <option value={1} className="bg-[#172034]">1 Page</option>
-                      <option value={5} className="bg-[#172034]">5 Pages ({syncCount * 5})</option>
-                      <option value={10} className="bg-[#172034]">10 Pages ({syncCount * 10})</option>
-                      <option value={20} className="bg-[#172034]">20 Pages ({syncCount * 20})</option>
-                      <option value={50} className="bg-[#172034]">50 Pages ({syncCount * 50})</option>
-                      <option value={100} className="bg-[#172034]">100 Pages ({syncCount * 100})</option>
-                      <option value={160} className="bg-[#172034]">⚡ All 160 Pages (7,900+)</option>
+                      <option value={1} className={darkMode ? 'bg-[#172034] text-white' : 'bg-white text-[#0F172A]'}>1 Page</option>
+                      <option value={5} className={darkMode ? 'bg-[#172034] text-white' : 'bg-white text-[#0F172A]'}>5 Pages ({syncCount * 5})</option>
+                      <option value={10} className={darkMode ? 'bg-[#172034] text-white' : 'bg-white text-[#0F172A]'}>10 Pages ({syncCount * 10})</option>
+                      <option value={20} className={darkMode ? 'bg-[#172034] text-white' : 'bg-white text-[#0F172A]'}>20 Pages ({syncCount * 20})</option>
+                      <option value={50} className={darkMode ? 'bg-[#172034] text-white' : 'bg-white text-[#0F172A]'}>50 Pages ({syncCount * 50})</option>
+                      <option value={100} className={darkMode ? 'bg-[#172034] text-white' : 'bg-white text-[#0F172A]'}>100 Pages ({syncCount * 100})</option>
+                      <option value={160} className={darkMode ? 'bg-[#172034] text-white' : 'bg-white text-[#0F172A]'}>⚡ All 160 Pages (7,900+)</option>
                     </select>
                   </div>
 
@@ -1486,21 +1451,27 @@ export default function AdminPage() {
                 </div>
               </div>
 
-              <div className="flex items-center space-x-2 pt-2 border-t border-white/5">
-                <span className="text-[11px] text-gray-500 flex-shrink-0">Source API:</span>
+              <div className={`flex items-center space-x-2 pt-2 border-t ${
+                darkMode ? 'border-white/5' : 'border-[#E2E8F0]'
+              }`}>
+                <span className={`text-[11px] flex-shrink-0 ${darkMode ? 'text-gray-500' : 'text-gray-600 font-medium'}`}>Source API:</span>
                 <input
                   type="text"
                   value={sourceApiUrl}
                   onChange={(e) => setSourceApiUrl(e.target.value)}
-                  className="w-full bg-[#172034]/60 border border-white/5 rounded-lg px-2.5 py-1 text-[11px] text-gray-400 focus:text-white focus:outline-none focus:border-red-500/50"
+                  className={`w-full border rounded-lg px-2.5 py-1.5 text-[11px] focus:outline-none focus:border-red-500/50 transition ${
+                    darkMode ? 'bg-[#172034]/60 border-white/5 text-gray-400 focus:text-white' : 'bg-[#F8FAFC] border-[#CBD5E1] text-[#0F172A]'
+                  }`}
                   placeholder="https://movies4u.kg/wp-json/wp/v2"
                 />
               </div>
 
               {syncStatus && (
-                <div className="p-3 bg-[#172034] border border-white/10 rounded-xl flex items-center space-x-2 text-xs">
-                  <CheckCircle className="w-4 h-4 text-green-400 flex-shrink-0" />
-                  <span className="text-gray-200">{syncStatus}</span>
+                <div className={`p-3 border rounded-xl flex items-center space-x-2 text-xs ${
+                  darkMode ? 'bg-[#172034] border-white/10 text-gray-200' : 'bg-green-50 border-green-200 text-green-900'
+                }`}>
+                  <CheckCircle className="w-4 h-4 text-green-500 flex-shrink-0" />
+                  <span>{syncStatus}</span>
                 </div>
               )}
             </div>
@@ -1508,21 +1479,25 @@ export default function AdminPage() {
 
           {/* New Movies Discovery & Insertion Section */}
           {activeTab === 'new_movies' && (
-            <div className="bg-[#0F1524] border border-white/10 rounded-2xl p-4 sm:p-6 shadow-xl space-y-4 sm:space-y-5">
+            <div className={`border rounded-2xl p-4 sm:p-6 space-y-4 sm:space-y-5 w-full ${
+              darkMode ? 'bg-[#0D1322] border-white/10' : 'bg-white border-[#E2E8F0] shadow-sm'
+            }`}>
               {/* Header & Controls */}
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-white/10">
+              <div className={`flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b ${
+                darkMode ? 'border-white/10' : 'border-[#E2E8F0]'
+              }`}>
                 <div className="flex items-center space-x-2.5">
-                  <div className="w-8 h-8 rounded-lg bg-amber-500/15 border border-amber-500/30 flex items-center justify-center text-amber-400 flex-shrink-0">
+                  <div className="w-8 h-8 rounded-lg bg-amber-500/15 border border-amber-500/30 flex items-center justify-center text-amber-500 flex-shrink-0">
                     <Sparkles className="w-4 h-4" />
                   </div>
                   <div>
                     <div className="flex items-center space-x-2">
-                      <h3 className="text-base sm:text-lg font-bold text-white">New Movies</h3>
-                      <span className="bg-amber-500/15 text-amber-400 border border-amber-500/30 text-[11px] px-2 py-0.5 rounded-full font-semibold">
+                      <h3 className={`text-base sm:text-lg font-bold ${darkMode ? 'text-white' : 'text-[#0F172A]'}`}>New Movies</h3>
+                      <span className="bg-amber-500/15 text-amber-500 border border-amber-500/30 text-[11px] px-2 py-0.5 rounded-full font-semibold">
                         {newMoviesList.length} Pending
                       </span>
                     </div>
-                    <p className="text-xs text-gray-400 mt-0.5">
+                    <p className={`text-xs mt-0.5 ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
                       Discover and import new releases from source.
                     </p>
                   </div>
@@ -1533,18 +1508,22 @@ export default function AdminPage() {
                   <button
                     onClick={fetchNewMovies}
                     disabled={isLoadingNewMovies}
-                    className="flex-1 sm:flex-none flex items-center justify-center space-x-1.5 px-3 py-2 bg-[#172034] hover:bg-[#1E2B47] border border-white/10 rounded-xl text-xs font-semibold text-gray-200 transition disabled:opacity-50 cursor-pointer"
+                    className={`flex-1 sm:flex-none flex items-center justify-center space-x-1.5 px-3 py-2 border rounded-xl text-xs font-semibold transition disabled:opacity-50 cursor-pointer ${
+                      darkMode ? 'bg-[#172034] hover:bg-[#1E2B47] border-white/10 text-gray-200' : 'bg-[#F8FAFC] hover:bg-slate-100 border-[#CBD5E1] text-[#0F172A]'
+                    }`}
                   >
-                    <RefreshCw className={`w-3.5 h-3.5 ${isLoadingNewMovies ? 'animate-spin text-amber-400' : ''}`} />
+                    <RefreshCw className={`w-3.5 h-3.5 ${isLoadingNewMovies ? 'animate-spin text-amber-500' : ''}`} />
                     <span>{isLoadingNewMovies ? 'Scanning...' : 'Scan Source'}</span>
                   </button>
 
                   <button
                     type="button"
                     onClick={() => setShowManualInput((prev) => !prev)}
-                    className="flex-1 sm:flex-none flex items-center justify-center space-x-1.5 px-3 py-2 bg-[#172034] hover:bg-[#1E2B47] border border-white/10 rounded-xl text-xs font-semibold text-gray-300 transition cursor-pointer"
+                    className={`flex-1 sm:flex-none flex items-center justify-center space-x-1.5 px-3 py-2 border rounded-xl text-xs font-semibold transition cursor-pointer ${
+                      darkMode ? 'bg-[#172034] hover:bg-[#1E2B47] border-white/10 text-gray-300' : 'bg-[#F8FAFC] hover:bg-slate-100 border-[#CBD5E1] text-[#0F172A]'
+                    }`}
                   >
-                    <Globe className="w-3.5 h-3.5 text-blue-400" />
+                    <Globe className="w-3.5 h-3.5 text-blue-500" />
                     <span>{showManualInput ? 'Close' : 'JSON Import'}</span>
                   </button>
 
@@ -1558,12 +1537,14 @@ export default function AdminPage() {
                             setSelectedNewMovieSlugs(newMoviesList.map((m) => m.slug));
                           }
                         }}
-                        className="w-full sm:w-auto flex items-center justify-center space-x-1.5 px-3 py-2 bg-[#172034] hover:bg-[#1E2B47] border border-white/10 rounded-xl text-xs font-semibold text-gray-200 transition cursor-pointer"
+                        className={`w-full sm:w-auto flex items-center justify-center space-x-1.5 px-3 py-2 border rounded-xl text-xs font-semibold transition cursor-pointer ${
+                          darkMode ? 'bg-[#172034] hover:bg-[#1E2B47] border-white/10 text-gray-200' : 'bg-[#F8FAFC] hover:bg-slate-100 border-[#CBD5E1] text-[#0F172A]'
+                        }`}
                       >
                         {selectedNewMovieSlugs.length === newMoviesList.length ? (
-                          <CheckSquare className="w-3.5 h-3.5 text-amber-400" />
+                          <CheckSquare className="w-3.5 h-3.5 text-amber-500" />
                         ) : (
-                          <Square className="w-3.5 h-3.5 text-gray-400" />
+                          <Square className={`w-3.5 h-3.5 ${darkMode ? 'text-gray-400' : 'text-gray-500'}`} />
                         )}
                         <span>
                           {selectedNewMovieSlugs.length === newMoviesList.length
@@ -1596,17 +1577,19 @@ export default function AdminPage() {
 
               {/* Collapsible Manual JSON Import */}
               {showManualInput && (
-                <div className="p-3.5 sm:p-4 bg-[#141C30] border border-blue-500/20 rounded-xl space-y-2.5">
+                <div className={`p-3.5 sm:p-4 border rounded-xl space-y-2.5 ${
+                  darkMode ? 'bg-[#141C30] border-blue-500/20' : 'bg-blue-50/60 border-blue-200'
+                }`}>
                   <div className="flex items-center justify-between">
-                    <h4 className="text-xs font-semibold text-white flex items-center space-x-1.5">
-                      <Globe className="w-3.5 h-3.5 text-blue-400" />
+                    <h4 className={`text-xs font-semibold flex items-center space-x-1.5 ${darkMode ? 'text-white' : 'text-[#0F172A]'}`}>
+                      <Globe className="w-3.5 h-3.5 text-blue-500" />
                       <span>Paste Posts JSON</span>
                     </h4>
                     <a
                       href="https://movies4u.kg/wp-json/wp/v2/posts?_embed=1&per_page=40&orderby=date&order=desc"
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-[11px] text-blue-400 hover:text-blue-300 underline flex items-center space-x-1"
+                      className="text-[11px] text-blue-500 hover:text-blue-600 underline flex items-center space-x-1"
                     >
                       <span>Open Source API</span>
                       <ExternalLink className="w-3 h-3" />
@@ -1617,13 +1600,17 @@ export default function AdminPage() {
                     value={rawPostsInput}
                     onChange={(e) => setRawPostsInput(e.target.value)}
                     placeholder="Paste WordPress posts JSON array here: [{ id: ..., title: ... }]"
-                    className="w-full bg-[#0B0F19] border border-white/10 rounded-lg p-2.5 text-xs text-gray-200 placeholder-gray-500 font-mono focus:outline-none focus:border-blue-500/50"
+                    className={`w-full border rounded-lg p-2.5 text-xs font-mono focus:outline-none focus:border-blue-500/50 transition ${
+                      darkMode ? 'bg-[#0B0F19] border-white/10 text-gray-200 placeholder-gray-500' : 'bg-white border-blue-200 text-[#0F172A] placeholder-gray-400'
+                    }`}
                   />
                   <div className="flex items-center justify-end space-x-2">
                     <button
                       type="button"
                       onClick={() => setRawPostsInput('')}
-                      className="px-2.5 py-1.5 bg-white/5 hover:bg-white/10 text-gray-300 rounded-lg text-xs cursor-pointer"
+                      className={`px-2.5 py-1.5 rounded-lg text-xs cursor-pointer ${
+                        darkMode ? 'bg-white/5 hover:bg-white/10 text-gray-300' : 'bg-slate-200 hover:bg-slate-300 text-slate-700'
+                      }`}
                     >
                       Clear
                     </button>
@@ -1646,13 +1633,15 @@ export default function AdminPage() {
 
               {/* Status Banner */}
               {newMoviesStatus && (
-                <div className="p-3 bg-[#172034] border border-white/10 rounded-xl flex items-center justify-between text-xs">
+                <div className={`p-3 border rounded-xl flex items-center justify-between text-xs ${
+                  darkMode ? 'bg-[#172034] border-white/10' : 'bg-amber-50 border-amber-200'
+                }`}>
                   <div className="flex items-center space-x-2">
-                    <Sparkles className="w-3.5 h-3.5 text-amber-400 flex-shrink-0" />
-                    <span className="text-gray-200">{newMoviesStatus}</span>
+                    <Sparkles className="w-3.5 h-3.5 text-amber-500 flex-shrink-0" />
+                    <span className={darkMode ? 'text-gray-200' : 'text-amber-950'}>{newMoviesStatus}</span>
                   </div>
                   {isInsertingNewMovies && (
-                    <RefreshCw className="w-3.5 h-3.5 text-amber-400 animate-spin flex-shrink-0" />
+                    <RefreshCw className="w-3.5 h-3.5 text-amber-500 animate-spin flex-shrink-0" />
                   )}
                 </div>
               )}
@@ -1660,22 +1649,26 @@ export default function AdminPage() {
               {/* Content / Movies Grid or Empty State */}
               {isLoadingNewMovies ? (
                 <div className="py-12 text-center text-gray-400">
-                  <RefreshCw className="w-7 h-7 animate-spin mx-auto mb-2 text-amber-400" />
-                  <p className="text-xs font-semibold text-white">Comparing source with database...</p>
+                  <RefreshCw className="w-7 h-7 animate-spin mx-auto mb-2 text-amber-500" />
+                  <p className={`text-xs font-semibold ${darkMode ? 'text-white' : 'text-[#0F172A]'}`}>Comparing source with database...</p>
                 </div>
               ) : newMoviesList.length === 0 ? (
                 /* Simple, Clean Empty State */
-                <div className="py-12 sm:py-16 text-center bg-[#111726] border border-white/5 rounded-2xl p-6">
-                  <div className="w-12 h-12 bg-emerald-500/15 border border-emerald-500/25 rounded-xl flex items-center justify-center text-emerald-400 mx-auto mb-3">
+                <div className={`py-12 sm:py-16 text-center border rounded-2xl p-6 ${
+                  darkMode ? 'bg-[#111726] border-white/5' : 'bg-[#F8FAFC] border-[#E2E8F0]'
+                }`}>
+                  <div className="w-12 h-12 bg-emerald-500/15 border border-emerald-500/25 rounded-xl flex items-center justify-center text-emerald-500 mx-auto mb-3">
                     <CheckCircle className="w-6 h-6" />
                   </div>
-                  <h4 className="text-sm sm:text-base font-bold text-white">All Caught Up</h4>
-                  <p className="text-xs text-gray-400 max-w-sm mx-auto mt-1 leading-relaxed">
+                  <h4 className={`text-sm sm:text-base font-bold ${darkMode ? 'text-white' : 'text-[#0F172A]'}`}>All Caught Up</h4>
+                  <p className={`text-xs max-w-sm mx-auto mt-1 leading-relaxed ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
                     No pending movies. Every movie from source is already in your database.
                   </p>
                   <button
                     onClick={fetchNewMovies}
-                    className="mt-4 inline-flex items-center space-x-1.5 px-3.5 py-1.5 bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg text-xs font-semibold text-gray-200 transition cursor-pointer"
+                    className={`mt-4 inline-flex items-center space-x-1.5 px-3.5 py-1.5 border rounded-lg text-xs font-semibold transition cursor-pointer ${
+                      darkMode ? 'bg-white/5 hover:bg-white/10 border-white/10 text-gray-200' : 'bg-white hover:bg-slate-100 border-[#CBD5E1] text-[#0F172A] shadow-sm'
+                    }`}
                   >
                     <RefreshCw className="w-3 h-3 text-gray-400" />
                     <span>Scan Again</span>
@@ -1699,20 +1692,22 @@ export default function AdminPage() {
                         className={`group relative border rounded-xl p-3 flex space-x-3 cursor-pointer transition-all ${
                           isSelected
                             ? 'bg-amber-500/10 border-amber-500/40 shadow-sm'
-                            : 'bg-[#111726] border-white/10 hover:border-white/20'
+                            : darkMode ? 'bg-[#111726] border-white/10 hover:border-white/20' : 'bg-[#F8FAFC] border-[#E2E8F0] hover:border-slate-300'
                         }`}
                       >
                         {/* Selection Checkbox */}
                         <div className="absolute top-2.5 right-2.5 z-10">
                           {isSelected ? (
-                            <CheckSquare className="w-4 h-4 text-amber-400" />
+                            <CheckSquare className="w-4 h-4 text-amber-500" />
                           ) : (
-                            <Square className="w-4 h-4 text-gray-500 group-hover:text-gray-300" />
+                            <Square className={`w-4 h-4 ${darkMode ? 'text-gray-500 group-hover:text-gray-300' : 'text-gray-400 group-hover:text-gray-600'}`} />
                           )}
                         </div>
 
                         {/* Movie Poster */}
-                        <div className="w-16 h-22 sm:w-18 sm:h-26 rounded-lg overflow-hidden bg-black/40 flex-shrink-0 border border-white/10 relative">
+                        <div className={`w-16 h-22 sm:w-18 sm:h-26 rounded-lg overflow-hidden flex-shrink-0 border relative ${
+                          darkMode ? 'bg-black/40 border-white/10' : 'bg-slate-200 border-slate-300'
+                        }`}>
                           {movie.poster ? (
                             <img
                               src={getProxiedPoster(movie.poster)}
@@ -1723,7 +1718,7 @@ export default function AdminPage() {
                               }}
                             />
                           ) : (
-                            <div className="w-full h-full flex items-center justify-center text-gray-600">
+                            <div className="w-full h-full flex items-center justify-center text-gray-400">
                               <Film className="w-5 h-5" />
                             </div>
                           )}
@@ -1732,11 +1727,13 @@ export default function AdminPage() {
                         {/* Movie Info */}
                         <div className="flex-1 min-w-0 flex flex-col justify-between pr-4">
                           <div>
-                            <h4 className="text-xs font-semibold text-white line-clamp-2 leading-snug group-hover:text-amber-300 transition">
+                            <h4 className={`text-xs font-semibold line-clamp-2 leading-snug group-hover:text-amber-500 transition ${
+                              darkMode ? 'text-white' : 'text-[#0F172A]'
+                            }`}>
                               {movie.title}
                             </h4>
 
-                            <div className="flex items-center space-x-1.5 text-[11px] text-amber-400 mt-1 font-medium">
+                            <div className="flex items-center space-x-1.5 text-[11px] text-amber-500 mt-1 font-medium">
                               <Clock className="w-3 h-3 flex-shrink-0" />
                               <span className="truncate">
                                 {movie.date
@@ -1756,13 +1753,15 @@ export default function AdminPage() {
                               {movie.qualities?.slice(0, 2).map((q: string) => (
                                 <span
                                   key={q}
-                                  className="text-[9px] px-1.5 py-0.5 rounded bg-white/5 border border-white/10 text-gray-300 font-mono"
+                                  className={`text-[9px] px-1.5 py-0.5 rounded border font-mono ${
+                                    darkMode ? 'bg-white/5 border-white/10 text-gray-300' : 'bg-slate-200/70 border-slate-300 text-slate-700'
+                                  }`}
                                 >
                                   {q}
                                 </span>
                               ))}
                               {movie.downloadLinks?.length > 0 && (
-                                <span className="text-[9px] px-1.5 py-0.5 rounded bg-emerald-500/15 border border-emerald-500/25 text-emerald-400 font-bold">
+                                <span className="text-[9px] px-1.5 py-0.5 rounded bg-emerald-500/15 border border-emerald-500/25 text-emerald-500 font-bold">
                                   {movie.downloadLinks.length} Links
                                 </span>
                               )}
@@ -1770,7 +1769,9 @@ export default function AdminPage() {
                           </div>
 
                           {/* Action footer */}
-                          <div className="mt-2 pt-1.5 border-t border-white/5 flex items-center justify-between">
+                          <div className={`mt-2 pt-1.5 border-t flex items-center justify-between ${
+                            darkMode ? 'border-white/5' : 'border-[#E2E8F0]'
+                          }`}>
                             <span className="text-[10px] text-gray-500 font-mono">
                               #{movie.wpId}
                             </span>
@@ -1781,7 +1782,7 @@ export default function AdminPage() {
                                 insertNewMovies([movie]);
                               }}
                               disabled={isInsertingNewMovies}
-                              className="px-2 py-1 bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/30 rounded-md text-[10px] font-bold transition flex items-center space-x-1 active:scale-95 disabled:opacity-50 cursor-pointer"
+                              className="px-2 py-1 bg-amber-500/20 hover:bg-amber-500/30 text-amber-500 border border-amber-500/30 rounded-md text-[10px] font-bold transition flex items-center space-x-1 active:scale-95 disabled:opacity-50 cursor-pointer"
                             >
                               <Download className="w-2.5 h-2.5" />
                               <span>Insert</span>
@@ -1796,14 +1797,16 @@ export default function AdminPage() {
             </div>
           )}
 
-          {/* Synced Movies Table (Movies Page) */}
+          {/* Synced Movies Table (Movies Page - Full Page View) */}
           {activeTab === 'movies' && (
-            <div className="bg-[#0F1524] border border-white/10 rounded-2xl p-5 sm:p-6 shadow-xl space-y-4">
+            <div className={`border rounded-2xl p-4 sm:p-6 space-y-4 w-full ${
+              darkMode ? 'bg-[#0D1322] border-white/10' : 'bg-white border-[#E2E8F0] shadow-sm'
+            }`}>
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                 <div className="flex items-center space-x-2">
                   <Film className="w-4 h-4 text-red-500" />
-                  <h3 className="text-base font-bold text-white">Movies in Database</h3>
-                  <span className="bg-red-500/20 text-red-300 border border-red-500/30 text-[10px] px-2 py-0.5 rounded-full font-bold">
+                  <h3 className={`text-base font-bold ${darkMode ? 'text-white' : 'text-[#0F172A]'}`}>Movies in Database</h3>
+                  <span className="bg-red-500/15 text-red-500 border border-red-500/25 text-[10px] px-2 py-0.5 rounded-full font-bold">
                     {totalMoviesCount ? `${totalMoviesCount.toLocaleString()} Live` : '8,000 Live'}
                   </span>
                 </div>
@@ -1814,16 +1817,20 @@ export default function AdminPage() {
                     value={searchQuery}
                     onChange={(e) => handleMovieSearch(e.target.value)}
                     placeholder="Search synced movies..."
-                    className="w-full bg-[#172034] border border-white/10 rounded-xl px-3.5 py-2 text-xs text-white placeholder-gray-500 focus:outline-none focus:border-red-500 pl-8 transition"
+                    className={`w-full border rounded-xl px-3.5 py-2 text-xs pl-8 transition focus:outline-none focus:border-red-500 ${
+                      darkMode ? 'bg-[#172034] border-white/10 text-white placeholder-gray-500' : 'bg-[#F8FAFC] border-[#CBD5E1] text-[#0F172A] placeholder-gray-400'
+                    }`}
                   />
-                  <Search className="w-3.5 h-3.5 text-gray-500 absolute left-2.5 top-2.5" />
+                  <Search className={`w-3.5 h-3.5 absolute left-2.5 top-2.5 ${darkMode ? 'text-gray-500' : 'text-gray-400'}`} />
                 </div>
               </div>
 
               {/* Table with responsive horizontal scroll */}
-              <div className="overflow-x-auto rounded-xl border border-white/5">
+              <div className={`overflow-x-auto rounded-xl border ${darkMode ? 'border-white/10' : 'border-[#E2E8F0]'}`}>
                 <table className="w-full text-left text-xs min-w-[780px]">
-                  <thead className="bg-[#172034] text-gray-400 uppercase tracking-wider text-[10px]">
+                  <thead className={`uppercase tracking-wider text-[10px] font-bold ${
+                    darkMode ? 'bg-[#172034] text-gray-400' : 'bg-[#F1F5F9] text-gray-600 border-b border-[#E2E8F0]'
+                  }`}>
                     <tr>
                       <th className="py-3 px-4">Poster</th>
                       <th className="py-3 px-4">Title</th>
@@ -1834,7 +1841,7 @@ export default function AdminPage() {
                       <th className="py-3 px-4 text-right">Actions</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-white/5 bg-[#0D1322]">
+                  <tbody className={`divide-y ${darkMode ? 'divide-white/5 bg-[#0D1322]' : 'divide-[#F1F5F9] bg-white'}`}>
                     {moviesList.length === 0 ? (
                       <tr>
                         <td colSpan={7} className="py-8 text-center text-gray-500">
@@ -1847,13 +1854,15 @@ export default function AdminPage() {
                           searchQuery ? m.title.toLowerCase().includes(searchQuery.toLowerCase()) : true
                         )
                         .map((m) => (
-                          <tr key={m.id || m.slug} className="hover:bg-white/[0.03] transition">
+                          <tr key={m.id || m.slug} className={`transition ${darkMode ? 'hover:bg-white/[0.03]' : 'hover:bg-slate-50'}`}>
                             <td className="py-3 px-4">
                               {m.poster && m.poster !== '/poster-placeholder.svg' ? (
                                 <img
                                   src={getProxiedPoster(m.poster)}
                                   alt={m.title}
-                                  className="w-14 h-20 object-cover rounded-xl bg-gray-800 border border-white/10 shadow-md"
+                                  className={`w-14 h-20 object-cover rounded-xl border shadow-sm ${
+                                    darkMode ? 'bg-gray-800 border-white/10' : 'bg-slate-100 border-slate-200'
+                                  }`}
                                   onError={(e: any) => {
                                     e.target.style.display = 'none';
                                     if (e.target.nextSibling) e.target.nextSibling.style.display = 'flex';
@@ -1867,25 +1876,25 @@ export default function AdminPage() {
                                 {m.title?.charAt(0)?.toUpperCase() || '?'}
                               </div>
                             </td>
-                            <td className="py-3 px-4 font-semibold text-gray-200 max-w-[240px] truncate">
+                            <td className={`py-3 px-4 font-semibold max-w-[240px] truncate ${darkMode ? 'text-gray-200' : 'text-[#0F172A]'}`}>
                               {m.title}
                             </td>
-                            <td className="py-3 px-4 text-gray-400">{m.year || '—'}</td>
+                            <td className={`py-3 px-4 ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>{m.year || '—'}</td>
                             <td className="py-3 px-4">
-                              <span className="text-yellow-400 font-bold">★ {m.rating || 'N/A'}</span>
+                              <span className="text-yellow-500 font-bold">★ {m.rating || 'N/A'}</span>
                             </td>
                             <td className="py-3 px-4">
                               {m.date ? (
                                 <div>
-                                  <p className="text-gray-300 text-[11px] font-medium">
+                                  <p className={`text-[11px] font-medium ${darkMode ? 'text-gray-300' : 'text-[#0F172A]'}`}>
                                     {new Date(m.date).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}
                                   </p>
-                                  <p className="text-gray-500 text-[10px]">
+                                  <p className={`text-[10px] ${darkMode ? 'text-gray-500' : 'text-gray-400'}`}>
                                     {new Date(m.date).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', hour12: true })}
                                   </p>
                                 </div>
                               ) : (
-                                <span className="text-gray-500">—</span>
+                                <span className={darkMode ? 'text-gray-500' : 'text-gray-400'}>—</span>
                               )}
                             </td>
                             <td className="py-3 px-4">
@@ -1893,7 +1902,9 @@ export default function AdminPage() {
                                 {(m.qualities || ['HD']).slice(0, 4).map((q: string) => (
                                   <span
                                     key={q}
-                                    className="bg-white/5 border border-white/10 text-[9px] px-1.5 py-0.5 rounded text-gray-300 font-mono"
+                                    className={`text-[9px] px-1.5 py-0.5 rounded border font-mono ${
+                                      darkMode ? 'bg-white/5 border-white/10 text-gray-300' : 'bg-slate-100 border-slate-200 text-slate-600'
+                                    }`}
                                   >
                                     {q}
                                   </span>
@@ -1904,7 +1915,11 @@ export default function AdminPage() {
                               <a
                                 href={`/movie/${m.slug}`}
                                 target="_blank"
-                                className="inline-flex items-center space-x-1 text-red-400 hover:text-red-300 bg-red-500/10 border border-red-500/20 px-2.5 py-1 rounded-lg transition text-[11px]"
+                                className={`inline-flex items-center space-x-1 px-2.5 py-1 rounded-lg transition text-[11px] font-medium ${
+                                  darkMode
+                                    ? 'text-red-400 hover:text-red-300 bg-red-500/10 border border-red-500/20'
+                                    : 'text-red-600 hover:text-red-700 bg-red-50 border border-red-200'
+                                }`}
                               >
                                 <span>View</span>
                                 <ExternalLink className="w-3 h-3" />
@@ -1919,17 +1934,21 @@ export default function AdminPage() {
 
               {/* Pagination Controls */}
               {movieTotalPages > 1 && (
-                <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-3 border-t border-white/5">
-                  <p className="text-[11px] text-gray-400">
-                    Page <span className="text-white font-bold">{moviePage}</span> of{' '}
-                    <span className="text-white font-bold">{movieTotalPages}</span>{' '}
+                <div className={`flex flex-col sm:flex-row items-center justify-between gap-3 pt-3 border-t ${
+                  darkMode ? 'border-white/5 text-gray-400' : 'border-[#E2E8F0] text-gray-600'
+                }`}>
+                  <p className="text-[11px]">
+                    Page <span className={`font-bold ${darkMode ? 'text-white' : 'text-[#0F172A]'}`}>{moviePage}</span> of{' '}
+                    <span className={`font-bold ${darkMode ? 'text-white' : 'text-[#0F172A]'}`}>{movieTotalPages}</span>{' '}
                     ({totalMoviesCount.toLocaleString()} movies)
                   </p>
                   <div className="flex items-center space-x-2">
                     <button
                       onClick={() => handleMoviePageChange(moviePage - 1)}
                       disabled={moviePage <= 1 || isLoadingMovies}
-                      className="flex items-center space-x-1 px-3 py-1.5 bg-[#172034] border border-white/10 rounded-lg text-xs text-gray-300 hover:text-white disabled:opacity-30 disabled:cursor-not-allowed transition cursor-pointer"
+                      className={`flex items-center space-x-1 px-3 py-1.5 border rounded-lg text-xs transition cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed ${
+                        darkMode ? 'bg-[#172034] border-white/10 text-gray-300 hover:text-white' : 'bg-white border-[#CBD5E1] text-[#0F172A] hover:bg-slate-50'
+                      }`}
                     >
                       <ChevronLeft className="w-3.5 h-3.5" />
                       <span>Previous</span>
@@ -1937,7 +1956,9 @@ export default function AdminPage() {
                     <button
                       onClick={() => handleMoviePageChange(moviePage + 1)}
                       disabled={moviePage >= movieTotalPages || isLoadingMovies}
-                      className="flex items-center space-x-1 px-3 py-1.5 bg-[#172034] border border-white/10 rounded-lg text-xs text-gray-300 hover:text-white disabled:opacity-30 disabled:cursor-not-allowed transition cursor-pointer"
+                      className={`flex items-center space-x-1 px-3 py-1.5 border rounded-lg text-xs transition cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed ${
+                        darkMode ? 'bg-[#172034] border-white/10 text-gray-300 hover:text-white' : 'bg-white border-[#CBD5E1] text-[#0F172A] hover:bg-slate-50'
+                      }`}
                     >
                       <span>Next</span>
                       <ChevronRight className="w-3.5 h-3.5" />
@@ -1948,14 +1969,16 @@ export default function AdminPage() {
             </div>
           )}
 
-          {/* Categories Table */}
+          {/* Categories Table (Categories Page - Full Page View) */}
           {activeTab === 'categories' && (
-            <div className="bg-[#0F1524] border border-white/10 rounded-2xl p-5 sm:p-6 shadow-xl space-y-4">
+            <div className={`border rounded-2xl p-4 sm:p-6 space-y-4 w-full ${
+              darkMode ? 'bg-[#0D1322] border-white/10' : 'bg-white border-[#E2E8F0] shadow-sm'
+            }`}>
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                 <div className="flex items-center space-x-2">
-                  <Layers className="w-4 h-4 text-blue-400" />
-                  <h3 className="text-base font-bold text-white">All Categories</h3>
-                  <span className="bg-blue-500/20 text-blue-300 border border-blue-500/30 text-[10px] px-2 py-0.5 rounded-full font-bold">
+                  <Layers className="w-4 h-4 text-blue-500" />
+                  <h3 className={`text-base font-bold ${darkMode ? 'text-white' : 'text-[#0F172A]'}`}>All Categories</h3>
+                  <span className="bg-blue-500/15 text-blue-500 border border-blue-500/25 text-[10px] px-2 py-0.5 rounded-full font-bold">
                     {categoriesList.length} Total
                   </span>
                 </div>
@@ -1966,26 +1989,30 @@ export default function AdminPage() {
                     value={categorySearch}
                     onChange={(e) => setCategorySearch(e.target.value)}
                     placeholder="Search categories..."
-                    className="w-full bg-[#172034] border border-white/10 rounded-xl px-3.5 py-2 text-xs text-white placeholder-gray-500 focus:outline-none focus:border-blue-500 pl-8 transition"
+                    className={`w-full border rounded-xl px-3.5 py-2 text-xs pl-8 transition focus:outline-none focus:border-blue-500 ${
+                      darkMode ? 'bg-[#172034] border-white/10 text-white placeholder-gray-500' : 'bg-[#F8FAFC] border-[#CBD5E1] text-[#0F172A] placeholder-gray-400'
+                    }`}
                   />
-                  <Search className="w-3.5 h-3.5 text-gray-500 absolute left-2.5 top-2.5" />
+                  <Search className={`w-3.5 h-3.5 absolute left-2.5 top-2.5 ${darkMode ? 'text-gray-500' : 'text-gray-400'}`} />
                 </div>
               </div>
 
               {isLoadingCategories ? (
-                <div className="py-12 text-center text-gray-500 text-sm">
+                <div className={`py-12 text-center text-sm ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
                   <RefreshCw className="w-5 h-5 animate-spin mx-auto mb-2 text-gray-400" />
                   Loading categories...
                 </div>
               ) : categoriesList.length === 0 ? (
-                <div className="py-12 text-center text-gray-500 text-sm">
-                  <Layers className="w-6 h-6 mx-auto mb-2 text-gray-600" />
+                <div className={`py-12 text-center text-sm ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                  <Layers className="w-6 h-6 mx-auto mb-2 text-gray-400" />
                   No categories found in the database.
                 </div>
               ) : (
-                <div className="overflow-x-auto rounded-xl border border-white/5">
+                <div className={`overflow-x-auto rounded-xl border ${darkMode ? 'border-white/10' : 'border-[#E2E8F0]'}`}>
                   <table className="w-full text-left text-xs min-w-[480px]">
-                    <thead className="bg-[#172034] text-gray-400 uppercase tracking-wider text-[10px]">
+                    <thead className={`uppercase tracking-wider text-[10px] font-bold ${
+                      darkMode ? 'bg-[#172034] text-gray-400' : 'bg-[#F1F5F9] text-gray-600 border-b border-[#E2E8F0]'
+                    }`}>
                       <tr>
                         <th className="py-3 px-4 w-10">#</th>
                         <th className="py-3 px-4">Category Name</th>
@@ -1994,7 +2021,7 @@ export default function AdminPage() {
                         <th className="py-3 px-4 text-right">Actions</th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-white/5 bg-[#0D1322]">
+                    <tbody className={`divide-y ${darkMode ? 'divide-white/5 bg-[#0D1322]' : 'divide-[#F1F5F9] bg-white'}`}>
                       {categoriesList
                         .filter((c) =>
                           categorySearch
@@ -2003,26 +2030,28 @@ export default function AdminPage() {
                             : true
                         )
                         .map((cat, index) => (
-                          <tr key={`cat-${cat.slug || cat.id || index}`} className="hover:bg-white/[0.03] transition">
+                          <tr key={`cat-${cat.slug || cat.id || index}`} className={`transition ${darkMode ? 'hover:bg-white/[0.03]' : 'hover:bg-slate-50'}`}>
                             <td className="py-3 px-4 text-gray-500 font-mono">{index + 1}</td>
                             <td className="py-3 px-4">
                               <div className="flex items-center space-x-2">
-                                <Tag className="w-3.5 h-3.5 text-blue-400 flex-shrink-0" />
-                                <span className="font-semibold text-gray-200">{cat.name}</span>
+                                <Tag className="w-3.5 h-3.5 text-blue-500 flex-shrink-0" />
+                                <span className={`font-semibold ${darkMode ? 'text-gray-200' : 'text-[#0F172A]'}`}>{cat.name}</span>
                               </div>
                             </td>
                             <td className="py-3 px-4">
-                              <span className="bg-white/5 border border-white/10 text-[10px] px-2 py-0.5 rounded text-gray-400 font-mono">
+                              <span className={`border text-[10px] px-2 py-0.5 rounded font-mono ${
+                                darkMode ? 'bg-white/5 border-white/10 text-gray-400' : 'bg-slate-100 border-slate-200 text-slate-600'
+                              }`}>
                                 {cat.slug}
                               </span>
                             </td>
                             <td className="py-3 px-4 text-center">
                               <span className={`inline-flex items-center justify-center min-w-[2rem] px-2 py-0.5 rounded-full text-[10px] font-bold ${
                                 cat.count > 100
-                                  ? 'bg-green-500/15 text-green-400 border border-green-500/20'
+                                  ? 'bg-green-500/15 text-green-500 border border-green-500/25'
                                   : cat.count > 20
-                                  ? 'bg-blue-500/15 text-blue-400 border border-blue-500/20'
-                                  : 'bg-white/5 text-gray-400 border border-white/10'
+                                  ? 'bg-blue-500/15 text-blue-500 border border-blue-500/25'
+                                  : darkMode ? 'bg-white/5 text-gray-400 border border-white/10' : 'bg-slate-100 text-slate-600 border border-slate-200'
                               }`}>
                                 {cat.count}
                               </span>
@@ -2031,7 +2060,11 @@ export default function AdminPage() {
                               <a
                                 href={`/category/${cat.slug}`}
                                 target="_blank"
-                                className="inline-flex items-center space-x-1 text-blue-400 hover:text-blue-300 bg-blue-500/10 border border-blue-500/20 px-2.5 py-1 rounded-lg transition text-[11px]"
+                                className={`inline-flex items-center space-x-1 px-2.5 py-1 rounded-lg transition text-[11px] font-medium ${
+                                  darkMode
+                                    ? 'text-blue-400 hover:text-blue-300 bg-blue-500/10 border border-blue-500/20'
+                                    : 'text-blue-600 hover:text-blue-700 bg-blue-50 border border-blue-200'
+                                }`}
                               >
                                 <span>View</span>
                                 <ExternalLink className="w-3 h-3" />
