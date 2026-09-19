@@ -415,8 +415,9 @@ export default function AdminPage() {
           {/* 1-Click Google Sign In */}
           <button
             type="button"
-            onClick={() => signIn('google', { callbackUrl: '/admin' })}
-            className="w-full bg-white hover:bg-gray-100 text-gray-900 font-semibold py-2.5 px-4 rounded-xl transition shadow text-sm flex items-center justify-center space-x-3 active:scale-[0.99]"
+            onClick={() => signIn('google', { callbackUrl: '/admin' }, { prompt: 'select_account' })}
+            style={{ cursor: 'pointer' }}
+            className="w-full bg-white hover:bg-gray-100 text-gray-900 font-semibold py-2.5 px-4 rounded-xl transition shadow text-sm flex items-center justify-center space-x-3 active:scale-[0.99] cursor-pointer hover:shadow-md"
           >
             <svg className="w-4 h-4" viewBox="0 0 24 24">
               <path
@@ -481,7 +482,8 @@ export default function AdminPage() {
 
             <button
               type="submit"
-              className="w-full bg-red-600 hover:bg-red-500 active:scale-[0.99] text-white font-semibold py-2.5 rounded-xl transition shadow-md shadow-red-600/20 text-sm flex items-center justify-center space-x-2 mt-2"
+              style={{ cursor: 'pointer' }}
+              className="w-full bg-red-600 hover:bg-red-500 active:scale-[0.99] text-white font-semibold py-2.5 rounded-xl transition shadow-md shadow-red-600/20 text-sm flex items-center justify-center space-x-2 mt-2 cursor-pointer"
             >
               <ShieldCheck className="w-4 h-4" />
               <span>Sign In to Dashboard</span>
