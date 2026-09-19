@@ -994,9 +994,20 @@ export default function AdminPage() {
         /* Active sidebar nav override */
         [data-theme="light"] aside nav button.bg-red-600 { color: #FFFFFF !important; }
         [data-theme="light"] aside nav button.bg-red-600 span { color: #FFFFFF !important; }
-        /* Pagination + badge fixes */
-        [data-theme="light"] .bg-white\\/10 { background-color: rgba(0,0,0,0.06) !important; }
-        [data-theme="light"] .bg-white\\/5 { background-color: rgba(0,0,0,0.03) !important; }
+        /* Custom scrollbar for sidebar */
+        .custom-scrollbar::-webkit-scrollbar {
+          width: 5px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+          background: transparent;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+          background: rgba(150, 150, 150, 0.2);
+          border-radius: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+          background: rgba(150, 150, 150, 0.4);
+        }
       `}</style>
 
       {/* Mobile Backdrop Overlay */}
@@ -1009,153 +1020,154 @@ export default function AdminPage() {
 
       {/* Left Sidebar Panel (Sticky on Desktop, Slide-in Drawer on Mobile) */}
       <aside
-        className={`fixed inset-y-0 left-0 z-50 w-72 lg:w-64 border-r flex flex-col justify-between transition-all duration-300 ease-in-out lg:static lg:translate-x-0 ${
+        className={`fixed inset-y-0 left-0 z-50 w-72 lg:w-64 border-r flex flex-col h-screen max-h-screen overflow-hidden transition-all duration-300 ease-in-out lg:sticky lg:top-0 lg:translate-x-0 ${
           sidebarOpen ? 'translate-x-0' : '-translate-x-full'
         } ${darkMode ? 'bg-[#0D1322] border-white/10' : 'bg-white border-[#E2E8F0]'}`}
       >
-        {/* Sidebar Top: Brand & Nav Links */}
-        <div>
-          {/* Brand Header */}
-          <div className={`p-5 border-b flex items-center justify-between ${darkMode ? 'border-white/10' : 'border-[#E2E8F0]'}`}>
-            <div className="flex items-center space-x-3">
-              <div className="w-10 h-10 bg-red-600 rounded-xl flex items-center justify-center text-white shadow-lg shadow-red-600/30">
-                <Film className="w-5 h-5" />
-              </div>
-              <div>
-                <div className="flex items-center space-x-2">
-                  <span className={`font-black text-base tracking-tight ${darkMode ? 'text-white' : 'text-[#0F172A]'}`}>MOVIE MAN</span>
-                  <span className="bg-red-600/20 text-red-400 border border-red-500/30 text-[9px] font-bold uppercase px-1.5 py-0.5 rounded-full">
-                    Admin
-                  </span>
-                </div>
-                <p className={`text-[11px] ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>Control Dashboard</p>
-              </div>
+        {/* Brand Header */}
+        <div className={`p-4 sm:p-5 border-b flex-shrink-0 flex items-center justify-between ${darkMode ? 'border-white/10' : 'border-[#E2E8F0]'}`}>
+          <div className="flex items-center space-x-3">
+            <div className="w-10 h-10 bg-red-600 rounded-xl flex items-center justify-center text-white shadow-lg shadow-red-600/30 flex-shrink-0">
+              <Film className="w-5 h-5" />
             </div>
-
-            {/* Mobile Close Button */}
-            <button
-              onClick={() => setSidebarOpen(false)}
-              className={`lg:hidden p-1 rounded-lg ${darkMode ? 'text-gray-400 hover:text-white hover:bg-white/5' : 'text-gray-500 hover:text-gray-900 hover:bg-black/5'}`}
-            >
-              <X className="w-5 h-5" />
-            </button>
+            <div>
+              <div className="flex items-center space-x-2">
+                <span className={`font-black text-base tracking-tight ${darkMode ? 'text-white' : 'text-[#0F172A]'}`}>MOVIE MAN</span>
+                <span className="bg-red-600/20 text-red-400 border border-red-500/30 text-[9px] font-bold uppercase px-1.5 py-0.5 rounded-full">
+                  Admin
+                </span>
+              </div>
+              <p className={`text-[11px] ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>Control Dashboard</p>
+            </div>
           </div>
 
-          {/* Navigation Links */}
-          <nav className="p-3 space-y-1">
-            <button
-              onClick={() => switchTab('overview')}
-              className={`w-full flex items-center space-x-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold transition cursor-pointer ${
-                activeTab === 'overview'
-                  ? 'bg-red-600 text-white shadow-lg shadow-red-600/20'
-                  : darkMode ? 'text-gray-300 hover:text-white hover:bg-white/5' : 'text-gray-600 hover:text-gray-900 hover:bg-black/5'
-              }`}
-            >
-              <LayoutDashboard className="w-4 h-4 flex-shrink-0" />
-              <span>Dashboard Overview</span>
-            </button>
-
-            <button
-              onClick={() => switchTab('sync')}
-              className={`w-full flex items-center space-x-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold transition cursor-pointer ${
-                activeTab === 'sync'
-                  ? 'bg-red-600 text-white shadow-lg shadow-red-600/20'
-                  : darkMode ? 'text-gray-300 hover:text-white hover:bg-white/5' : 'text-gray-600 hover:text-gray-900 hover:bg-black/5'
-              }`}
-            >
-              <RefreshCw className="w-4 h-4 flex-shrink-0" />
-              <span>Database Sync Engine</span>
-            </button>
-
-            <button
-              onClick={() => switchTab('new_movies')}
-              className={`w-full flex items-center space-x-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold transition cursor-pointer ${
-                activeTab === 'new_movies'
-                  ? 'bg-red-600 text-white shadow-lg shadow-red-600/20'
-                  : darkMode ? 'text-gray-300 hover:text-white hover:bg-white/5' : 'text-gray-600 hover:text-gray-900 hover:bg-black/5'
-              }`}
-            >
-              <Sparkles className="w-4 h-4 flex-shrink-0 text-amber-400" />
-              <div className="flex items-center justify-between w-full">
-                <span>New Movies Live</span>
-                {newMoviesList.length > 0 ? (
-                  <span className="text-[10px] px-2 py-0.5 rounded-full font-bold bg-amber-500/20 text-amber-300 border border-amber-500/30 animate-pulse">
-                    {newMoviesList.length} New
-                  </span>
-                ) : (
-                  <span className={`text-[10px] px-2 py-0.5 rounded-full font-medium ${darkMode ? 'bg-white/5 text-gray-400' : 'bg-black/5 text-gray-500'}`}>
-                    Live
-                  </span>
-                )}
-              </div>
-            </button>
-
-            <button
-              onClick={() => switchTab('movies')}
-              className={`w-full flex items-center space-x-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold transition cursor-pointer ${
-                activeTab === 'movies'
-                  ? 'bg-red-600 text-white shadow-lg shadow-red-600/20'
-                  : darkMode ? 'text-gray-300 hover:text-white hover:bg-white/5' : 'text-gray-600 hover:text-gray-900 hover:bg-black/5'
-              }`}
-            >
-              <Film className="w-4 h-4 flex-shrink-0" />
-              <div className="flex items-center justify-between w-full">
-                <span>All Movies</span>
-                <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold ${darkMode ? 'bg-white/10 text-gray-300' : 'bg-black/5 text-gray-500'}`}>
-                  {totalMoviesCount || stats?.totalMovies || '8,000'}
-                </span>
-              </div>
-            </button>
-
-            <button
-              onClick={() => switchTab('categories')}
-              className={`w-full flex items-center space-x-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold transition cursor-pointer ${
-                activeTab === 'categories'
-                  ? 'bg-red-600 text-white shadow-lg shadow-red-600/20'
-                  : darkMode ? 'text-gray-300 hover:text-white hover:bg-white/5' : 'text-gray-600 hover:text-gray-900 hover:bg-black/5'
-              }`}
-            >
-              <Layers className="w-4 h-4 flex-shrink-0" />
-              <div className="flex items-center justify-between w-full">
-                <span>All Categories</span>
-                <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold ${darkMode ? 'bg-white/10 text-gray-300' : 'bg-black/5 text-gray-500'}`}>
-                  {categoriesList.length || stats?.totalCategories || '28'}
-                </span>
-              </div>
-            </button>
-
-            <a
-              href="/"
-              target="_blank"
-              className={`w-full flex items-center space-x-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold transition ${darkMode ? 'text-gray-300 hover:text-white hover:bg-white/5' : 'text-gray-600 hover:text-gray-900 hover:bg-black/5'}`}
-            >
-              <Globe className="w-4 h-4 flex-shrink-0" />
-              <div className="flex items-center justify-between w-full">
-                <span>Live Public Site</span>
-                <ExternalLink className="w-3 h-3 text-gray-500" />
-              </div>
-            </a>
-          </nav>
-
+          {/* Mobile Close Button */}
+          <button
+            onClick={() => setSidebarOpen(false)}
+            className={`lg:hidden p-1 rounded-lg ${darkMode ? 'text-gray-400 hover:text-white hover:bg-white/5' : 'text-gray-500 hover:text-gray-900 hover:bg-black/5'}`}
+          >
+            <X className="w-5 h-5" />
+          </button>
         </div>
 
-        {/* Sidebar Bottom: Admin Profile & Sign Out */}
-        <div className={`p-4 border-t ${darkMode ? 'border-white/10 bg-[#0A0F1B]' : 'border-[#E2E8F0] bg-[#F8FAFC]'}`}>
-          <div className="flex items-center justify-between">
-            <div className="min-w-0 pr-2">
+        {/* Scrollable Navigation Links */}
+        <nav className="flex-1 min-h-0 overflow-y-auto overscroll-contain p-3 space-y-1.5 custom-scrollbar">
+          <button
+            onClick={() => switchTab('overview')}
+            className={`w-full flex items-center space-x-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold transition cursor-pointer ${
+              activeTab === 'overview'
+                ? 'bg-red-600 text-white shadow-lg shadow-red-600/20'
+                : darkMode ? 'text-gray-300 hover:text-white hover:bg-white/5' : 'text-gray-600 hover:text-gray-900 hover:bg-black/5'
+            }`}
+          >
+            <LayoutDashboard className="w-4 h-4 flex-shrink-0" />
+            <span>Dashboard Overview</span>
+          </button>
+
+          <button
+            onClick={() => switchTab('sync')}
+            className={`w-full flex items-center space-x-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold transition cursor-pointer ${
+              activeTab === 'sync'
+                ? 'bg-red-600 text-white shadow-lg shadow-red-600/20'
+                : darkMode ? 'text-gray-300 hover:text-white hover:bg-white/5' : 'text-gray-600 hover:text-gray-900 hover:bg-black/5'
+            }`}
+          >
+            <RefreshCw className="w-4 h-4 flex-shrink-0" />
+            <span>Database Sync Engine</span>
+          </button>
+
+          <button
+            onClick={() => switchTab('new_movies')}
+            className={`w-full flex items-center space-x-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold transition cursor-pointer ${
+              activeTab === 'new_movies'
+                ? 'bg-red-600 text-white shadow-lg shadow-red-600/20'
+                : darkMode ? 'text-gray-300 hover:text-white hover:bg-white/5' : 'text-gray-600 hover:text-gray-900 hover:bg-black/5'
+            }`}
+          >
+            <Sparkles className="w-4 h-4 flex-shrink-0 text-amber-400" />
+            <div className="flex items-center justify-between w-full">
+              <span>New Movies Live</span>
+              {newMoviesList.length > 0 ? (
+                <span className="text-[10px] px-2 py-0.5 rounded-full font-bold bg-amber-500/20 text-amber-300 border border-amber-500/30 animate-pulse">
+                  {newMoviesList.length} New
+                </span>
+              ) : (
+                <span className={`text-[10px] px-2 py-0.5 rounded-full font-medium ${darkMode ? 'bg-white/5 text-gray-400' : 'bg-black/5 text-gray-500'}`}>
+                  Live
+                </span>
+              )}
+            </div>
+          </button>
+
+          <button
+            onClick={() => switchTab('movies')}
+            className={`w-full flex items-center space-x-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold transition cursor-pointer ${
+              activeTab === 'movies'
+                ? 'bg-red-600 text-white shadow-lg shadow-red-600/20'
+                : darkMode ? 'text-gray-300 hover:text-white hover:bg-white/5' : 'text-gray-600 hover:text-gray-900 hover:bg-black/5'
+            }`}
+          >
+            <Film className="w-4 h-4 flex-shrink-0" />
+            <div className="flex items-center justify-between w-full">
+              <span>All Movies</span>
+              <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold ${darkMode ? 'bg-white/10 text-gray-300' : 'bg-black/5 text-gray-500'}`}>
+                {totalMoviesCount || stats?.totalMovies || '8,000'}
+              </span>
+            </div>
+          </button>
+
+          <button
+            onClick={() => switchTab('categories')}
+            className={`w-full flex items-center space-x-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold transition cursor-pointer ${
+              activeTab === 'categories'
+                ? 'bg-red-600 text-white shadow-lg shadow-red-600/20'
+                : darkMode ? 'text-gray-300 hover:text-white hover:bg-white/5' : 'text-gray-600 hover:text-gray-900 hover:bg-black/5'
+            }`}
+          >
+            <Layers className="w-4 h-4 flex-shrink-0" />
+            <div className="flex items-center justify-between w-full">
+              <span>All Categories</span>
+              <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold ${darkMode ? 'bg-white/10 text-gray-300' : 'bg-black/5 text-gray-500'}`}>
+                {categoriesList.length || stats?.totalCategories || '28'}
+              </span>
+            </div>
+          </button>
+
+          <a
+            href="/"
+            target="_blank"
+            className={`w-full flex items-center space-x-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold transition ${darkMode ? 'text-gray-300 hover:text-white hover:bg-white/5' : 'text-gray-600 hover:text-gray-900 hover:bg-black/5'}`}
+          >
+            <Globe className="w-4 h-4 flex-shrink-0" />
+            <div className="flex items-center justify-between w-full">
+              <span>Live Public Site</span>
+              <ExternalLink className="w-3 h-3 text-gray-500" />
+            </div>
+          </a>
+        </nav>
+
+        {/* Sidebar Bottom: Admin Profile & Prominent Sign Out Button (Always Pinned) */}
+        <div className={`p-3.5 border-t flex-shrink-0 space-y-2.5 ${darkMode ? 'border-white/10 bg-[#0A0F1B]' : 'border-[#E2E8F0] bg-[#F8FAFC]'}`}>
+          <div className="flex items-center space-x-2.5 px-1">
+            <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-red-600 to-amber-500 flex items-center justify-center text-white text-xs font-bold shadow flex-shrink-0">
+              {(adminEmail[0] || 'A').toUpperCase()}
+            </div>
+            <div className="min-w-0 flex-1">
               <p className={`text-xs font-bold truncate ${darkMode ? 'text-white' : 'text-[#0F172A]'}`}>
                 {adminEmail.split('@')[0] || 'Admin'}
               </p>
               <p className={`text-[10px] truncate ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>{adminEmail}</p>
             </div>
-            <button
-              onClick={() => handleLogout()}
-              title="Sign Out"
-              className="p-2 text-red-400 hover:text-red-300 hover:bg-red-500/10 rounded-xl transition flex-shrink-0"
-            >
-              <LogOut className="w-4 h-4" />
-            </button>
           </div>
+
+          <button
+            onClick={() => handleLogout()}
+            className="w-full flex items-center justify-center space-x-2 px-3 py-2 rounded-xl text-xs font-bold text-red-400 hover:text-white bg-red-500/10 hover:bg-red-600 border border-red-500/20 hover:border-red-600 transition shadow-sm cursor-pointer"
+            title="Sign Out of Admin Dashboard"
+          >
+            <LogOut className="w-4 h-4" />
+            <span>Logout</span>
+          </button>
         </div>
       </aside>
 
@@ -1217,11 +1229,14 @@ export default function AdminPage() {
               <ExternalLink className="w-3.5 h-3.5" />
             </a>
 
+            {/* Header Logout Button */}
             <button
               onClick={() => handleLogout()}
-              className="sm:hidden p-2 text-red-400 hover:text-red-300 bg-red-500/10 rounded-xl border border-red-500/20"
+              title="Sign Out"
+              className="flex items-center space-x-1.5 px-3 py-1.5 text-xs font-bold text-red-400 hover:text-white bg-red-500/10 hover:bg-red-600 rounded-xl border border-red-500/20 transition cursor-pointer shadow-sm"
             >
-              <LogOut className="w-4 h-4" />
+              <LogOut className="w-3.5 h-3.5" />
+              <span className="hidden sm:inline">Logout</span>
             </button>
           </div>
         </header>
