@@ -76,7 +76,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       ),
     );
 
-    await AppUpdateService.checkAndShowUpdateDialog(context);
+    await AppUpdateService.checkAndShowUpdateDialog(context, forceCheck: true);
   }
 
   void _showThemeSelectionDialog() {

@@ -5,22 +5,22 @@ export const dynamic = 'force-dynamic';
 const PLAY_STORE_URL =
   'https://play.google.com/store/apps/details?id=com.movie.man&pcampaignid=web_share';
 
-// Default App Version Configuration (can be updated here or via environment variables)
+// Default App Version Configuration
 const APP_VERSION_CONFIG = {
   latestVersion: process.env.LATEST_APP_VERSION || '1.0.5',
   latestVersionCode: parseInt(process.env.LATEST_APP_VERSION_CODE || '6', 10),
-  minSupportedVersion: '1.0.0',
-  minSupportedVersionCode: 1,
-  forceUpdate: process.env.APP_FORCE_UPDATE === 'true', // true if older versions are blocked
-  title: 'New Update Available on Play Store! 🚀',
+  minSupportedVersion: '1.0.5',
+  minSupportedVersionCode: 6,
+  forceUpdate: true, // Compulsory update to view latest movies without issues
+  title: 'Important App Update Required! 🚀',
   message:
-    'A new and upgraded version of Movie Man is available on Google Play Store with lightning-fast streaming, 4K download links, and live movie updates.',
+    'Updating this app is compulsory so you can watch and download all the latest movies without any errors or interruptions.',
   playStoreUrl: PLAY_STORE_URL,
   whatsNew: [
-    '⚡ Ultra-fast movie streaming & 4K download links',
-    '🎬 Live New Movies discovery & 1-click sync',
-    '✨ Dark & Light mode polish with zero lag',
-    '🐞 Fixed video player playback & performance bugs',
+    '🎬 Mandatory update: Watch all latest movies without issues',
+    '⚡ Fixed movie playback errors and broken links',
+    '🚀 Faster loading speed & 4K download support',
+    '🛡️ Improved stability and smooth performance',
   ],
 };
 

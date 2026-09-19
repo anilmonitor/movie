@@ -16,14 +16,17 @@ class AppUpdateService {
   static bool _hasCheckedThisSession = false;
 
   /// Check if an app update is available from the API and show the dialog
-  static Future<void> checkAndShowUpdateDialog(BuildContext context) async {
-    if (_hasCheckedThisSession) return;
+  static Future<void> checkAndShowUpdateDialog(
+    BuildContext context, {
+    bool forceCheck = false,
+  }) async {
+    if (_hasCheckedThisSession && !forceCheck) return;
     _hasCheckedThisSession = true;
 
     try {
       final prefs = await SharedPreferences.getInstance();
 
-      // Check 24-hour dismissal timestamp
+      // Check 24-hour dismissal timestamp (ignored if forceCheck or compulsory)
       final lastDismissed = prefs.getInt('app_update_dismissed_at') ?? 0;
       const twentyFourHoursMs = 24 * 60 * 60 * 1000;
       final isDismissedRecently =
@@ -37,38 +40,58 @@ class AppUpdateService {
           .get(url, headers: ApiService.requestHeaders)
           .timeout(const Duration(seconds: 8));
 
-      if (response.statusCode != 200) return;
+      if (response.statusCode != 200) {
+        if (forceCheck && context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Unable to connect to update server.')),
+          );
+        }
+        return;
+      }
 
       final data = jsonDecode(response.body);
       final bool hasUpdate = data['hasUpdate'] == true;
-      final bool forceUpdate = data['forceUpdate'] == true;
+      // Default to true for compulsory update as requested
+      final bool forceUpdate = data['forceUpdate'] ?? true;
       final String latestVersion = data['latestVersion']?.toString() ?? '1.0.5';
-      final String title = data['title']?.toString() ?? 'New Update Available! 🚀';
+      final String title = data['title']?.toString() ?? 'Important App Update Required! 🚀';
       final String message = data['message']?.toString() ??
-          'A newer version of Movie Man is available on Google Play Store with latest movies and bug fixes.';
+          'Updating this app is compulsory so you can watch and download all the latest movies without any errors or interruptions.';
       final String playStoreUrl =
           data['playStoreUrl']?.toString() ?? defaultPlayStoreUrl;
       final List<String> whatsNew = (data['whatsNew'] as List<dynamic>?)
               ?.map((e) => e.toString())
               .toList() ??
           [
-            '⚡ Faster movie streaming & 4K download links',
-            '🎬 Live New Movies discovery system',
-            '🐞 Bug fixes and performance improvements',
+            '🎬 Watch all new & latest movies without issues',
+            '⚡ Fixed playback errors & broken download links',
+            '🚀 Faster loading speed with 4K download support',
+            '🛡️ Smooth performance and bug fixes',
           ];
 
-      if (!hasUpdate) return;
+      if (!hasUpdate) {
+        if (forceCheck && context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('You are already using the latest version of Movie Man!'),
+            ),
+          );
+        }
+        return;
+      }
 
-      // If dismissed recently and not a forced update, don't nag user
-      if (!forceUpdate && isDismissedRecently) return;
+      // If dismissed recently and not a forced update, don't nag unless user explicitly clicked
+      if (!forceCheck && !forceUpdate && isDismissedRecently) return;
 
       if (!context.mounted) return;
 
-      // Small delay to allow home screen UI to settle
-      await Future.delayed(const Duration(milliseconds: 1500));
-      if (!context.mounted) return;
+      // Small delay on initial launch to allow UI to settle
+      if (!forceCheck) {
+        await Future.delayed(const Duration(milliseconds: 1200));
+        if (!context.mounted) return;
+      }
 
-      // Show update dialog
+      // Show compulsory update dialog
       await showDialog(
         context: context,
         barrierDismissible: !forceUpdate,
@@ -106,14 +129,14 @@ class AppUpdateService {
                           child: Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              const Icon(Icons.stars_rounded, color: Color(0xFFE50914), size: 14),
+                              const Icon(Icons.warning_amber_rounded, color: Color(0xFFE50914), size: 14),
                               const SizedBox(width: 4),
                               Text(
-                                'v$latestVersion UPDATE',
+                                forceUpdate ? 'COMPULSORY UPDATE (v$latestVersion)' : 'v$latestVersion UPDATE',
                                 style: const TextStyle(
                                   color: Color(0xFFE50914),
-                                  fontSize: 11,
-                                  fontWeight: FontWeight.bold,
+                                  fontSize: 10.5,
+                                  fontWeight: FontWeight.w800,
                                   letterSpacing: 0.5,
                                 ),
                               ),
@@ -146,7 +169,7 @@ class AppUpdateService {
                     ),
                     const SizedBox(height: 16),
 
-                    // App Title & Description
+                    // App Title & Icon
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -194,7 +217,7 @@ class AppUpdateService {
                                 style: TextStyle(
                                   fontSize: 12,
                                   height: 1.4,
-                                  color: isDark ? Colors.white60 : Colors.black54,
+                                  color: isDark ? Colors.white70 : Colors.black54,
                                 ),
                               ),
                             ],
@@ -202,7 +225,37 @@ class AppUpdateService {
                         ),
                       ],
                     ),
-                    const SizedBox(height: 16),
+                    const SizedBox(height: 14),
+
+                    // Compulsory Notice Box in clean, normal English
+                    Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                      decoration: BoxDecoration(
+                        color: const Color(0x1AE50914),
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(color: const Color(0x4DE50914)),
+                      ),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Icon(Icons.info_outline_rounded, color: Color(0xFFE50914), size: 17),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: Text(
+                              'Updating is compulsory to watch and download all newly added movies without any issues.',
+                              style: TextStyle(
+                                fontSize: 11.5,
+                                fontWeight: FontWeight.w600,
+                                height: 1.35,
+                                color: isDark ? const Color(0xFFFF8A80) : const Color(0xFFD32F2F),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 14),
 
                     // What's New Box
                     Container(
@@ -222,7 +275,7 @@ class AppUpdateService {
                               const Icon(Icons.new_releases_rounded, size: 14, color: Color(0xFF10B981)),
                               const SizedBox(width: 6),
                               Text(
-                                "What's New in This Version:",
+                                "What's in This Update:",
                                 style: TextStyle(
                                   fontSize: 11,
                                   fontWeight: FontWeight.bold,
@@ -260,10 +313,10 @@ class AppUpdateService {
                     ),
                     const SizedBox(height: 20),
 
-                    // Action Buttons
+                    // Primary Compulsory Update Button
                     SizedBox(
                       width: double.infinity,
-                      height: 46,
+                      height: 48,
                       child: ElevatedButton(
                         onPressed: () async {
                           final uri = Uri.parse(playStoreUrl);
@@ -290,7 +343,7 @@ class AppUpdateService {
                         child: const Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            Icon(Icons.shop_rounded, size: 18),
+                            Icon(Icons.shop_rounded, size: 19),
                             SizedBox(width: 8),
                             Text(
                               'Update on Google Play',
