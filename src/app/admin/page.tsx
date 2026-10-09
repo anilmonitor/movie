@@ -36,6 +36,8 @@ import {
   Check,
 } from 'lucide-react';
 
+// .. 
+
 interface SyncStats {
   totalMovies: number;
   totalCategories: number;
