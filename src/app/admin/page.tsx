@@ -32,6 +32,8 @@ import {
   Mail,
   KeyRound,
   ArrowLeft,
+  Copy,
+  Check,
 } from 'lucide-react';
 
 interface SyncStats {
@@ -85,6 +87,12 @@ export default function AdminPage() {
   const [rawPostsInput, setRawPostsInput] = useState<string>('');
   const [showManualInput, setShowManualInput] = useState<boolean>(false);
   const [isFilteringManual, setIsFilteringManual] = useState<boolean>(false);
+
+  // Sync Engine direct helper & bookmarklet state
+  const [directSyncJson, setDirectSyncJson] = useState<string>('');
+  const [isDirectSyncing, setIsDirectSyncing] = useState<boolean>(false);
+  const [showDirectSyncBox, setShowDirectSyncBox] = useState<boolean>(false);
+  const [copiedBookmarklet, setCopiedBookmarklet] = useState<boolean>(false);
 
   type AdminTab = 'overview' | 'movies' | 'categories' | 'sync' | 'new_movies';
   const VALID_TABS: AdminTab[] = ['overview', 'movies', 'categories', 'sync', 'new_movies'];
@@ -386,8 +394,11 @@ export default function AdminPage() {
         setNewMoviesList(incoming);
         if (incoming.length > 0) {
           setNewMoviesStatus(`✨ Found ${incoming.length} new movie(s) ready to import.`);
+        } else if (data.needsClientFetch) {
+          setNewMoviesStatus('⚠️ Cloudflare Protection Active: Direct server scan was blocked by movies4u.kg. Use the JSON Import below to import new movies in seconds!');
+          setShowManualInput(true);
         } else {
-          setNewMoviesStatus('');
+          setNewMoviesStatus('All movies are up to date in the database.');
         }
       } else {
         setNewMoviesStatus('Failed to scan for new movies.');
@@ -553,11 +564,63 @@ export default function AdminPage() {
     }
   };
 
+  const handleDirectJsonSync = async () => {
+    if (!directSyncJson.trim()) return;
+    setIsDirectSyncing(true);
+    setSyncStatus('⏳ Parsing and saving movies into Hostinger MySQL...');
+    try {
+      let parsed: any[] = [];
+      try {
+        const data = JSON.parse(directSyncJson);
+        parsed = Array.isArray(data) ? data : [data];
+      } catch {
+        setSyncStatus('❌ Invalid JSON: Please paste a valid WordPress posts JSON array.');
+        setIsDirectSyncing(false);
+        return;
+      }
+
+      if (parsed.length === 0) {
+        setSyncStatus('❌ JSON array is empty. Please provide posts.');
+        setIsDirectSyncing(false);
+        return;
+      }
+
+      const syncRes = await fetch('/api/admin/sync', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-admin-email': adminEmail,
+          'x-admin-passcode': passcode,
+        },
+        body: JSON.stringify({ posts: parsed }),
+      });
+
+      const result = await syncRes.json();
+      if (syncRes.ok) {
+        setSyncStatus(
+          `🎉 Successfully synced ${result.totalProcessed || parsed.length} movies: ${result.added || 0} newly added, ${result.updated || 0} updated!`
+        );
+        setDirectSyncJson('');
+        setShowDirectSyncBox(false);
+        fetchStats();
+        fetchMovies(1, '');
+      } else {
+        setSyncStatus(`❌ Error syncing JSON: ${result.error || 'Failed'}`);
+      }
+    } catch (err: any) {
+      setSyncStatus(`❌ Error: ${err.message || 'Network error'}`);
+    } finally {
+      setIsDirectSyncing(false);
+    }
+  };
+
   const handleSync = async () => {
     setIsSyncing(true);
     let totalAddedAll = 0;
     let totalUpdatedAll = 0;
     let totalProcessedAll = 0;
+    let syncErrorOccurred = false;
+    let lastErrorMessage = '';
 
     try {
       const cleanSource = sourceApiUrl.trim().replace(/\/+$/, '');
@@ -603,6 +666,11 @@ export default function AdminPage() {
 
         const result = await syncRes.json();
         if (syncRes.ok) {
+          if (result.count === 0 && (!result.totalProcessed || result.totalProcessed === 0)) {
+            syncErrorOccurred = true;
+            lastErrorMessage = result.message || 'No posts returned from source (Cloudflare may be blocking server).';
+            break;
+          }
           totalAddedAll += result.added || 0;
           totalUpdatedAll += result.updated || 0;
           totalProcessedAll += result.totalProcessed || (posts.length || syncCount);
@@ -611,14 +679,19 @@ export default function AdminPage() {
           );
           fetchStats();
         } else {
-          setSyncStatus(`Error on Page ${page}: ${result.error || 'Failed to sync'}`);
+          syncErrorOccurred = true;
+          lastErrorMessage = result.error || 'Failed to sync with source.';
           break;
         }
       }
 
-      setSyncStatus(
-        `Sync Complete! Successfully processed ${totalProcessedAll} movies: ${totalAddedAll} newly added, ${totalUpdatedAll} updated.`
-      );
+      if (syncErrorOccurred) {
+        setSyncStatus(`❌ Sync Paused: ${lastErrorMessage}`);
+      } else {
+        setSyncStatus(
+          `Sync Complete! Successfully processed ${totalProcessedAll} movies: ${totalAddedAll} newly added, ${totalUpdatedAll} updated.`
+        );
+      }
       fetchStats();
       fetchMovies();
     } catch (err: any) {
@@ -1467,13 +1540,125 @@ export default function AdminPage() {
               </div>
 
               {syncStatus && (
-                <div className={`p-3 border rounded-xl flex items-center space-x-2 text-xs ${
-                  darkMode ? 'bg-[#172034] border-white/10 text-gray-200' : 'bg-green-50 border-green-200 text-green-900'
+                <div className={`p-3.5 border rounded-xl flex items-start space-x-2.5 text-xs ${
+                  syncStatus.includes('❌') || syncStatus.includes('⚠️') || syncStatus.includes('Error')
+                    ? darkMode
+                      ? 'bg-red-500/10 border-red-500/30 text-red-300'
+                      : 'bg-red-50 border-red-200 text-red-900'
+                    : darkMode
+                    ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-300'
+                    : 'bg-emerald-50 border-emerald-200 text-emerald-900'
                 }`}>
-                  <CheckCircle className="w-4 h-4 text-green-500 flex-shrink-0" />
-                  <span>{syncStatus}</span>
+                  {syncStatus.includes('❌') || syncStatus.includes('⚠️') || syncStatus.includes('Error') ? (
+                    <AlertCircle className="w-4 h-4 text-red-400 flex-shrink-0 mt-0.5" />
+                  ) : (
+                    <CheckCircle className="w-4 h-4 text-emerald-400 flex-shrink-0 mt-0.5" />
+                  )}
+                  <div className="flex-1 space-y-1">
+                    <div>{syncStatus}</div>
+                    {(syncStatus.includes('❌') || syncStatus.includes('⚠️')) && (
+                      <div className="pt-1 flex flex-wrap gap-2">
+                        <button
+                          onClick={() => switchTab('new_movies')}
+                          className="px-2.5 py-1 bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/40 rounded-lg text-[11px] font-bold transition flex items-center space-x-1 cursor-pointer"
+                        >
+                          <Sparkles className="w-3 h-3" />
+                          <span>Go to New Movies Live</span>
+                        </button>
+                        <a
+                          href="https://movies4u.kg/wp-json/wp/v2/posts?_embed=1&per_page=50&orderby=date&order=desc"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="px-2.5 py-1 bg-blue-500/20 hover:bg-blue-500/30 text-blue-300 border border-blue-500/40 rounded-lg text-[11px] font-bold transition flex items-center space-x-1"
+                        >
+                          <span>Open Source API</span>
+                          <ExternalLink className="w-3 h-3" />
+                        </a>
+                      </div>
+                    )}
+                  </div>
                 </div>
               )}
+
+              {/* Direct JSON Import & Cloudflare Bypass Card */}
+              <div className={`p-4 border rounded-xl space-y-3 ${
+                darkMode ? 'bg-[#141C30]/50 border-white/10' : 'bg-[#F8FAFC] border-[#E2E8F0]'
+              }`}>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-2">
+                    <Globe className="w-4 h-4 text-blue-400" />
+                    <span className={`text-xs font-bold ${darkMode ? 'text-white' : 'text-[#0F172A]'}`}>
+                      Bypass Cloudflare: Direct JSON Ingest
+                    </span>
+                  </div>
+                  <a
+                    href="https://movies4u.kg/wp-json/wp/v2/posts?_embed=1&per_page=50&orderby=date&order=desc"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-[11px] text-blue-400 hover:underline flex items-center space-x-1"
+                  >
+                    <span>1. Open Source API (50 Posts)</span>
+                    <ExternalLink className="w-3 h-3" />
+                  </a>
+                </div>
+
+                <textarea
+                  rows={2}
+                  value={directSyncJson}
+                  onChange={(e) => setDirectSyncJson(e.target.value)}
+                  placeholder="2. Paste JSON array here to sync directly into Hostinger MySQL..."
+                  className={`w-full border rounded-lg p-2.5 text-xs font-mono focus:outline-none focus:border-blue-500/50 transition ${
+                    darkMode ? 'bg-[#0B0F19] border-white/10 text-gray-200 placeholder-gray-500' : 'bg-white border-blue-200 text-[#0F172A] placeholder-gray-400'
+                  }`}
+                />
+
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <button
+                    type="button"
+                    onClick={async () => {
+                      try {
+                        const text = await navigator.clipboard.readText();
+                        if (text && text.trim()) setDirectSyncJson(text.trim());
+                      } catch (_) {
+                        alert('Please press Ctrl+V inside the box.');
+                      }
+                    }}
+                    className={`px-2.5 py-1.5 rounded-lg text-xs cursor-pointer flex items-center space-x-1 ${
+                      darkMode ? 'bg-blue-600/20 text-blue-400 hover:bg-blue-600/30' : 'bg-blue-100 text-blue-700 hover:bg-blue-200'
+                    }`}
+                  >
+                    <Copy className="w-3 h-3" />
+                    <span>Paste Clipboard</span>
+                  </button>
+
+                  <div className="flex items-center space-x-2">
+                    {directSyncJson.trim() && (
+                      <button
+                        type="button"
+                        onClick={() => setDirectSyncJson('')}
+                        className={`px-2.5 py-1.5 rounded-lg text-xs cursor-pointer ${
+                          darkMode ? 'bg-white/5 hover:bg-white/10 text-gray-300' : 'bg-slate-200 hover:bg-slate-300 text-slate-700'
+                        }`}
+                      >
+                        Clear
+                      </button>
+                    )}
+                    <button
+                      type="button"
+                      onClick={handleDirectJsonSync}
+                      disabled={!directSyncJson.trim() || isDirectSyncing}
+                      className="px-4 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg text-xs font-bold transition flex items-center space-x-1.5 disabled:opacity-50 cursor-pointer shadow-md shadow-emerald-600/20"
+                    >
+                      {isDirectSyncing ? (
+                        <RefreshCw className="w-3 h-3 animate-spin" />
+                      ) : (
+                        <Download className="w-3 h-3" />
+                      )}
+                      <span>3. Ingest &amp; Save to DB</span>
+                    </button>
+                  </div>
+                </div>
+              </div>
             </div>
           )}
 
@@ -1607,6 +1792,25 @@ export default function AdminPage() {
                   <div className="flex items-center justify-end space-x-2">
                     <button
                       type="button"
+                      onClick={async () => {
+                        try {
+                          const text = await navigator.clipboard.readText();
+                          if (text && text.trim()) {
+                            setRawPostsInput(text.trim());
+                          }
+                        } catch (_) {
+                          alert('Please press Ctrl+V inside the box to paste.');
+                        }
+                      }}
+                      className={`px-2.5 py-1.5 rounded-lg text-xs cursor-pointer flex items-center space-x-1 ${
+                        darkMode ? 'bg-blue-600/20 text-blue-400 hover:bg-blue-600/30' : 'bg-blue-100 text-blue-700 hover:bg-blue-200'
+                      }`}
+                    >
+                      <Copy className="w-3 h-3" />
+                      <span>Paste from Clipboard</span>
+                    </button>
+                    <button
+                      type="button"
                       onClick={() => setRawPostsInput('')}
                       className={`px-2.5 py-1.5 rounded-lg text-xs cursor-pointer ${
                         darkMode ? 'bg-white/5 hover:bg-white/10 text-gray-300' : 'bg-slate-200 hover:bg-slate-300 text-slate-700'
@@ -1653,26 +1857,61 @@ export default function AdminPage() {
                   <p className={`text-xs font-semibold ${darkMode ? 'text-white' : 'text-[#0F172A]'}`}>Comparing source with database...</p>
                 </div>
               ) : newMoviesList.length === 0 ? (
-                /* Simple, Clean Empty State */
-                <div className={`py-12 sm:py-16 text-center border rounded-2xl p-6 ${
+                /* Informative Empty State with Quick Import Guide */
+                <div className={`py-10 sm:py-12 text-center border rounded-2xl p-6 ${
                   darkMode ? 'bg-[#111726] border-white/5' : 'bg-[#F8FAFC] border-[#E2E8F0]'
                 }`}>
-                  <div className="w-12 h-12 bg-emerald-500/15 border border-emerald-500/25 rounded-xl flex items-center justify-center text-emerald-500 mx-auto mb-3">
-                    <CheckCircle className="w-6 h-6" />
+                  <div className="w-12 h-12 bg-amber-500/15 border border-amber-500/25 rounded-xl flex items-center justify-center text-amber-500 mx-auto mb-3">
+                    <Sparkles className="w-6 h-6" />
                   </div>
-                  <h4 className={`text-sm sm:text-base font-bold ${darkMode ? 'text-white' : 'text-[#0F172A]'}`}>All Caught Up</h4>
-                  <p className={`text-xs max-w-sm mx-auto mt-1 leading-relaxed ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
-                    No pending movies. Every movie from source is already in your database.
+                  <h4 className={`text-sm sm:text-base font-bold ${darkMode ? 'text-white' : 'text-[#0F172A]'}`}>
+                    Ready to Import New Movies
+                  </h4>
+                  <p className={`text-xs max-w-md mx-auto mt-1.5 leading-relaxed ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>
+                    movies4u.kg par Cloudflare Bot Protection active hai, isliye upar <strong>Paste Posts JSON</strong> box me posts paste karein aur <strong>Compare & Find</strong> dabayein.
                   </p>
-                  <button
-                    onClick={fetchNewMovies}
-                    className={`mt-4 inline-flex items-center space-x-1.5 px-3.5 py-1.5 border rounded-lg text-xs font-semibold transition cursor-pointer ${
-                      darkMode ? 'bg-white/5 hover:bg-white/10 border-white/10 text-gray-200' : 'bg-white hover:bg-slate-100 border-[#CBD5E1] text-[#0F172A] shadow-sm'
-                    }`}
-                  >
-                    <RefreshCw className="w-3 h-3 text-gray-400" />
-                    <span>Scan Again</span>
-                  </button>
+
+                  <div className="mt-5 max-w-md mx-auto grid grid-cols-1 sm:grid-cols-3 gap-2.5 text-left">
+                    <div className={`p-3 rounded-xl border text-xs ${darkMode ? 'bg-[#172034]/60 border-white/10 text-gray-300' : 'bg-white border-[#E2E8F0] text-gray-700'}`}>
+                      <div className="font-bold text-amber-500 mb-1">Step 1</div>
+                      <a
+                        href="https://movies4u.kg/wp-json/wp/v2/posts?_embed=1&per_page=40&orderby=date&order=desc"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-blue-400 hover:underline flex items-center space-x-1"
+                      >
+                        <span>Open API Tab</span>
+                        <ExternalLink className="w-3 h-3" />
+                      </a>
+                    </div>
+                    <div className={`p-3 rounded-xl border text-xs ${darkMode ? 'bg-[#172034]/60 border-white/10 text-gray-300' : 'bg-white border-[#E2E8F0] text-gray-700'}`}>
+                      <div className="font-bold text-amber-500 mb-1">Step 2</div>
+                      <span>Ctrl+A &amp; Ctrl+C (Copy all)</span>
+                    </div>
+                    <div className={`p-3 rounded-xl border text-xs ${darkMode ? 'bg-[#172034]/60 border-white/10 text-gray-300' : 'bg-white border-[#E2E8F0] text-gray-700'}`}>
+                      <div className="font-bold text-amber-500 mb-1">Step 3</div>
+                      <span>Paste &amp; Compare &amp; Find</span>
+                    </div>
+                  </div>
+
+                  <div className="mt-5 flex flex-wrap items-center justify-center gap-2">
+                    <button
+                      onClick={() => setShowManualInput(true)}
+                      className="inline-flex items-center space-x-1.5 px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-xs font-bold transition shadow-md shadow-blue-600/20 cursor-pointer"
+                    >
+                      <Globe className="w-3.5 h-3.5" />
+                      <span>Open JSON Paste Box</span>
+                    </button>
+                    <button
+                      onClick={fetchNewMovies}
+                      className={`inline-flex items-center space-x-1.5 px-3.5 py-2 border rounded-xl text-xs font-semibold transition cursor-pointer ${
+                        darkMode ? 'bg-white/5 hover:bg-white/10 border-white/10 text-gray-200' : 'bg-white hover:bg-slate-100 border-[#CBD5E1] text-[#0F172A] shadow-sm'
+                      }`}
+                    >
+                      <RefreshCw className="w-3 h-3 text-gray-400" />
+                      <span>Re-Scan Server</span>
+                    </button>
+                  </div>
                 </div>
               ) : (
                 /* Responsive Movie Cards Grid */

@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { parseMovieFromWpPost } from '@/lib/api';
 import { isAdminEmail, verifyAdminPasscode } from '@/lib/auth';
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 
 export const dynamic = 'force-dynamic';
 
@@ -24,9 +26,16 @@ export async function POST(request: NextRequest) {
     const adminEmail = request.headers.get('x-admin-email') || '';
     const passcode = request.headers.get('x-admin-passcode') || '';
 
-    // Verify admin access
+    // Verify admin access (headers or session)
+    let sessionEmail: string | undefined;
+    try {
+      const session = await getServerSession(authOptions);
+      sessionEmail = session?.user?.email || undefined;
+    } catch (_) {}
+
     const isAuthorized =
       isAdminEmail(adminEmail) ||
+      isAdminEmail(sessionEmail) ||
       verifyAdminPasscode(passcode) ||
       authHeader.includes('movieman@admin2024');
 
@@ -48,26 +57,47 @@ export async function POST(request: NextRequest) {
       // Server fetch from WordPress
       const page = body.page || 1;
       const perPage = Math.min(body.perPage || 20, 100);
-      const res = await fetch(`${sourceApi}/posts?_embed=1&page=${page}&per_page=${perPage}`, {
-        headers: {
-          'User-Agent':
-            'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36',
-          Accept: 'application/json, text/plain, */*',
-          Referer: sourceApi,
-        },
-      });
+      let res: Response;
+      try {
+        res = await fetch(`${sourceApi}/posts?_embed=1&page=${page}&per_page=${perPage}`, {
+          headers: {
+            'User-Agent':
+              'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36',
+            Accept: 'application/json, text/plain, */*',
+            Referer: sourceApi,
+          },
+          signal: AbortSignal.timeout(15000),
+        });
+      } catch (fetchErr: any) {
+        return NextResponse.json(
+          { error: `Network error connecting to source: ${fetchErr?.message || 'Timeout'}. Use Browser Helper or JSON Import.` },
+          { status: 502, headers: corsHeaders }
+        );
+      }
 
       if (!res.ok) {
         return NextResponse.json(
-          { error: `Failed to fetch from source: HTTP ${res.status}. Use Client-Assisted Sync from Admin panel.` },
-          { status: 502 }
+          { error: `movies4u.kg returned HTTP ${res.status} (Cloudflare Bot Protection active). Use Browser Helper or JSON Import to sync.` },
+          { status: 502, headers: corsHeaders }
         );
       }
-      posts = await res.json();
+
+      const rawText = await res.text();
+      try {
+        posts = JSON.parse(rawText);
+      } catch {
+        return NextResponse.json(
+          { error: `movies4u.kg returned Cloudflare HTML verification ("Just a moment..."). Server cannot bypass Cloudflare. Use Browser Helper or JSON Import.` },
+          { status: 502, headers: corsHeaders }
+        );
+      }
     }
 
     if (!Array.isArray(posts) || posts.length === 0) {
-      return NextResponse.json({ message: 'No posts to sync', count: 0, added: 0, updated: 0 });
+      return NextResponse.json(
+        { message: 'No posts to sync', count: 0, added: 0, updated: 0, totalProcessed: 0 },
+        { headers: corsHeaders }
+      );
     }
 
     let added = 0;
