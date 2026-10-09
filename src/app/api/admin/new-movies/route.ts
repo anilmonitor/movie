@@ -9,11 +9,11 @@ const BROWSER_HEADERS = {
     'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36',
   Accept: 'application/json, text/plain, */*',
   'Accept-Language': 'en-US,en;q=0.9,hi;q=0.8',
-  Referer: 'https://movies4u.kg/',
-  Origin: 'https://movies4u.kg',
+  Referer: 'https://movies4u.uy/',
+  Origin: 'https://movies4u.uy',
 };
 
-// GET: Discover new movies from movies4u.kg that do not exist in our MySQL DB
+// GET: Discover new movies from movies4u.uy that do not exist in our MySQL DB
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
@@ -23,7 +23,7 @@ export async function GET(request: NextRequest) {
     const sourceApi =
       process.env.SOURCE_WP_API ||
       process.env.NEXT_PUBLIC_WP_API_BASE ||
-      'https://movies4u.kg/wp-json/wp/v2';
+      'https://movies4u.uy/wp-json/wp/v2';
 
     // 1. Fetch latest posts from movies4u.kg
     let posts: any[] = [];

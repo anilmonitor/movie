@@ -48,7 +48,7 @@ export async function POST(request: NextRequest) {
 
     const body = await request.json();
     let posts: any[] = [];
-    const sourceApi = body.sourceUrl || process.env.NEXT_PUBLIC_WP_API_BASE || 'https://movies4u.kg/wp-json/wp/v2';
+    const sourceApi = body.sourceUrl || process.env.SOURCE_WP_API || process.env.NEXT_PUBLIC_WP_API_BASE || 'https://movies4u.uy/wp-json/wp/v2';
 
     if (Array.isArray(body.posts) && body.posts.length > 0) {
       // Direct post payload from client-assisted sync

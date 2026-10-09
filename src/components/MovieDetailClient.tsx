@@ -34,7 +34,7 @@ interface MovieDetailClientProps {
 function getPosterUrl(url?: string): string {
   if (!url) return '/poster-placeholder.svg';
   if (url.startsWith('data:image')) return url;
-  if (url.includes('movies4u.kg/wp-content/uploads')) {
+  if (url.includes('movies4u.kg/wp-content/uploads') || url.includes('movies4u.uy/wp-content/uploads')) {
     return `/api/image-proxy?url=${encodeURIComponent(url)}`;
   }
   return url;

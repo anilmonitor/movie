@@ -67,7 +67,7 @@ export default function AdminPage() {
   const [syncCount, setSyncCount] = useState<number>(50);
   const [pagesToSync, setPagesToSync] = useState<number>(1);
   const [sourceApiUrl, setSourceApiUrl] = useState<string>(
-    process.env.NEXT_PUBLIC_WP_API_BASE || 'https://movies4u.kg/wp-json/wp/v2'
+    process.env.NEXT_PUBLIC_WP_API_BASE || 'https://movies4u.uy/wp-json/wp/v2'
   );
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [moviesList, setMoviesList] = useState<any[]>([]);
@@ -1537,7 +1537,7 @@ export default function AdminPage() {
                   className={`w-full border rounded-lg px-2.5 py-1.5 text-[11px] focus:outline-none focus:border-red-500/50 transition ${
                     darkMode ? 'bg-[#172034]/60 border-white/5 text-gray-400 focus:text-white' : 'bg-[#F8FAFC] border-[#CBD5E1] text-[#0F172A]'
                   }`}
-                  placeholder="https://movies4u.kg/wp-json/wp/v2"
+                  placeholder="https://movies4u.uy/wp-json/wp/v2"
                 />
               </div>
 
@@ -1568,7 +1568,7 @@ export default function AdminPage() {
                           <span>Go to New Movies Live</span>
                         </button>
                         <a
-                          href="https://movies4u.kg/wp-json/wp/v2/posts?_embed=1&per_page=50&orderby=date&order=desc"
+                          href="https://movies4u.uy/wp-json/wp/v2/posts?_embed=1&per_page=50&orderby=date&order=desc"
                           target="_blank"
                           rel="noopener noreferrer"
                           className="px-2.5 py-1 bg-blue-500/20 hover:bg-blue-500/30 text-blue-300 border border-blue-500/40 rounded-lg text-[11px] font-bold transition flex items-center space-x-1"
@@ -1594,7 +1594,7 @@ export default function AdminPage() {
                     </span>
                   </div>
                   <a
-                    href="https://movies4u.kg/wp-json/wp/v2/posts?_embed=1&per_page=50&orderby=date&order=desc"
+                    href="https://movies4u.uy/wp-json/wp/v2/posts?_embed=1&per_page=50&orderby=date&order=desc"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="text-[11px] text-blue-400 hover:underline flex items-center space-x-1"
@@ -1789,7 +1789,7 @@ export default function AdminPage() {
                       <span>Paste Posts JSON</span>
                     </h4>
                     <a
-                      href="https://movies4u.kg/wp-json/wp/v2/posts?_embed=1&per_page=40&orderby=date&order=desc"
+                      href="https://movies4u.uy/wp-json/wp/v2/posts?_embed=1&per_page=40&orderby=date&order=desc"
                       target="_blank"
                       rel="noopener noreferrer"
                       className="text-[11px] text-blue-500 hover:text-blue-600 underline flex items-center space-x-1"
@@ -1886,14 +1886,14 @@ export default function AdminPage() {
                     Ready to Import New Movies
                   </h4>
                   <p className={`text-xs max-w-md mx-auto mt-1.5 leading-relaxed ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>
-                    movies4u.kg par Cloudflare Bot Protection active hai, isliye upar <strong>Paste Posts JSON</strong> box me posts paste karein aur <strong>Compare & Find</strong> dabayein.
+                    movies4u.uy se latest movies import karne ke liye niche buttons use karein ya JSON paste karein.
                   </p>
 
                   <div className="mt-5 max-w-md mx-auto grid grid-cols-1 sm:grid-cols-3 gap-2.5 text-left">
                     <div className={`p-3 rounded-xl border text-xs ${darkMode ? 'bg-[#172034]/60 border-white/10 text-gray-300' : 'bg-white border-[#E2E8F0] text-gray-700'}`}>
                       <div className="font-bold text-amber-500 mb-1">Step 1</div>
                       <a
-                        href="https://movies4u.kg/wp-json/wp/v2/posts?_embed=1&per_page=40&orderby=date&order=desc"
+                        href="https://movies4u.uy/wp-json/wp/v2/posts?_embed=1&per_page=40&orderby=date&order=desc"
                         target="_blank"
                         rel="noopener noreferrer"
                         className="text-blue-400 hover:underline flex items-center space-x-1"

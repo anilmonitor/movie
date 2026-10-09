@@ -146,7 +146,7 @@ export default function SearchBar() {
               >
                 <div className="relative w-10 h-14 rounded-md overflow-hidden bg-slate-200 dark:bg-gray-800 shrink-0">
                   <Image
-                    src={movie.poster?.includes('movies4u.kg') ? `/api/image-proxy?url=${encodeURIComponent(movie.poster)}` : (movie.poster || '/poster-placeholder.svg')}
+                    src={(movie.poster?.includes('movies4u.kg') || movie.poster?.includes('movies4u.uy')) ? `/api/image-proxy?url=${encodeURIComponent(movie.poster)}` : (movie.poster || '/poster-placeholder.svg')}
                     alt={movie.title}
                     fill
                     sizes="40px"
